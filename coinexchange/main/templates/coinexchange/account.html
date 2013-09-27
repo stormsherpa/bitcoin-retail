@@ -1,0 +1,11 @@
+{% extends "coinexchange/base.html" %}
+
+{% block 'title' %}
+CoinExchange Account
+{% endblock %}
+
+{% block 'content' %}
+<h2>Account Home</h2>
+		User: {{user}}, Authenticated: {{user.is_authenticated}}
+
+{% endblock %}

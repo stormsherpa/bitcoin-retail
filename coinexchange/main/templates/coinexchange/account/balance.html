@@ -1,0 +1,33 @@
+{% extends "coinexchange/base.html" %}
+
+{% block 'title' %}
+{{user.username}} account balance
+{% endblock %}
+
+{% block 'content' %}
+<h2>Transactions</h2>
+
+<div class="row">
+	<div class="span10">
+		<table class="table">
+			<tr>
+				<th>Type</th>
+				<th>Amount</th>
+				<th>Timestamp</th>
+				<th>Transaction ID</th>
+			</tr>
+	{% for tx in coin_txn %}
+			<tr>
+				<td>{{tx.tx_type}}</td>
+				<td>{{tx.tx_amount}}</td>
+				<td>{{tx.tx_timestamp}}</td>
+				<td>{{tx.tx_id}}</td>
+			</tr>
+	{% endfor %}
+		</table>
+		
+	</div>
+	
+</div>
+
+{% endblock %}
