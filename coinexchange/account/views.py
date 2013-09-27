@@ -4,10 +4,12 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 
 from coinexchange.main.forms import SignupForm
 from coinexchange.btc.models import CoinTxnLog
 
+@login_required
 def home(request):
     t = loader.get_template("coinexchange/account.html")
     c = RequestContext(request, dict())
@@ -33,11 +35,13 @@ def signup(request):
     c = RequestContext(request, {'form': signup_form})
     return HttpResponse(t.render(c))
 
+@login_required
 def settings(request):
     t = loader.get_template("coinexchange/account/edit.html")
     c = RequestContext(request, {})
     return HttpResponse(t.render(c))
 
+@login_required
 def balance(request):
     profile = request.user.get_profile()
     coin_txn = profile.coin_txn.order_by('tx_timestamp')

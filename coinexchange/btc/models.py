@@ -55,6 +55,14 @@ class CoinTxnLog(models.Model):
     def __unicode__(self):
         return self.tx_id
 
+    def otheraccount_name(self):
+        if self.tx_type == "receive":
+            return "(external)"
+        elif self.tx_otheraccount == "":
+            return "(root)"
+        else:
+            return self.tx_otheraccount
+
 class CoinTxnLogAdmin(admin.ModelAdmin):
     list_display = ('user', 'otheruser', 'tx_id')
     actions = None
