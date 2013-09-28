@@ -1,4 +1,7 @@
 
+import datetime
+import pika
+
 from django.http import HttpResponse, Http404
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
@@ -8,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 
 from coinexchange.main.forms import SignupForm
 from coinexchange.btc.models import CoinTxnLog
+from coinexchange.btc.queue.bitcoind_client import BitcoindClient
+from coinexchange.btc import clientlib
 
 @login_required
 def home(request):
@@ -44,7 +49,11 @@ def settings(request):
 @login_required
 def balance(request):
     profile = request.user.get_profile()
+    balance = clientlib.get_user_balance(profile)
+    address = clientlib.get_user_address(profile)
     coin_txn = profile.coin_txn.order_by('tx_timestamp')
     t = loader.get_template("coinexchange/account/balance.html")
-    c = RequestContext(request, {'coin_txn': coin_txn})
+    c = RequestContext(request, {'coin_txn': coin_txn,
+                                 'balance': balance,
+                                 'address': address})
     return HttpResponse(t.render(c))

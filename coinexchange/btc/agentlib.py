@@ -15,12 +15,16 @@ def store_btc_tx(tx):
 
         try:
             db_tx = CoinTxnLog.objects.get(tx_id = tx.txid)
-            print "Found: %s" % tx
+#             print "Found: %s" % tx
             return None
         except CoinTxnLog.DoesNotExist:
             pass
         if tx.confirmations < 20:
             print "New transaction found, but has insufficient confirmations."
+            print "---> txid=%s to %s has %s confirmations needs %s" % (tx.txid,
+                                                                        tx.account,
+                                                                        tx.confirmations,
+                                                                        20)
             return None
 
         print "Creating log entry for %s" % tx.txid
@@ -48,7 +52,7 @@ def store_btc_tx(tx):
                                            tx_account=tx.account,
                                            tx_otheraccount=tx.otheraccount,
                                            tx_amount=tx.amount)
-            print "Found: %s" % tx
+#             print "Found: %s" % tx
             return None
         except CoinTxnLog.DoesNotExist:
             pass
