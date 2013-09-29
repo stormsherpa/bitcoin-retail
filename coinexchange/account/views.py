@@ -1,24 +1,20 @@
 
 import datetime
 import pika
+import decimal
 
 from django.http import HttpResponse, Http404
-from django.template import RequestContext, loader
+from django.template import loader
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 
-from coinexchange.main.forms import SignupForm
-from coinexchange.btc.models import CoinTxnLog
+from coinexchange.main.forms import SignupForm, WithdrawlRequestForm
+from coinexchange.main.lib import CoinExchangeContext, StatusMessages
+from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
-
-@login_required
-def home(request):
-    t = loader.get_template("coinexchange/account.html")
-    c = RequestContext(request, dict())
-    return HttpResponse(t.render(c))
 
 def signup(request):
     signup_form = SignupForm()
@@ -37,13 +33,21 @@ def signup(request):
         else:
             pass
     t = loader.get_template("coinexchange/signup.html")
-    c = RequestContext(request, {'form': signup_form})
+    c = CoinExchangeContext(request, {'form': signup_form})
+    return HttpResponse(t.render(c))
+
+@login_required
+def home(request):
+    profile = request.user.get_profile()
+    coin_txn = profile.coin_txn.order_by('tx_timestamp')
+    t = loader.get_template("coinexchange/account/balance.html")
+    c = CoinExchangeContext(request, {'coin_txn': coin_txn})
     return HttpResponse(t.render(c))
 
 @login_required
 def settings(request):
     t = loader.get_template("coinexchange/account/edit.html")
-    c = RequestContext(request, {})
+    c = CoinExchangeContext(request, {})
     return HttpResponse(t.render(c))
 
 @login_required
@@ -53,7 +57,27 @@ def balance(request):
     address = clientlib.get_user_address(profile)
     coin_txn = profile.coin_txn.order_by('tx_timestamp')
     t = loader.get_template("coinexchange/account/balance.html")
-    c = RequestContext(request, {'coin_txn': coin_txn,
-                                 'balance': balance,
-                                 'address': address})
+    c = CoinExchangeContext(request, {'coin_txn': coin_txn,
+                                      'balance': balance,
+                                      'address': address})
+    return HttpResponse(t.render(c))
+
+@login_required
+def withdraw(request):
+    profile = request.user.get_profile()
+    withdrawl_form = WithdrawlRequestForm()
+    if request.method=="POST":
+        balance = clientlib.get_user_balance(profile)
+        withdrawl_form = WithdrawlRequestForm(request.POST)
+        amount = decimal.Decimal(request.POST['amount'])
+        if withdrawl_form.is_valid() and amount <= balance:
+            StatusMessages.add_success(request, "Amount <= balance")
+            withdrawl = withdrawl_form.save(commit=False)
+            withdrawl.user = profile
+            withdrawl.status = "not requested"
+            withdrawl.save()
+        else:
+            pass
+    t = loader.get_template("coinexchange/account/withdraw.html")
+    c = CoinExchangeContext(request, {'form': withdrawl_form})
     return HttpResponse(t.render(c))

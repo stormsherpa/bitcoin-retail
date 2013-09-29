@@ -32,6 +32,7 @@ class BitcoindClient():
         self.response_body = None
         self.rpc_timeout = None
         self.rpc_timeout_interval = BITCOIN_QUEUE.get('rpc_timeout', 5)
+        self.last_healthcheck = int(time.time())
         
         _client_instances.append(self)
 
@@ -44,6 +45,11 @@ class BitcoindClient():
         return cls()
 
     def _healthcheck(self):
+        now = int(time.time())
+        if now < (self.last_healthcheck+30):
+            print "skipping health check"
+            return True
+        self.last_healthcheck = now
         try:
             self.correlation_id = str(uuid.uuid4())
             props = pika.BasicProperties(correlation_id = self.correlation_id)

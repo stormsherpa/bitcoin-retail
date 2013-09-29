@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^account$', 'coinexchange.account.views.home', name='account_home'),
     url(r'^account/balance$', 'coinexchange.account.views.balance', name='account_balance'),
     url(r'^account/settings$', 'coinexchange.account.views.settings', name='account_settings'),
+    url(r'^account/withdraw$', 'coinexchange.account.views.withdraw', name='account_withdrawl'),
     # Uncomment the next line to enable the admin:
     url(r'^djangoadmin/', include(admin.site.urls)),
 )

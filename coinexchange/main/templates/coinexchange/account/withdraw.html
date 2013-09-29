@@ -1,0 +1,22 @@
+{% extends "coinexchange/account/base.html" %}
+
+{% block 'title' %}
+Withdraw Bitcoin - {{user.username}}
+{% endblock %}
+
+{% block 'accountcontent' %}
+<div class="row">
+	<div class="span4 offset2">
+		<h2>Withdraw Bitcoin</h2>
+		
+		<form method="post" action="{% url account_withdrawl %}">
+			{% csrf_token %}
+			{{form.as_p}}
+			<input type="submit" value="Withdraw Bitcoin"/>
+		</form>
+		
+	</div>
+</div>
+
+
+{% endblock %}

@@ -27,7 +27,9 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li><a href="{% url account_home %}">Your Account</a></li>
-								<li><a href="{% url account_balance %}">Transactions</a></li>
+								{% if user.is_superuser %}
+								<li><a href="/djangoadmin">Django Admin Portal</a></li>
+								{% endif %}
 								<li><a href="{% url account_settings %}">Settings</a></li>
 								<li><a href="{% url auth_logout %}?next=/">Logout</a></li>
 								
@@ -45,6 +47,28 @@
 		</div>
 	</div>
 	<div class="container" style="margin-top:50px;">
+		{% if status_messages.all_messages %}
+		<div class="row">
+			<div class="span12">
+				<p>Messages Present</p>
+		{% if status_messages.list_errors %}
+				{% for e in status_messages.consume_errors %}
+				<p>Error: {{e}}</p>
+				{% endfor %}
+		{% endif %}
+		{% if status_messages.list_warnings %}
+				{% for e in status_messages.consume_warnings %}
+				<p>Warning: {{e}}</p>
+				{% endfor %}
+		{% endif %}
+		{% if status_messages.list_success %}
+				{% for e in status_messages.consume_success %}
+				<p>Success: {{e}}</p>
+				{% endfor %}
+		{% endif %}
+			</div>
+		</div>
+		{% endif %}
 		{% block 'content' %}		
 		{% endblock %}
 		

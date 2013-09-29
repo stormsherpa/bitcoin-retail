@@ -34,7 +34,6 @@ class CoinExchangeUserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, CoinExchangeUserAdmin)
 
-
 class CoinExchangeUserAdmin(admin.ModelAdmin):
     list_display = ('user', 'btc_account')
 
@@ -83,12 +82,11 @@ class CoinTxnLogAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-# class CoinTxnStatusLog(models.Model):
-#     transaction = models.ForeignKey(CoinTxnLog, related_name='tx_status')
-#     status_timestamp = models.DateTimeField(auto_now_add=True)
-#     tx_status = models.CharField(max_length=20)
-    
-# admin.site.register(CoinExchangeUser, CoinExchangeUserAdmin)
-
 admin.site.register(CoinTxnLog, CoinTxnLogAdmin)
 
+class WithdrawlRequest(models.Model):
+    user = models.ForeignKey(CoinExchangeUser, blank=True, related_name='withdrawl_requests')
+    amount = models.DecimalField(max_digits=20, decimal_places=8)
+    to_address = models.CharField(max_length=200)
+    request_timestamp = models.DateTimeField(blank=True, auto_now_add=True)
+    status = models.CharField(max_length=20)
