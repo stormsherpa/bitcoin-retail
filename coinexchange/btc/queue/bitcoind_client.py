@@ -37,11 +37,29 @@ class BitcoindClient():
 
     @classmethod
     def get_instance(cls):
+        _client_instances[:] = [x for x in _client_instances if x._healthcheck()]
         if _client_instances:
             for ci in _client_instances:
-                # Eventually check health status
                 return ci
         return cls()
+
+    def _healthcheck(self):
+        try:
+            self.correlation_id = str(uuid.uuid4())
+            props = pika.BasicProperties(correlation_id = self.correlation_id)
+            self.channel.basic_publish(exchange='',
+                                       routing_key=self.callback_queue,
+                                       properties = props,
+                                       body='test')
+            self.rpc_timeout = int(time.time()) + 1
+            resp = self._response_wait()
+            if resp=='test':
+                print "%s pass healthcheck" % self
+                return True
+        except Exception as e:
+            print e
+        print "%s failing healthcheck." % self
+        return False
 
     def _prep_command(self, cmd_name, *args, **kwargs):
         self.command = cmd_name
@@ -61,7 +79,7 @@ class BitcoindClient():
         self.rpc_timeout = int(time.time()) + self.rpc_timeout_interval
 
     def _receive_response(self, ch, method, props, body):
-        print "Got response:\n===%s\n===" % body
+#         print "Got response:\n===%s\n===" % body
         if self.correlation_id == props.correlation_id:
             self.response_body = body
 
