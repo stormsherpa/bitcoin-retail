@@ -71,11 +71,16 @@ def withdraw(request):
         withdrawl_form = WithdrawlRequestForm(request.POST)
         amount = decimal.Decimal(request.POST['amount'])
         if withdrawl_form.is_valid() and amount <= balance:
-            StatusMessages.add_success(request, "Amount <= balance")
             withdrawl = withdrawl_form.save(commit=False)
             withdrawl.user = profile
-            withdrawl.status = "not requested"
+            withdrawl.status = "not_requested"
             withdrawl.save()
+            btc_client = BitcoindClient.get_instance()
+            withdrawl_result = btc_client.user_withdrawl(withdrawl)
+            withdrawl.txid = withdrawl_result.get('txid', 'No txid set')
+            withdrawl.status = withdrawl_result.get('result', "no_status")
+            withdrawl.save()
+            StatusMessages.add_warning(request, "Withdrawl result: %s" % withdrawl_result)
         else:
             pass
     t = loader.get_template("coinexchange/account/withdraw.html")

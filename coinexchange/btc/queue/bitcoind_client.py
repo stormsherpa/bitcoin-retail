@@ -110,3 +110,8 @@ class BitcoindClient():
         cmd_yaml = self._prep_command('getaccountaddress', account)
         self._send_command(cmd_yaml)
         return self._response_wait()
+
+
+    def user_withdrawl(self, request):
+        self._send_command(request.as_yaml())
+        return self._response_wait()

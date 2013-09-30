@@ -1,3 +1,6 @@
+
+import yaml
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
@@ -44,6 +47,7 @@ class CoinTxnLog(models.Model):
     tx_account = models.CharField(max_length=200)
     tx_otheraccount = models.CharField(max_length=200)
     tx_amount = models.DecimalField(max_digits=20, decimal_places=8)
+    tx_fee = models.DecimalField(max_digits=20, decimal_places=8, blank=True, null=True)
     tx_timestamp = models.DateTimeField()
     tx_description = models.TextField()
     tx_id = models.CharField(max_length=200, null=True, unique=True)
@@ -56,6 +60,8 @@ class CoinTxnLog(models.Model):
 
     def otheraccount_name(self):
         if self.tx_type == "receive":
+            return "(external)"
+        elif self.tx_type == "send":
             return "(external)"
         elif self.tx_otheraccount == "":
             return "(root)"
@@ -90,3 +96,12 @@ class WithdrawlRequest(models.Model):
     to_address = models.CharField(max_length=200)
     request_timestamp = models.DateTimeField(blank=True, auto_now_add=True)
     status = models.CharField(max_length=20)
+    txid = models.CharField(max_length=200)
+
+    def as_yaml(self):
+        out = {'command': 'user_withdrawl',
+               'account': self.user.btc_account,
+               'amount': self.amount,
+               'to_address': self.to_address,
+               'request_id': self.id}
+        return yaml.dump(out)

@@ -65,3 +65,31 @@ def store_btc_tx(tx):
                             tx_otheraccount=tx.otheraccount,
                             tx_timestamp=tstamp)
         tx_log.save()
+    elif tx.category == "send":
+        try:
+            db_tx = CoinTxnLog.objects.get(tx_id=tx.txid)
+            return None
+        except CoinTxnLog.DoesNotExist:
+            pass
+        if tx.confirmations < 5:
+            print "Send request has insufficient confirmations."
+            print "---> txid=%s to %s has %s confirmations needs %s" % (tx.txid,
+                                                                        tx.account,
+                                                                        tx.confirmations,
+                                                                        5)
+            return None
+
+        print "Creating log entry for %s" % tx.txid
+
+        tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
+
+        tx_log = CoinTxnLog(tx_id = tx.txid,
+                            user = get_account_user(tx.account),
+                            tx_type = tx.category,
+                            tx_account=tx.account,
+                            tx_amount=tx.amount,
+                            tx_fee=tx.fee,
+                            tx_timestamp=tstamp)
+        tx_log.save()
+    else:
+        print "Unknown transaction type: %s" % tx

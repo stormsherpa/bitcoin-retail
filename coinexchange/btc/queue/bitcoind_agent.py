@@ -42,6 +42,26 @@ class BitcoindAgent():
             except Exception as e:
                 rpc_result = {'result': {'error_string': e, 'error_type': e.__class__},
                               'error': True}
+        elif command == "user_withdrawl":
+            address = yaml_body.get('to_address', False)
+            address_validation = self.rpcconn.validateaddress(address)
+            account_name = yaml_body.get('account', False)
+            amount = yaml_body.get('amount', 0)
+            if self.rpcconn.getbalance(account_name) >= amount:
+                if address_validation.isvalid:
+                    send_result = self.rpcconn.sendfrom(account_name,
+                                                        address_validation.address,
+                                                        float(amount),
+                                                        minconf=5)
+                    rpc_result = {'result': 'Withdrawl processed',
+                                  'txid': send_result,
+                                  'error': False}
+                else:
+                    rpc_result = {'result': 'Invalid address',
+                                  'error': True}
+            else:
+                rpc_result = {'result': 'Insufficient funds',
+                              'error': True}
         else:
             rpc_result = {'result': 'unknown rpc command',
                           'error': True}
