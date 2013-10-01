@@ -15,7 +15,19 @@
 		<p><a href="{% url account_withdrawl %}">Withdraw Bitcoin</a></p>
 		{% endif %}
 		<h5>Bitcoin Address</h5>
-		<p>{{coinexchange_account.address}}</p>
+		<p>
+			{{coinexchange_account.address}}<br/>
+			<a href="#" onclick="$('#bitcoin_address_qr').toggle();">Show QR Code</a>
+		</p>
+		<p id="bitcoin_address_qr" style="display:none;"></p>
+		<script type="application/javascript" src="/static/qr/qrcode.js"></script>
+		<script type="application/javascript">
+			var qr = qrcode(4, 'M');
+			qr.addData('bitcoin:{{coinexchange_account.address}}');
+			qr.make();
+			document.getElementById('bitcoin_address_qr').innerHTML = qr.createImgTag(5,5);
+		</script>
+
 	</div>
 </div>
 
