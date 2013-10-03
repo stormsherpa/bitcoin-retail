@@ -1,0 +1,24 @@
+{% extends "coinexchange/account/base.html" %}
+
+{% block 'title' %}
+Sell Bitcoin
+{% endblock %}
+
+{% block 'accountcontent' %}
+<div class="row">
+	<div class="span3">
+		<h3>Sell Bitcoin</h3>
+		<form method="post">
+			{% csrf_token %}
+			{{form.as_p}}
+			<input type="submit" value="Sell"/>
+		</form>
+	</div>
+	<div class="span3 offset1">
+		<h3>My Offers</h3>
+		{% for offer in coinexchange_account.profile.sell_offers.all %}
+		<p>{{offer.price|floatformat:2}} {{offer.units}} / 1 BTC</p>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

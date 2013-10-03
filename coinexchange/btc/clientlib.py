@@ -1,4 +1,8 @@
+import datetime
 
+from django.utils.timezone import utc
+
+from coinexchange.btc.models import CoinTxnLog
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 
 def get_user_address(exchange_user, save_if_found=True):
@@ -14,4 +18,23 @@ def get_user_balance(exchange_user):
     response = BitcoindClient.get_instance().getbalance(exchange_user.btc_account)
     return response.get('result', None)
 
+def move_btc(from_account, to_account, amount):
+    btclient = BitcoindClient.get_instance()
+    result = btclient.rescan_transactions(profile.btc_account)
+    if not result.get('error', True):
+        last_tx_time = result.get('result', 0)
+        tstamp = datetime.datetime.fromtimestamp(last_tx_time, utc)
+        from_tx = CoinTxnLog.objects.get(tx_type='move',
+                                         tx_amount=amount,
+                                         tx_timestamp=tstamp,
+                                         tx_account=from_account)
+        to_tx = CoinTxnLog.objects.get(tx_type='move',
+                                       tx_amount=amount,
+                                       tx_timestamp=tstamp,
+                                       tx_account=to_account)
+        return from_tx, to_tx
+    return None, None
 
+def send_to_escrow(buyer, seller, amount):
+    (from_tx, to_tx) = move_btc(buyer.btc_account, 'escrow', amount)
+    pass

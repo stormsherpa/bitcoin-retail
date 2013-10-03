@@ -39,6 +39,7 @@ def store_btc_tx(tx):
                             tx_timestamp=tstamp)
 
         tx_log.save()
+        return tx_log
 
     elif tx.category == "move":
         tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
@@ -53,7 +54,7 @@ def store_btc_tx(tx):
                                            tx_otheraccount=tx.otheraccount,
                                            tx_amount=tx.amount)
 #             print "Found: %s" % tx
-            return None
+            return db_tx
         except CoinTxnLog.DoesNotExist:
             pass
         print "Move transaction: %s" % tx
@@ -65,10 +66,11 @@ def store_btc_tx(tx):
                             tx_otheraccount=tx.otheraccount,
                             tx_timestamp=tstamp)
         tx_log.save()
+        return tx_log
     elif tx.category == "send":
         try:
             db_tx = CoinTxnLog.objects.get(tx_id=tx.txid)
-            return None
+            return db_tx
         except CoinTxnLog.DoesNotExist:
             pass
         if tx.confirmations < 5:
@@ -91,5 +93,7 @@ def store_btc_tx(tx):
                             tx_fee=tx.fee,
                             tx_timestamp=tstamp)
         tx_log.save()
+        return tx_log
     else:
         print "Unknown transaction type: %s" % tx
+        return None

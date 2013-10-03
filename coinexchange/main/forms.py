@@ -1,7 +1,7 @@
 
 from django import forms
 
-from coinexchange.btc.models import WithdrawlRequest
+from coinexchange.btc.models import WithdrawlRequest, SellOffer
 
 class SignupForm(forms.Form):
     username = forms.CharField()
@@ -13,3 +13,8 @@ class WithdrawlRequestForm(forms.ModelForm):
     class Meta:
         model = WithdrawlRequest
         fields = ('amount', 'to_address')
+
+class SellOfferForm(forms.ModelForm):
+    class Meta:
+        model = SellOffer
+        fields = ('price', 'units', 'max_btc', 'min_btc', 'is_active')

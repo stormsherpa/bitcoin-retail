@@ -90,6 +90,61 @@ class CoinTxnLogAdmin(admin.ModelAdmin):
 
 admin.site.register(CoinTxnLog, CoinTxnLogAdmin)
 
+class PaymentMethod(models.Model):
+    name = models.CharField(max_length=20)
+    type_class = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+admin.site.register(PaymentMethod)
+
+class CurrencyUnit(models.Model):
+    name = models.CharField(max_length=10)
+
+    def __unicode__(self):
+        return self.name
+
+admin.site.register(CurrencyUnit)
+
+class SellOffer(models.Model):
+    seller = models.ForeignKey(CoinExchangeUser, related_name='sell_offers')
+    price = models.DecimalField(max_digits=20, decimal_places=8)
+    units = models.ForeignKey(CurrencyUnit, related_name='+')
+    max_btc = models.DecimalField(max_digits=20, decimal_places=8, default=0)
+    min_btc = models.DecimalField(max_digits=20, decimal_places=8, default=0)
+    is_active = models.BooleanField(default=True, blank=True)
+    offer_timestamp = models.DateTimeField(auto_now_add=True)
+
+class SellOfferAdmin(admin.ModelAdmin):
+    list_display = ('id', 'seller')
+    readonly_fields = ['seller']
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+admin.site.register(SellOffer, SellOfferAdmin)
+
+class CoinEscrow(models.Model):
+    buyer = models.ForeignKey(CoinExchangeUser, related_name='purchases')
+    seller = models.ForeignKey(CoinExchangeUser, related_name='sales')
+    btc_escrow_account = models.CharField(max_length=200)
+    sale_amount = models.DecimalField(max_digits=20, decimal_places=8)
+    fee_amount = models.DecimalField(max_digits=20, decimal_places=8)
+
+class CoinEscrowAdmin(admin.ModelAdmin):
+    list_display = ('buyer', 'seller', 'btc_escrow_account')
+    readonly_fields = ['buyer',
+                       'seller',
+                       'btc_escrow_account',
+                       'sale_amount',
+                       'fee_amount',
+                       ]
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+admin.site.register(CoinEscrow, CoinEscrowAdmin)
+
 class WithdrawlRequest(models.Model):
     user = models.ForeignKey(CoinExchangeUser, blank=True, related_name='withdrawl_requests')
     amount = models.DecimalField(max_digits=20, decimal_places=8)

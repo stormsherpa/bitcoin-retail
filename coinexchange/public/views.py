@@ -3,12 +3,12 @@ from django.template import loader
 
 from django.template import Context
 
-import bitcoinrpc
-
 from coinexchange.main.lib import CoinExchangeContext, StatusMessages
+from coinexchange.btc.models import SellOffer
 
 def home(request):
+    offers = SellOffer.objects.filter(is_active=True).order_by('price')
     t = loader.get_template("coinexchange/root.html")
-    c = CoinExchangeContext(request, dict())
+    c = CoinExchangeContext(request, {'offers': offers})
     return HttpResponse(t.render(c))
 

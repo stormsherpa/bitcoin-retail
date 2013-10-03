@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, include, url
 
+import coinexchange.account.views
+
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -17,7 +19,9 @@ urlpatterns = patterns('',
     url(r'^account$', 'coinexchange.account.views.home', name='account_home'),
     url(r'^account/balance$', 'coinexchange.account.views.balance', name='account_balance'),
     url(r'^account/settings$', 'coinexchange.account.views.settings', name='account_settings'),
-    url(r'^account/withdraw$', 'coinexchange.account.views.withdraw', name='account_withdrawl'),
+    url(r'^account/withdraw$', coinexchange.account.views.WithdrawlView.login_view(), name='account_withdrawl'),
+    url(r'^sell_bitcoin$', coinexchange.account.views.SellView.login_view(), name='sell_bitcoin'),
+    url(r'^paymentmethod/', include('coinexchange.paymentmethod.urls')),
     # Uncomment the next line to enable the admin:
     url(r'^djangoadmin/', include(admin.site.urls)),
 )

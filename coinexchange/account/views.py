@@ -9,8 +9,10 @@ from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.views.generic import View
 
-from coinexchange.main.forms import SignupForm, WithdrawlRequestForm
+from coinexchange.views import LoginView
+from coinexchange.main.forms import SignupForm, WithdrawlRequestForm, SellOfferForm
 from coinexchange.main.lib import CoinExchangeContext, StatusMessages
 from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
@@ -62,11 +64,10 @@ def balance(request):
                                       'address': address})
     return HttpResponse(t.render(c))
 
-@login_required
-def withdraw(request):
-    profile = request.user.get_profile()
-    withdrawl_form = WithdrawlRequestForm()
-    if request.method=="POST":
+class WithdrawlView(LoginView):
+
+    def post(self, request):
+        profile = request.user.get_profile()
         balance = clientlib.get_user_balance(profile)
         withdrawl_form = WithdrawlRequestForm(request.POST)
         amount = decimal.Decimal(request.POST['amount'])
@@ -83,6 +84,34 @@ def withdraw(request):
             StatusMessages.add_warning(request, "Withdrawl result: %s" % withdrawl_result)
         else:
             pass
-    t = loader.get_template("coinexchange/account/withdraw.html")
-    c = CoinExchangeContext(request, {'form': withdrawl_form})
-    return HttpResponse(t.render(c))
+        t = loader.get_template("coinexchange/account/withdraw.html")
+        c = CoinExchangeContext(request, {'form': withdrawl_form})
+        return HttpResponse(t.render(c))
+
+    def get(self, request):
+        profile = request.user.get_profile()
+        withdrawl_form = WithdrawlRequestForm()
+        t = loader.get_template("coinexchange/account/withdraw.html")
+        c = CoinExchangeContext(request, {'form': withdrawl_form})
+        return HttpResponse(t.render(c))
+
+class SellView(LoginView):
+    def post(self, request):
+        profile = request.user.get_profile()
+        form = SellOfferForm(request.POST)
+        if form.is_valid():
+            sell = form.save(commit=False)
+            sell.seller = profile
+            sell.save()
+            StatusMessages.add_success(request, "Bitcoin listed for sale.")
+            return redirect('account_home')
+        StatusMessages.add_error(request, "There were problems with the offer.")
+        t = loader.get_template("coinexchange/account/sell.html")
+        c = CoinExchangeContext(request, {'form': form})
+        return HttpResponse(t.render(c))
+
+    def get(self, request):
+        form = SellOfferForm()
+        t = loader.get_template("coinexchange/account/sell.html")
+        c = CoinExchangeContext(request, {'form': form})
+        return HttpResponse(t.render(c))

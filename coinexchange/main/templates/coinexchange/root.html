@@ -5,6 +5,17 @@ CoinExchange Home
 {% endblock %}
 
 {% block 'content' %}
-		User: {{user}}, Authenticated: {{user.is_authenticated}}
+
+<div class="row">
+	<div class="span2">
+		<h5>Menu</h5>
+	</div>
+	<div class="span10">
+		<h3>Buy Bitcoin</h3>
+		{% for o in offers %}
+		<p>{{o.seller}} {{o.price}}</p>
+		{% endfor %}
+	</div>
+</div>
 
 {% endblock %}

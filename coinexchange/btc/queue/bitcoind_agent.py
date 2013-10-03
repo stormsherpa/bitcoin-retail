@@ -7,6 +7,7 @@ import bitcoinrpc
 from coinexchange.btc.config import BITCOINRPC_ARGS
 from coinexchange.btc.config import BITCOIN_QUEUE
 
+from coinexchange.btc import agentlib
 
 class BitcoindAgent():
     def __init__(self):
@@ -61,6 +62,24 @@ class BitcoindAgent():
                                   'error': True}
             else:
                 rpc_result = {'result': 'Insufficient funds',
+                              'error': True}
+        elif command == "rescan_transactions":
+            rpc_args = yaml_body.get('args', list())
+            if len(rpc_args) > 0:
+                account_name = rpc_args[0]
+                print "rescan_transactions for %s" % account_name
+                newest_move = 0
+                for tx in self.rpcconn.listtransactions(account_name):
+                    print tx
+                    if tx.category=='move' and tx.time > newest_move:
+                        print "store tx"
+                        rtx = agentlib.store_btc_tx(tx)
+                        print "after store tx"
+                        newest_move = tx.time
+                rpc_result = {'result': newest_move,
+                              'error': newest_move == 0}
+            else:
+                rpc_result = {'result': None,
                               'error': True}
         else:
             rpc_result = {'result': 'unknown rpc command',

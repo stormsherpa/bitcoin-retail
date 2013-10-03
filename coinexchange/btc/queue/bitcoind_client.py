@@ -115,3 +115,8 @@ class BitcoindClient():
     def user_withdrawl(self, request):
         self._send_command(request.as_yaml())
         return self._response_wait()
+
+    def rescan_transactions(self, account):
+        cmd_yaml = self._prep_command('rescan_transactions', account)
+        self._send_command(cmd_yaml)
+        return self._response_wait()

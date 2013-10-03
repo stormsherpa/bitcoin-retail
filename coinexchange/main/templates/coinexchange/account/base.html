@@ -13,6 +13,7 @@
 		<p>{{coinexchange_account.balance|floatformat:8}}</p>
 		{% if coinexchange_account.balance > 0 %}
 		<p><a href="{% url account_withdrawl %}">Withdraw Bitcoin</a></p>
+		<p><a href="{% url sell_bitcoin %}">Sell Bitcoin</a></p>
 		{% endif %}
 		<h5>Bitcoin Address</h5>
 		<p>
