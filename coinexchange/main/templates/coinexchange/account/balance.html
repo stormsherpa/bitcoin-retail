@@ -1,10 +1,10 @@
-{% extends "coinexchange/account/base.html" %}
+{% extends "coinexchange/leftnav.html" %}
 
-{% block 'title' %}
+{% block title %}
 {{user.username}} account balance
 {% endblock %}
 
-{% block 'accountcontent' %}
+{% block innercontent %}
 <h2>Transactions</h2>
 <table class="table table-condensed table-striped">
 	<tr>

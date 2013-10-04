@@ -13,6 +13,8 @@ def get_account_user(account):
 def store_btc_tx(tx):
     if tx.category == "receive":
 
+        tstamp = datetime.datetime.fromtimestamp(tx.timereceived, utc)
+
         try:
             db_tx = CoinTxnLog.objects.get(tx_id = tx.txid)
 #             print "Found: %s" % tx
@@ -29,8 +31,6 @@ def store_btc_tx(tx):
 
         print "Creating log entry for %s" % tx.txid
         
-        tstamp = datetime.datetime.fromtimestamp(tx.timereceived, utc)
-
         tx_log = CoinTxnLog(tx_id = tx.txid,
                             user = get_account_user(tx.account),
                             tx_type=tx.category,
@@ -68,6 +68,25 @@ def store_btc_tx(tx):
         tx_log.save()
         return tx_log
     elif tx.category == "send":
+
+        tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
+
+        try:
+            print "Checking for send fee on %s" % tx
+            db_tx = CoinTxnLog.objects.get(user = get_account_user(tx.account),
+                                           tx_type="sendfee",
+                                           tx_amount=tx.fee,
+                                           tx_fee=-tx.fee,
+                                           tx_timestamp=tstamp)
+        except CoinTxnLog.DoesNotExist:
+            print "Add txn: %s" % tx.confirmations
+            if tx.confirmations > 5:
+                tx_log = CoinTxnLog(user=get_account_user(tx.account),
+                                    tx_type="sendfee",
+                                    tx_amount=tx.fee,
+                                    tx_fee=-tx.fee,
+                                    tx_timestamp=tstamp)
+                tx_log.save()
         try:
             db_tx = CoinTxnLog.objects.get(tx_id=tx.txid)
             return db_tx
@@ -82,8 +101,6 @@ def store_btc_tx(tx):
             return None
 
         print "Creating log entry for %s" % tx.txid
-
-        tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
 
         tx_log = CoinTxnLog(tx_id = tx.txid,
                             user = get_account_user(tx.account),

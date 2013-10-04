@@ -2,11 +2,11 @@
 <html>
 	<head>
 		<title>
-			{% block 'title' %}{% endblock %}
+			{% block title %}{% endblock %}
 		</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
-		{% block 'head' %}{% endblock %}
+		{% block head %}{% endblock %}
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	</head>
@@ -50,7 +50,6 @@
 		{% if status_messages.all_messages %}
 		<div class="row">
 			<div class="span12">
-				<p>Messages Present</p>
 		{% if status_messages.list_errors %}
 				{% for e in status_messages.consume_errors %}
 				<p>Error: {{e}}</p>
@@ -69,7 +68,7 @@
 			</div>
 		</div>
 		{% endif %}
-		{% block 'content' %}		
+		{% block content %}		
 		{% endblock %}
 		
 	</div>

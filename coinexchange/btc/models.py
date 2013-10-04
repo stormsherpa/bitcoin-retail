@@ -63,6 +63,8 @@ class CoinTxnLog(models.Model):
             return "(external)"
         elif self.tx_type == "send":
             return "(external)"
+        elif self.tx_type == "sendfee":
+            return "Fees"
         elif self.tx_otheraccount == "":
             return "(root)"
         else:

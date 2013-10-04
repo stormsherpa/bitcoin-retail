@@ -64,6 +64,13 @@ def balance(request):
                                       'address': address})
     return HttpResponse(t.render(c))
 
+class DepositView(LoginView):
+    def get(self, request):
+        t = loader.get_template("coinexchange/account/deposit.html")
+        c = CoinExchangeContext(request, dict())
+        return HttpResponse(t.render(c))
+
+
 class WithdrawlView(LoginView):
 
     def post(self, request):
@@ -96,6 +103,27 @@ class WithdrawlView(LoginView):
         return HttpResponse(t.render(c))
 
 class SellView(LoginView):
+    def post(self, request):
+        profile = request.user.get_profile()
+        form = SellOfferForm(request.POST)
+        if form.is_valid():
+            sell = form.save(commit=False)
+            sell.seller = profile
+            sell.save()
+            StatusMessages.add_success(request, "Bitcoin listed for sale.")
+            return redirect('account_home')
+        StatusMessages.add_error(request, "There were problems with the offer.")
+        t = loader.get_template("coinexchange/account/sell.html")
+        c = CoinExchangeContext(request, {'form': form})
+        return HttpResponse(t.render(c))
+
+    def get(self, request):
+        form = SellOfferForm()
+        t = loader.get_template("coinexchange/account/sell.html")
+        c = CoinExchangeContext(request, {'form': form})
+        return HttpResponse(t.render(c))
+
+class BuyView(LoginView):
     def post(self, request):
         profile = request.user.get_profile()
         form = SellOfferForm(request.POST)

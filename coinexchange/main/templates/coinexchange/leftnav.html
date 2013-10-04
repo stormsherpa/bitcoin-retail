@@ -1,0 +1,35 @@
+{% extends "coinexchange/base.html" %}
+
+{% block content %}
+<div class="row">
+	<div class="span2">
+		<h3>Menu</h3>
+		<ul class="nav nav-tabs nav-stacked">
+			<li><a href="{% url buy_bitcoin %}">Buy Bitcoin</a></li>
+			<li><a href="#">Info</a></li>
+		</ul>
+		{% if user and user.is_authenticated %}
+		<h4>Balance</h4>
+		<p>{{coinexchange_account.balance|floatformat:8}}</p>
+		
+		<ul class="nav nav-tabs nav-stacked">
+			<li><a href="{% url account_home %}">Your Account</a></li>
+			<li><a href="{% url account_deposit %}">Deposit Bitcoin</a></li>
+			{% if coinexchange_account.balance > 0 %}
+			<li><a href="{% url account_withdrawl %}">Withdraw Bitcoin</a></li>
+			<li><a href="{% url sell_bitcoin %}">Sell Bitcoin</a></li>
+			{% endif %}
+			{% if user.is_superuser %}
+			<li><a href="/djangoadmin">Django Admin Portal</a></li>
+			{% endif %}
+			<li><a href="{% url account_settings %}">Settings</a></li>
+		</ul>
+		
+		{% endif %}
+	</div>
+	<div class="span10">
+		{% block innercontent %}
+		{% endblock %}
+	</div>
+</div>
+{% endblock %}
