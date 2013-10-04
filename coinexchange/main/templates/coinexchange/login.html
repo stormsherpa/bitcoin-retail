@@ -1,13 +1,13 @@
-{% extends "coinexchange/base.html" %}
+{% extends "coinexchange/leftnav.html" %}
 {% load url from future %}
 
 {% block title %}
 Login
 {% endblock %}
 
-{% block content %}
+{% block innercontent %}
 <div class="row">
-	<div class="span4 offset4">
+	<div class="span4 offset3">
 		<h3>Login</h3>
 		<form method="post" action="{% url 'auth_login' %}">
 			{% csrf_token %}
