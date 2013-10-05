@@ -42,13 +42,18 @@ def signup(request):
 def home(request):
     profile = request.user.get_profile()
     coin_txn = profile.coin_txn.order_by('tx_timestamp')
-    t = loader.get_template("coinexchange/account/balance.html")
-    c = CoinExchangeContext(request, {'coin_txn': coin_txn})
+    sell_offers = [SellOfferForm(instance=x) for x in profile.sell_offers.order_by('price')]
+    print sell_offers
+    t = loader.get_template("coinexchange/account/main.html")
+    c = CoinExchangeContext(request, {'coin_txn': coin_txn,
+                                      'withdrawl_form': WithdrawlRequestForm(),
+                                      'sell_form': SellOfferForm(),
+                                      'sell_offers': sell_offers})
     return HttpResponse(t.render(c))
 
 @login_required
 def settings(request):
-    t = loader.get_template("coinexchange/account/edit.html")
+    t = loader.get_template("coinexchange/account/settings.html")
     c = CoinExchangeContext(request, {})
     return HttpResponse(t.render(c))
 

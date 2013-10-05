@@ -14,11 +14,6 @@
 		
 		<ul class="nav nav-tabs nav-stacked">
 			<li><a href="{% url account_home %}">Your Account</a></li>
-			<li><a href="{% url account_deposit %}">Deposit Bitcoin</a></li>
-			{% if coinexchange_account.balance > 0 %}
-			<li><a href="{% url account_withdrawl %}">Withdraw Bitcoin</a></li>
-			<li><a href="{% url sell_bitcoin %}">Sell Bitcoin</a></li>
-			{% endif %}
 			{% if user.is_superuser %}
 			<li><a href="/djangoadmin">Django Admin Portal</a></li>
 			{% endif %}
