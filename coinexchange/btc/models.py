@@ -129,6 +129,7 @@ admin.site.register(SellOffer, SellOfferAdmin)
 class CoinEscrow(models.Model):
     buyer = models.ForeignKey(CoinExchangeUser, related_name='purchases')
     seller = models.ForeignKey(CoinExchangeUser, related_name='sales')
+    sell_offer = models.ForeignKey(SellOffer, null=True, blank=True, related_name='purchases')
     btc_escrow_account = models.CharField(max_length=200)
     sale_amount = models.DecimalField(max_digits=20, decimal_places=8)
     fee_amount = models.DecimalField(max_digits=20, decimal_places=8)

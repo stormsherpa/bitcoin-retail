@@ -11,4 +11,3 @@ def home(request):
     t = loader.get_template("coinexchange/root.html")
     c = CoinExchangeContext(request, {'offers': offers})
     return HttpResponse(t.render(c))
-

@@ -9,6 +9,7 @@
 		{% block head %}{% endblock %}
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+		<script src="/account/api/js"></script>
 	</head>
 	<body>
 	<div class="navbar navbar-inverse navbar-fixed-top">
@@ -32,7 +33,6 @@
 								{% endif %}
 								<li><a href="{% url account_settings %}">Settings</a></li>
 								<li><a href="{% url auth_logout %}?next=/">Logout</a></li>
-								
 							</ul>
 						</li>
 						{% else %}
@@ -47,31 +47,25 @@
 		</div>
 	</div>
 	<div class="container" style="margin-top:50px;">
-		{% if status_messages.all_messages %}
-		<div class="row">
-			<div class="span12">
+		<div class="row" id="status_messages">
 		{% if status_messages.list_errors %}
 				{% for e in status_messages.consume_errors %}
-				<p>Error: {{e}}</p>
+			<div class="span12">Error: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_warnings %}
 				{% for e in status_messages.consume_warnings %}
-				<p>Warning: {{e}}</p>
+			<div class="span12">Warning: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_success %}
 				{% for e in status_messages.consume_success %}
-				<p>Success: {{e}}</p>
+			<div class="span12">Success: {{e}}</div>
 				{% endfor %}
 		{% endif %}
-			</div>
 		</div>
-		{% endif %}
 		{% block content %}		
 		{% endblock %}
-		
 	</div>
 	</body>
-	
 </html>

@@ -81,7 +81,8 @@
 							<form id="edit_offer_{{offer.instance.id}}_form">
 								{% csrf_token %}
 								{{offer.as_p}}
-								<button onclick="return false;">Update</button>
+								<!-- <input type="hidden" name="id" value="{{offer.instance.id}}"/> -->
+								<button onclick="return new AccountAPI().update_sell_offer($(this).parent(),{{offer.instance.id}});">Update</button>
 							</form>
 							
 						</td>
@@ -92,10 +93,10 @@
 			</div>
 			<div class="span3">
 				<h3>Sell Bitcoin</h3>
-				<form method="post" action="{% url sell_bitcoin %}">
+				<form method="post" action="#">
 					{% csrf_token %}
 					{{sell_form.as_p}}
-					<input type="submit" value="Sell"/>
+					<button onclick="return new AccountAPI().new_sell_offer($(this).parent());">Sell</button>
 				</form>
 
 			</div>
@@ -121,10 +122,13 @@
 		<div class="row">
 			<div class="span4 offset3">
 				<h3>Withdraw Bitcoin</h3>
-				<form method="post" action="{% url account_withdrawl %}">
+				<p>
+					Current balance: {{coinexchange_account.balance|floatformat:8}}
+				</p>
+				<form method="post" action="#">
 					{% csrf_token %}
 					{{withdrawl_form.as_p}}
-					<input type="submit" value="Withdraw Bitcoin"/>
+					<button onclick="return new AccountAPI().withdraw_bitcoin($(this).parent());">Withdraw Bitcoin</button>
 				</form>
 			</div>
 		</div>
