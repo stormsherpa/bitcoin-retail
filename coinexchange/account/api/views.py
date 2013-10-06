@@ -44,6 +44,9 @@ class WithdrawlView(LoginView):
         data = json.loads(request.raw_post_data)
         print data
         withdrawl_form = WithdrawlRequestForm(data)
+        if not data.get('amount'):
+            msg = "No withdrawl amount entered."
+            return JsonResponse(msg, error=True).http_response()
         amount = decimal.Decimal(data['amount'])
         if withdrawl_form.is_valid() and amount <= balance:
             withdrawl = withdrawl_form.save(commit=False)

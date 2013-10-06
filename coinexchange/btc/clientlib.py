@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from django.utils.timezone import utc
 
@@ -16,7 +17,13 @@ def get_user_address(exchange_user, save_if_found=True):
 
 def get_user_balance(exchange_user):
     response = BitcoindClient.get_instance().getbalance(exchange_user.btc_account)
-    return response.get('result', None)
+    balance = response.get('result', None)
+    if isinstance(balance, (int, long, float, decimal.Decimal)):
+        dec_balance = decimal.Decimal(balance)
+        if exchange_user.btc_balance != dec_balance:
+            exchange_user.btc_balance = dec_balance
+            exchange_user.save()
+    return balance
 
 def move_btc(from_account, to_account, amount):
     btclient = BitcoindClient.get_instance()

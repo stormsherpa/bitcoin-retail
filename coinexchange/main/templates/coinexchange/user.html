@@ -1,0 +1,9 @@
+{% extends "coinexchange/leftnav.html" %}
+
+{% block title %}
+CoinExchange user {{user_profile.user.username}}
+{% endblock %}
+
+{% block innercontent %}
+<h3>User: {{user_profile.user.username}}</h3>
+{% endblock %}

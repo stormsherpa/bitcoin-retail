@@ -9,4 +9,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         agent = BitcoindAgent()
-        agent.start_consuming()
+        try:
+            agent.start_consuming()
+        except KeyboardInterrupt:
+            print "Keyboard interrupt received.  Exiting."

@@ -18,8 +18,11 @@ class BitcoindAgent():
         self.channel = self.mqconn.channel()
         self.channel.queue_declare(queue='bitcoind_rpc',
                                    durable=True)
+#         self.channel.queue_declare(queue='bitcoind_cast',
+#                                    durable=True)
         self.channel.basic_qos(prefetch_count=1)
         self.channel.basic_consume(self._rpc_callback, queue='bitcoind_rpc')
+#         self.channel.basic_consume(self._cast_callback, queue='bitcoind_cast')
 
     def start_consuming(self):
         self.channel.start_consuming()
@@ -29,11 +32,22 @@ class BitcoindAgent():
                              'getbalance',
                             ]
 
+#     def _cast_callback(self, ch, method, properties, body):
+#         print "cast callback: %s" % body
+#         yaml_body = yaml.load(body)
+#         command = yaml_body.get('command', None)
+#         if not command:
+#             print "Message received without a command."
+#             return
+#         print "Unknown command: %s" % command
+
+
     def _rpc_callback(self, ch, method, properties, body):
         yaml_body = yaml.load(body)
         print yaml_body
         command = yaml_body.get('command', None)
         print "Got command: %s" % command
+
         if command in self.rpc_passthru_commands:
             rpc_args = yaml_body.get('args', list())
             rpc_kwargs = yaml_body.get('kwargs', dict())

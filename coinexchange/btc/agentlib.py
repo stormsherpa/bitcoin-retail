@@ -72,33 +72,33 @@ def store_btc_tx(tx):
         tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
 
         try:
-            print "Checking for send fee on %s" % tx
+#             print "Checking for send fee on %s" % tx
             db_tx = CoinTxnLog.objects.get(user = get_account_user(tx.account),
                                            tx_type="sendfee",
                                            tx_amount=tx.fee,
                                            tx_fee=-tx.fee,
                                            tx_timestamp=tstamp)
         except CoinTxnLog.DoesNotExist:
+#             if tx.confirmations > 5:
             print "Add txn: %s" % tx.confirmations
-            if tx.confirmations > 5:
-                tx_log = CoinTxnLog(user=get_account_user(tx.account),
-                                    tx_type="sendfee",
-                                    tx_amount=tx.fee,
-                                    tx_fee=-tx.fee,
-                                    tx_timestamp=tstamp)
-                tx_log.save()
+            tx_log = CoinTxnLog(user=get_account_user(tx.account),
+                                tx_type="sendfee",
+                                tx_amount=tx.fee,
+                                tx_fee=-tx.fee,
+                                tx_timestamp=tstamp)
+            tx_log.save()
         try:
             db_tx = CoinTxnLog.objects.get(tx_id=tx.txid)
             return db_tx
         except CoinTxnLog.DoesNotExist:
             pass
-        if tx.confirmations < 5:
-            print "Send request has insufficient confirmations."
-            print "---> txid=%s to %s has %s confirmations needs %s" % (tx.txid,
-                                                                        tx.account,
-                                                                        tx.confirmations,
-                                                                        5)
-            return None
+#         if tx.confirmations < 5:
+#             print "Send request has insufficient confirmations."
+#             print "---> txid=%s to %s has %s confirmations needs %s" % (tx.txid,
+#                                                                         tx.account,
+#                                                                         tx.confirmations,
+#                                                                         5)
+#             return None
 
         print "Creating log entry for %s" % tx.txid
 

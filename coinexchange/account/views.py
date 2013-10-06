@@ -13,7 +13,7 @@ from django.views.generic import View
 from coinexchange.views import LoginView
 from coinexchange.main.forms import SignupForm, WithdrawlRequestForm, SellOfferForm
 from coinexchange.main.lib import CoinExchangeContext, StatusMessages
-from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest
+from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest, CoinExchangeUser, SellOffer
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
 
@@ -37,6 +37,15 @@ def signup(request):
     c = CoinExchangeContext(request, {'form': signup_form})
     return HttpResponse(t.render(c))
 
+def user(request, profile_id):
+    try:
+        user_profile = CoinExchangeUser.objects.get(id=profile_id)
+    except CoinExchangeUser.DoesNotExist:
+        raise Http404
+    t = loader.get_template("coinexchange/user.html")
+    c = CoinExchangeContext(request, {'user_profile': user_profile})
+    return HttpResponse(t.render(c))
+
 @login_required
 def home(request):
     profile = request.user.get_profile()
@@ -54,4 +63,14 @@ def home(request):
 def settings(request):
     t = loader.get_template("coinexchange/account/settings.html")
     c = CoinExchangeContext(request, {})
+    return HttpResponse(t.render(c))
+
+@login_required
+def buy(request, offer_id):
+    try:
+        offer = SellOffer.objects.get(id=offer_id)
+    except SellOffer.DoesNotExist:
+        raise Http404
+    t = loader.get_template("coinexchange/buy.html")
+    c = CoinExchangeContext(request, {'offer': offer})
     return HttpResponse(t.render(c))
