@@ -118,6 +118,7 @@ class SellOffer(models.Model):
     min_btc = models.DecimalField(max_digits=20, decimal_places=8, default=0)
     is_active = models.BooleanField(default=True, blank=True)
     offer_timestamp = models.DateTimeField(auto_now_add=True)
+    payment_methods = models.ManyToManyField(PaymentMethod, related_name='sell_offers')
 
     @property
     def available(self):

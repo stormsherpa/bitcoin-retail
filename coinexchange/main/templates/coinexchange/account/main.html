@@ -12,7 +12,6 @@
 	<li><a data-toggle="tab" href="#withdraw">Withdraw</a></li>
 	<li><a data-toggle="tab" href="#escrow">Escrow</a></li>
 </ul>
-
 <div class="tab-content">
 	<div class="tab-pane active" id="transactions">
 		<h3>Transactions</h3>
@@ -137,5 +136,15 @@
 		<h3>Escrow</h3>
 	</div>
 </div>
-		
+
+<script type="application/javascript">
+	var url = document.location.toString();
+	if(url.match('#')){
+		$('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show');
+	}
+	$('.nav-tabs a').on('shown', function (e){
+		window.location.hash = e.target.hash;
+	});
+</script>
+
 {% endblock %}

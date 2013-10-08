@@ -5,13 +5,10 @@
 	<div class="span2">
 		<h3>Menu</h3>
 		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url home %}">Buy Bitcoin</a></li>
-			<li><a href="#">Info</a></li>
+			<li><a href="{% url home %}">Home</a></li>
+			<li><a href="{% url list_offers %}">Buy Bitcoin</a></li>
 		</ul>
 		{% if user and user.is_authenticated %}
-		<h4>Balance</h4>
-		<p>{{coinexchange_account.balance|floatformat:8}}</p>
-		
 		<ul class="nav nav-tabs nav-stacked">
 			<li><a href="{% url account_home %}">Your Account</a></li>
 			{% if user.is_superuser %}
@@ -19,7 +16,10 @@
 			{% endif %}
 			<li><a href="{% url account_settings %}">Settings</a></li>
 		</ul>
-		
+		{% else %}
+		<ul class="nav nav-tabs nav-stacked">
+			<li><a href="{% url auth_login %}">Login</a></li>
+		</ul>
 		{% endif %}
 	</div>
 	<div class="span10">

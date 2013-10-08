@@ -17,4 +17,7 @@ class WithdrawlRequestForm(forms.ModelForm):
 class SellOfferForm(forms.ModelForm):
     class Meta:
         model = SellOffer
-        fields = ('price', 'units', 'max_btc', 'min_btc', 'is_active')
+        fields = ('price', 'units', 'max_btc', 'min_btc', 'payment_methods', 'is_active')
+
+class BuyForm(forms.Form):
+    amount = forms.DecimalField()

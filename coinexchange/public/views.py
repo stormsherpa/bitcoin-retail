@@ -11,3 +11,9 @@ def home(request):
     t = loader.get_template("coinexchange/root.html")
     c = CoinExchangeContext(request, {'offers': offers})
     return HttpResponse(t.render(c))
+
+def list_offers(request):
+    offers = SellOffer.objects.filter(is_active=True).order_by('price')
+    t = loader.get_template("coinexchange/list_offers.html")
+    c = CoinExchangeContext(request, {'offers': offers})
+    return HttpResponse(t.render(c))

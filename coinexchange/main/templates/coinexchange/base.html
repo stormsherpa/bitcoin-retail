@@ -22,6 +22,11 @@
 					</ul>
 					<ul class="nav pull-right">
 						{% if user and user.is_authenticated %}
+						<li>
+							<a href="{% url account_home %}#withdraw">
+								{{coinexchange_account.balance|floatformat:8}} BTC
+							</a>
+						</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 								{{user.username}} <b class="caret"></b>

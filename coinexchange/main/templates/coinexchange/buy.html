@@ -5,5 +5,30 @@ Buy bitcoin (id:{{offer.id}})
 {% endblock %}
 
 {% block innercontent %}
-<h3>Buy Bitcoin - {{offer.id}}</h3>
+<h3>Buy Bitcoin</h3>
+<div class="row">
+	<div class="span3">
+		<h4>Offer</h4>
+		<table class="table">
+			<tr>
+				<th>Price</th>
+				<td>{{offer.price|floatformat:2}} {{offer.units.name}}</td>
+			</tr>
+			<tr>
+				<th>Minimum</th>
+				<td>{{offer.min_btc|floatformat:8}} BTC</td>
+			</tr>
+			<tr>
+				<th>Maximum</th>
+				<td>{{offer.max_btc|floatformat:8}} BTC</td>
+			</tr>
+		</table>
+		<h4>Purchase</h4>
+		<input type="text" name="amount" class="span3" placeholder="Amount"/>
+	</div>
+	<div class="span5">
+		<h4>Seller</h4>
+		{{offer.seller.user.username}}
+	</div>
+</div>
 {% endblock %}

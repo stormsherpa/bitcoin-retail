@@ -75,26 +75,28 @@ class SellView(LoginView):
             print "Seller mismatch"
             raise Http404()
         data = json.loads(request.raw_post_data)
+        print "sell api data: %s" % data
         offer_form = SellOfferForm(data, instance=offer)
         if offer_form.is_valid():
             offer_form.save()
+            offer_form.save_m2m()
             return JsonResponse('Sell offer %s updated.' % id).http_response()
         else:
             return JsonResponse('Form was not valid: %s' % ','.join(offer_form.errors), error=True).http_response()
 
     def post(self, request):
         profile = request.user.get_profile()
-        form = SellOfferForm(request.POST)
+        data = json.loads(request.raw_post_data)
+#         print "Create sell offer: %s" % data
+        form = SellOfferForm(data)
         if form.is_valid():
             sell = form.save(commit=False)
             sell.seller = profile
             sell.save()
-            StatusMessages.add_success(request, "Bitcoin listed for sale.")
-            return redirect('account_home')
-        StatusMessages.add_error(request, "There were problems with the offer.")
-        t = loader.get_template("coinexchange/account/sell.html")
-        c = CoinExchangeContext(request, {'form': form})
-        return HttpResponse(t.render(c))
+            form.save_m2m()
+            return JsonResponse("Bitcoin listed for sale.").http_response()
+        msg = "There were problems with the offer: %s" % ','.join(form.errors)
+        return JsonResponse(msg, error=True).http_response()
 # 
 #     def get(self, request):
 #         form = SellOfferForm()

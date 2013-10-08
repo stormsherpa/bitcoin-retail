@@ -54,7 +54,7 @@ AccountAPI.prototype.new_sell_offer = function(form){
 		{
 			type: 'POST',
 			url: "{% url api_sell %}",
-			data: post_vars,
+			data: JSON.stringify(post_vars),
 			success: function(data, textStatus, jqXHR){
 				if (data.error){
 					display_error(data.result);

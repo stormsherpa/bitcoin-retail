@@ -6,27 +6,5 @@ CoinExchange Home
 
 {% block innercontent %}
 
-<h3>Buy Bitcoin</h3>
-<table class="table table-condensed">
-	<tr>
-		<th>Price/BTC</th>
-		<th>Min/Max</th>
-		<th>Amount Available</th>
-		<th>Seller</th>
-	</tr>
-	{% for o in offers %}
-	{% if o.available > 0 %}
-	<tr>
-		<td>{{o.price|floatformat:2}} {{o.units.name}}</td>
-		<td>{{o.min_btc|floatformat:8}}/{{o.max_btc|floatformat:8}}</td>
-		<td>{{o.available}}</td>
-		<td><a href="{% url user_profile o.seller.id %}">{{o.seller.user.username}}</a></td>
-		<td class="input-append">
-			<a class="btn" href="{% url buy_bitcoin o.id %}">Buy</a> 
-		</td>
-	</tr>
-	{% endif %}
-	{% endfor %}
-</table>
-
+<h2>Buy and Sell Bitcoin Over The Counter</h2>
 {% endblock %}

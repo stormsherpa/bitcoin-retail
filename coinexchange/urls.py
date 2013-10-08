@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^logout$', 'django.contrib.auth.views.logout',
         {'next_page': '/'}, name='auth_logout'),
     url(r'^signup$', 'coinexchange.account.views.signup', name='account_signup'),
+    url(r'^buy$', 'coinexchange.public.views.list_offers', name='list_offers'),
     url(r'^buy/(\d)$', 'coinexchange.account.views.buy', name='buy_bitcoin'),
     url(r'^user/(\d)$', 'coinexchange.account.views.user', name='user_profile'),
 

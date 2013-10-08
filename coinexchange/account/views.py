@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 
 from coinexchange.views import LoginView
-from coinexchange.main.forms import SignupForm, WithdrawlRequestForm, SellOfferForm
+from coinexchange.main.forms import SignupForm, WithdrawlRequestForm, SellOfferForm, BuyForm
 from coinexchange.main.lib import CoinExchangeContext, StatusMessages
 from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest, CoinExchangeUser, SellOffer
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
@@ -71,6 +71,7 @@ def buy(request, offer_id):
         offer = SellOffer.objects.get(id=offer_id)
     except SellOffer.DoesNotExist:
         raise Http404
+    buy_form = BuyForm()
     t = loader.get_template("coinexchange/buy.html")
-    c = CoinExchangeContext(request, {'offer': offer})
+    c = CoinExchangeContext(request, {'offer': offer, 'form': buy_form})
     return HttpResponse(t.render(c))
