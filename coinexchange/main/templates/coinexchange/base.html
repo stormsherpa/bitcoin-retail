@@ -23,7 +23,7 @@
 					<ul class="nav pull-right">
 						{% if user and user.is_authenticated %}
 						<li>
-							<a href="{% url account_home %}#withdraw">
+							<a href="{% url "account_home" %}#withdraw">
 								{{coinexchange_account.balance|floatformat:8}} BTC
 							</a>
 						</li>
@@ -32,17 +32,17 @@
 								{{user.username}} <b class="caret"></b>
 							</a>
 							<ul class="dropdown-menu">
-								<li><a href="{% url account_home %}">Your Account</a></li>
+								<li><a href="{% url "account_home" %}">Your Account</a></li>
 								{% if user.is_superuser %}
 								<li><a href="/djangoadmin">Django Admin Portal</a></li>
 								{% endif %}
-								<li><a href="{% url account_settings %}">Settings</a></li>
-								<li><a href="{% url auth_logout %}?next=/">Logout</a></li>
+								<li><a href="{% url "account_settings" %}">Settings</a></li>
+								<li><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
 							</ul>
 						</li>
 						{% else %}
-						<li><a href="{% url auth_login %}">Login</a></li>
-						<li><a href="{% url account_signup %}">Signup</a></li>
+						<li><a href="{% url "auth_login" %}">Login</a></li>
+						<li><a href="{% url "account_signup" %}">Signup</a></li>
 						{% endif %}
 					</ul>
 					

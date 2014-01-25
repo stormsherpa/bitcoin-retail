@@ -5,20 +5,20 @@
 	<div class="span2">
 		<h3>Menu</h3>
 		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url home %}">Home</a></li>
-			<li><a href="{% url list_offers %}">Buy Bitcoin</a></li>
+			<li><a href="{% url "home" %}">Home</a></li>
+			<li><a href="{% url "list_offers" %}">Buy Bitcoin</a></li>
 		</ul>
 		{% if user and user.is_authenticated %}
 		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url account_home %}">Your Account</a></li>
+			<li><a href="{% url "account_home" %}">Your Account</a></li>
 			{% if user.is_superuser %}
 			<li><a href="/djangoadmin" target="_blank">Django Admin Portal</a></li>
 			{% endif %}
-			<li><a href="{% url account_settings %}">Settings</a></li>
+			<li><a href="{% url "account_settings" %}">Settings</a></li>
 		</ul>
 		{% else %}
 		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url auth_login %}">Login</a></li>
+			<li><a href="{% url "auth_login" %}">Login</a></li>
 		</ul>
 		{% endif %}
 	</div>
