@@ -122,7 +122,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'coinexchange.main',
     'coinexchange.btc',
-    'coinexchange.btc.loan',
+    'coinexchange.btc.pos',
     'coinexchange.account',
     'django.contrib.auth',
     'django.contrib.contenttypes',

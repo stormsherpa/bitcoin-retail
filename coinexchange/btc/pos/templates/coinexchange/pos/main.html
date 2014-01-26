@@ -1,0 +1,68 @@
+{% extends "coinexchange/pos/base.html" %}
+
+{% block title %}
+CoinExchange Sale
+{% endblock %}
+
+{% block content %}
+
+<h2>Point of Sale Home</h2>
+
+<div class="span12">
+	<div class="row">
+		<div class="span2">
+			<div class="btn-group-vertical">
+				<button style="width:120px;height:70px;" type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#new-sale">New Sale</button>
+				<button style="width:120px;" type="button" class="btn btn-default" id="test-btn">Test</button>
+			</div>
+		</div>
+		<div class="span10">
+			<div class="row" id="status_area">
+				
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+<div class="modal fade" id="new-sale" tabindex="-1" role="dialog" aria-labelledby="newSaleModal" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="newSaleModal">New Sale</h4>
+			</div>
+			<div class="modal-body">
+				
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+<div id="handlebar-test" class="span12"></div>
+
+<script type="application/javascript">
+var item_count=1;
+$('#test-btn').bind("click", function(){
+	var itemhtml = '<div class="span2"><h4>Inserted Item'+ item_count++ +'</h4></div>';
+	$('#status_area').prepend(itemhtml);
+});
+
+
+
+// 
+	// var context = {var1: "test variable"}
+	// T.render('pos/new_sale', function(t){
+		// $('#handlebar-test').html(t(context));
+	// });
+</script>
+
+
+
+{% endblock %}

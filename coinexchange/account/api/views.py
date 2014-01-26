@@ -36,6 +36,19 @@ def js(request):
     http_response['Content-Type'] = 'application/javascript'
     return http_response
 
+def state(request):
+    if request.user.is_authenticated():
+        profile = request.user.get_profile()
+        session_status = {
+                          'balance': "%0.8f" % clientlib.get_user_balance(profile),
+                          'address': clientlib.get_user_address(profile),
+                          }
+    else:
+        session_status = dict()
+    http_response = HttpResponse(json.dumps(session_status, indent=2)+"\n")
+    http_response['Content-Type'] = 'application/json'
+    return http_response
+
 class WithdrawlView(LoginView):
 
     def post(self, request):
@@ -62,65 +75,3 @@ class WithdrawlView(LoginView):
         msg = "Some fields had errors: %s" % ','.join(withdrawl_form.errors)
         return JsonResponse(msg, error=True).http_response()
 
-class SellView(LoginView):
-
-    def put(self, request, id=None):
-        if not id:
-            raise Http404()
-        try:
-            offer = SellOffer.objects.get(id=id)
-        except SellOffer.DoesNotExist:
-            raise Http404()
-        if offer.seller != request.user.get_profile():
-            print "Seller mismatch"
-            raise Http404()
-        data = json.loads(request.raw_post_data)
-        print "sell api data: %s" % data
-        offer_form = SellOfferForm(data, instance=offer)
-        if offer_form.is_valid():
-            offer_form.save()
-            offer_form.save_m2m()
-            return JsonResponse('Sell offer %s updated.' % id).http_response()
-        else:
-            return JsonResponse('Form was not valid: %s' % ','.join(offer_form.errors), error=True).http_response()
-
-    def post(self, request):
-        profile = request.user.get_profile()
-        data = json.loads(request.raw_post_data)
-#         print "Create sell offer: %s" % data
-        form = SellOfferForm(data)
-        if form.is_valid():
-            sell = form.save(commit=False)
-            sell.seller = profile
-            sell.save()
-            form.save_m2m()
-            return JsonResponse("Bitcoin listed for sale.").http_response()
-        msg = "There were problems with the offer: %s" % ','.join(form.errors)
-        return JsonResponse(msg, error=True).http_response()
-# 
-#     def get(self, request):
-#         form = SellOfferForm()
-#         t = loader.get_template("coinexchange/account/sell.html")
-#         c = CoinExchangeContext(request, {'form': form})
-#         return HttpResponse(t.render(c))
-
-class BuyView(LoginView):
-    def post(self, request):
-        profile = request.user.get_profile()
-        form = SellOfferForm(request.POST)
-        if form.is_valid():
-            sell = form.save(commit=False)
-            sell.seller = profile
-            sell.save()
-            StatusMessages.add_success(request, "Bitcoin listed for sale.")
-            return redirect('account_home')
-        StatusMessages.add_error(request, "There were problems with the offer.")
-        t = loader.get_template("coinexchange/account/sell.html")
-        c = CoinExchangeContext(request, {'form': form})
-        return HttpResponse(t.render(c))
-
-    def get(self, request):
-        form = SellOfferForm()
-        t = loader.get_template("coinexchange/account/sell.html")
-        c = CoinExchangeContext(request, {'form': form})
-        return HttpResponse(t.render(c))

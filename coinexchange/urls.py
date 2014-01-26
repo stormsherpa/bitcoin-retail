@@ -15,14 +15,11 @@ urlpatterns = patterns('',
     url(r'^logout$', 'django.contrib.auth.views.logout',
         {'next_page': '/'}, name='auth_logout'),
     url(r'^signup$', 'coinexchange.account.views.signup', name='account_signup'),
-    url(r'^buy$', 'coinexchange.public.views.list_offers', name='list_offers'),
-    url(r'^buy/(\d)$', 'coinexchange.account.views.buy', name='buy_bitcoin'),
-    url(r'^user/(\d)$', 'coinexchange.account.views.user', name='user_profile'),
 
     url(r'^account$', 'coinexchange.account.views.home', name='account_home'),
     url(r'^account/api/', include('coinexchange.account.api.urls')),
     url(r'^account/settings$', 'coinexchange.account.views.settings', name='account_settings'),
-    url(r'^paymentmethod/', include('coinexchange.paymentmethod.urls')),
+    url(r'^pos/', include('coinexchange.btc.pos.urls')),
     # Uncomment the next line to enable the admin:
     url(r'^djangoadmin/', include(admin.site.urls)),
 )

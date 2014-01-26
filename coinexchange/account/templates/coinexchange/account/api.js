@@ -48,57 +48,12 @@ function display_info(message){
 
 function AccountAPI(){}
 
-AccountAPI.prototype.new_sell_offer = function(form){
-	post_vars = load_form_fields(form);
-	$.ajax(
-		{
-			type: 'POST',
-			url: "{% url api_sell %}",
-			data: JSON.stringify(post_vars),
-			success: function(data, textStatus, jqXHR){
-				if (data.error){
-					display_error(data.result);
-				}else{
-					display_success(data.result);
-				}
-				msg = 'Sell offer created.  Please refresh the page.';
-				display_success(msg);
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				display_error("Error creating sell offer: " + textStatus);
-			}
-		});
-	return false;
-};
-
-AccountAPI.prototype.update_sell_offer = function(form, id){
-	post_vars = load_form_fields(form);
-	$.ajax(
-		{
-			type: 'PUT',
-			url: "{% url api_sell %}/"+id,
-			data: JSON.stringify(post_vars),
-			contentType: 'application/json',
-			success: function(data, textStatus, jqXHR){
-				if (data.error){
-					display_error(data.result);
-				}else{
-					display_success(data.result);
-				}
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				display_error("Error: " + textStatus);
-			}
-		});
-	return false;
-};
-
 AccountAPI.prototype.withdraw_bitcoin = function(form, id){
 	post_vars = load_form_fields(form);
 	$.ajax(
 		{
 			type: 'POST',
-			url: "{% url api_withdrawl %}",
+			url: "{% url 'api_withdrawl' %}",
 			data: JSON.stringify(post_vars),
 			success: function(data, textStatus, jqXHR){
 				if (data.error){
