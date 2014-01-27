@@ -12,8 +12,13 @@ from coinexchange.main.lib import CoinExchangeContext, StatusMessages
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
 
+from coinexchange.btc.pos.forms import NewSalesTransactionForm
+
 @login_required
 def main(request):
+    data = {
+            'new_sales_form': NewSalesTransactionForm(),
+            }
     t = loader.get_template("coinexchange/pos/main.html")
-    c = CoinExchangeContext(request, {})
+    c = CoinExchangeContext(request, data)
     return HttpResponse(t.render(c))

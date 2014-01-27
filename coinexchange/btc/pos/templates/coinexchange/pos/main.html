@@ -5,6 +5,7 @@ CoinExchange Sale
 {% endblock %}
 
 {% block content %}
+<script type="application/javascript" src="/static/qr/qrcode.js"></script>
 
 <h2>Point of Sale Home</h2>
 
@@ -12,12 +13,12 @@ CoinExchange Sale
 	<div class="row">
 		<div class="span2">
 			<div class="btn-group-vertical">
-				<button style="width:120px;height:70px;" type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#new-sale">New Sale</button>
+				<button style="width:120px;height:70px;" type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#new-sale" id="newSaleButton">New Sale</button>
 				<button style="width:120px;" type="button" class="btn btn-default" id="test-btn">Test</button>
 			</div>
 		</div>
 		<div class="span10">
-			<div class="row" id="status_area">
+			<div class="row" id="sale_status_area">
 				
 			</div>
 		</div>
@@ -34,8 +35,20 @@ CoinExchange Sale
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="newSaleModal">New Sale</h4>
 			</div>
-			<div class="modal-body">
-				
+			<div class="modal-body" id="newSaleBody">
+				<form id="newSaleForm">
+					<table>
+					{{new_sales_form.as_table}}
+					<tr>
+						<td style="width: 50%;">
+						</td>
+						<td>
+							<button type="button" class="btn btn-default btn-primary" id="newSaleSubmit">OK</button>
+						</td>
+					</tr>
+					</table>
+				</form>
+				<div id="newSaleQR" style="text-align: center;"></div>
 			</div>
 		</div>
 	</div>
@@ -47,22 +60,8 @@ CoinExchange Sale
 
 <div id="handlebar-test" class="span12"></div>
 
-<script type="application/javascript">
-var item_count=1;
-$('#test-btn').bind("click", function(){
-	var itemhtml = '<div class="span2"><h4>Inserted Item'+ item_count++ +'</h4></div>';
-	$('#status_area').prepend(itemhtml);
-});
+<script type="application/javascript" src="/static/pos/pos.js"></script>
 
-
-
-// 
-	// var context = {var1: "test variable"}
-	// T.render('pos/new_sale', function(t){
-		// $('#handlebar-test').html(t(context));
-	// });
-</script>
-
-
+Address: {{coinexchange_account.address}}
 
 {% endblock %}
