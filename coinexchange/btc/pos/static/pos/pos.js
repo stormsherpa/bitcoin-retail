@@ -15,6 +15,19 @@ function toFixed(value, precision) {
 
     return precision ? integral + '.' +  padding + fraction : integral;
 }
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function show_alert(err_div, message, alert_class){
+	if(!alert_class){
+		alert_class="alert-error";
+	}
+	var alert_html = {alert_type: alert_class, message: message};
+	T.render('pos/alert', function(t){
+		err_div.append(t(alert_html));
+	});
+}
 
 var exchange_rate = 810;
 
@@ -26,16 +39,23 @@ $('#test-btn').bind("click", function(){
 
 $('#newSaleButton').bind("click", function(){
 	$('#newSaleQR').html("");
-	$('#newSaleForm')[0].reset();
+	var sale_form = $('#newSaleForm')[0];
+	$(sale_form).show();
+	sale_form.reset();
 });
 
 $('#newSaleSubmit').bind("click", function(){
 	var sale_form = $($('#newSaleForm')[0]);
 	var reference = $(sale_form.find('[name=reference]')[0]).val();
-	var currency = $(sale_form.find('[name=currency]')[0]).val();
+	var currency = "USD";
 	var amount = $(sale_form.find('[name=amount]')[0]).val();
 	var btc = (amount/exchange_rate).toFixed(8);
 	
+	if(!isNumber(amount)){
+		show_alert($('#newSaleErrors'), "Amount did not contain a number.");
+		return;
+	}
+
 	var send_address = "1EDuyfcLXwcu7osRtkxGmY6oSRXssy3fHt";
 	var qr = qrcode(4, 'M');
 	var request_text = 'bitcoin:'+send_address+'?amount='+btc;
@@ -44,4 +64,15 @@ $('#newSaleSubmit').bind("click", function(){
 	
 	$('#newSaleQR').html(qr.createImgTag(7,5));
 	$('#newSaleQR').append('<br/>'+reference+' - '+amount+' '+currency+'<br/>('+btc+' BTC)<br/>'+request_text);
+	sale_form.hide();
+	$('#newSaleErrors').html('');
+	var sales_tx_info = {
+		reference: reference,
+		amount: amount+' '+currency,
+		status: 'pending',
+		style: "background: yellow;"
+		};
+	T.render('pos/sales_transaction', function(t){
+		$('#sale_status_area').prepend(t(sales_tx_info));
+	});
 });
