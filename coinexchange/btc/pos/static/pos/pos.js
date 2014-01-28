@@ -30,21 +30,30 @@ function show_alert(err_div, message, alert_class){
 }
 
 var xmpp_connection = null;
+
+function xmpp_onConnect(status){
+	if(status == Strophe.Status.CONNECTING){
+		show_alert($('#status_messages'), "XMPP Connecting");
+	}else if(status==Strophe.Status.CONNECTED){
+		show_alert($('#status_messages'), "XMPP Connected!");
+	}else if(status==Strophe.Status.CONNFAIL){
+		show_alert($('#status_messages'), "XMPP Connection failed!");
+	}else if(status==Strophe.Status.DISCONNECTING){
+		show_alert($('#status_messages'), "XMPP Disconnecting...");
+	}else if(status==Strophe.Status.DISCONNECTED){
+		show_alert($('#status_messages'), "XMPP Disconnected!");
+	}else{
+		show_alert($('#status_messages'), "XMPP Encountered an unexpected connection error state: "+status);
+	}
+}
+
 $(document).ready(function(){
 	$.ajax({
 		url: '/account/api/xmpp',
 		dataType: 'json',
 		success: function(settings){
 			xmpp_connection = new Strophe.Connection(settings.bosh_url);
-			xmpp_connection.connect(settings.username, settings.password, function(status){
-				if(status == Strophe.Status.CONNECTING){
-					show_alert($('#status_messages'), "XMPP Connecting");
-				}else if(status==Strophe.Status.CONNECTED){
-					show_alert($('#status_messages'), "XMPP Connected!");
-				}else{
-					show_alert($('#status_messages'), "XMPP Encountered an unexpected connection error state: "+status);
-				}
-			});
+			xmpp_connection.connect(settings.username, settings.password, xmpp_onConnect);
 		},
 		error: function(xhr, textStatus, err){
 			show_alert($('#status_messages'), "Could not get XMPP credentials: "+textStatus+'\n'+err);
