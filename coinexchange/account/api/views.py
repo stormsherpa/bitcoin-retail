@@ -3,6 +3,7 @@ import datetime
 import decimal
 import json
 import traceback
+import hashlib
 
 from django.http import HttpResponse, Http404
 from django.template import loader
@@ -12,6 +13,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View
+
+from django.conf import settings
 
 from coinexchange.views import LoginView, JsonResponse
 from coinexchange.main.forms import SignupForm, WithdrawlRequestForm, SellOfferForm
@@ -47,6 +50,21 @@ def state(request):
         session_status = dict()
     http_response = HttpResponse(json.dumps(session_status, indent=2)+"\n")
     http_response['Content-Type'] = 'application/json'
+    return http_response
+
+@login_required
+def xmpp_creds(request):
+    username = "account-id-%s" % request.user.id
+    domain = getattr(settings, 'XMPP_DOMAIN', 'stormsherpa.com')
+    server = getattr(settings, 'XMPP_BOSH_URL', 'http://stormsherpa.com:5280/http-bind')
+    password_psk = getattr(settings, 'XMPP_AUTH_PRESHARED_KEY', 'coinExchange')
+    passwd_in_str = "%s@%s:%s" % (username, domain, password_psk)
+    passwd_str = hashlib.md5(passwd_in_str).hexdigest()
+    creds = {'username': "%s@%s" % (username, domain),
+             'password': passwd_str,
+             'bosh_url': server}
+    http_response = HttpResponse(json.dumps(creds, indent=2))
+    http_response['Content-Type'] = 'application/javascript'
     return http_response
 
 class WithdrawlView(LoginView):

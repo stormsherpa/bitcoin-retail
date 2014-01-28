@@ -6,15 +6,16 @@ CoinExchange Sale
 
 {% block content %}
 <script type="application/javascript" src="/static/qr/qrcode.js"></script>
+<script type="application/javascript" src="/static/strophe.js"></script>
 
 <h2>Point of Sale Home</h2>
 
 <div class="span12">
 	<div class="row">
 		<div class="span2">
-			<div class="btn-group-vertical">
-				<button style="width:120px;height:70px;" type="button" class="btn btn-default btn-primary" data-toggle="modal" data-target="#new-sale" id="newSaleButton">New Sale</button>
-				<button style="width:120px;" type="button" class="btn btn-default" id="test-btn">Test</button>
+			<div class="btn-group-vertical btn-block">
+				<button type="button" class="btn btn-primary btn-block" style="height:70px;" data-toggle="modal" data-target="#new-sale" id="newSaleButton">New Sale</button>
+				<button type="button" class="btn btn-default btn-block" id="test-btn">Test</button>
 			</div>
 		</div>
 		<div class="span10">

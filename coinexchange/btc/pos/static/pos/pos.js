@@ -29,6 +29,29 @@ function show_alert(err_div, message, alert_class){
 	});
 }
 
+var xmpp_connection = null;
+$(document).ready(function(){
+	$.ajax({
+		url: '/account/api/xmpp',
+		dataType: 'json',
+		success: function(settings){
+			xmpp_connection = new Strophe.Connection(settings.bosh_url);
+			xmpp_connection.connect(settings.username, settings.password, function(status){
+				if(status == Strophe.Status.CONNECTING){
+					show_alert($('#status_messages'), "XMPP Connecting");
+				}else if(status==Strophe.Status.CONNECTED){
+					show_alert($('#status_messages'), "XMPP Connected!");
+				}else{
+					show_alert($('#status_messages'), "XMPP Encountered an unexpected connection error state: "+status);
+				}
+			});
+		},
+		error: function(xhr, textStatus, err){
+			show_alert($('#status_messages'), "Could not get XMPP credentials: "+textStatus+'\n'+err);
+		}
+	});
+});
+
 var exchange_rate = 810;
 
 var item_count=1;
@@ -70,7 +93,8 @@ $('#newSaleSubmit').bind("click", function(){
 		reference: reference,
 		amount: amount+' '+currency,
 		status: 'pending',
-		style: "background: yellow;"
+		style: "",
+		extra_class: "btn btn-warning"
 		};
 	T.render('pos/sales_transaction', function(t){
 		$('#sale_status_area').prepend(t(sales_tx_info));
