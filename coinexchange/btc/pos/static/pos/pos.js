@@ -29,13 +29,39 @@ function show_alert(err_div, message, alert_class){
 	});
 }
 
+function showPosUI(state){
+	if(state){
+		$('#posUI').show();
+		$('#posUILoading').hide();
+	}else{
+		$('#posUI').hide();
+		$('#posUILoading').show();
+	}
+}
+
 var xmpp_connection = null;
+
+function onMessage(msg){
+	var to=msg.getAttribute('to');
+	var from=msg.getAttribute('from');
+	var type=msg.getAttribute('type');
+	var elems = msg.getElementsByTagName('body');
+	if(type=="chat" && elems.length > 0){
+		var body=elems[0];
+		message = from+': '+Strophe.getText(body);
+		show_alert($('#status_messages'), message, "alert-success");
+	}
+	return true;
+}
 
 function xmpp_onConnect(status){
 	if(status == Strophe.Status.CONNECTING){
-		show_alert($('#status_messages'), "XMPP Connecting");
+		// show_alert($('#status_messages'), "XMPP Connecting");
 	}else if(status==Strophe.Status.CONNECTED){
-		show_alert($('#status_messages'), "XMPP Connected!");
+		xmpp_connection.send($pres().tree());
+		xmpp_connection.addHandler(onMessage, null, 'message', null, null, null);
+		showPosUI(true);
+		// show_alert($('#status_messages'), "XMPP Connected!");
 	}else if(status==Strophe.Status.CONNFAIL){
 		show_alert($('#status_messages'), "XMPP Connection failed!");
 	}else if(status==Strophe.Status.DISCONNECTING){
@@ -79,33 +105,46 @@ $('#newSaleButton').bind("click", function(){
 $('#newSaleSubmit').bind("click", function(){
 	var sale_form = $($('#newSaleForm')[0]);
 	var reference = $(sale_form.find('[name=reference]')[0]).val();
-	var currency = "USD";
 	var amount = $(sale_form.find('[name=amount]')[0]).val();
-	var btc = (amount/exchange_rate).toFixed(8);
-	
+
 	if(!isNumber(amount)){
 		show_alert($('#newSaleErrors'), "Amount did not contain a number.");
 		return;
 	}
 
-	var send_address = "1EDuyfcLXwcu7osRtkxGmY6oSRXssy3fHt";
-	var qr = qrcode(4, 'M');
-	var request_text = 'bitcoin:'+send_address+'?amount='+btc;
-	qr.addData(request_text);
-	qr.make();
-	
-	$('#newSaleQR').html(qr.createImgTag(7,5));
-	$('#newSaleQR').append('<br/>'+reference+' - '+amount+' '+currency+'<br/>('+btc+' BTC)<br/>'+request_text);
-	sale_form.hide();
-	$('#newSaleErrors').html('');
-	var sales_tx_info = {
-		reference: reference,
-		amount: amount+' '+currency,
-		status: 'pending',
-		style: "",
-		extra_class: "btn btn-warning"
-		};
-	T.render('pos/sales_transaction', function(t){
-		$('#sale_status_area').prepend(t(sales_tx_info));
+	var onSuccess = function(data, textStatus, xhr){
+		var qr = qrcode(4, 'M');
+		var request_text = 'bitcoin:'+data.address+'?amount='+data.btc_amount;
+		qr.addData(request_text);
+		qr.make();
+
+		$('#newSaleQR').html(qr.createImgTag(7,5));
+		$('#newSaleQR').append('<br/>'+reference+' - '+data.fiat_amount+' '+data.currency+'<br/>('+data.btc_amount+' BTC)<br/>'+request_text);
+		sale_form.hide();
+		$('#newSaleErrors').html('');
+		var sales_tx_info = {
+			reference: reference,
+			amount: data.fiat_amount+' '+data.currency,
+			btc_amount: data.btc_amount,
+			status: 'pending',
+			style: "",
+			extra_class: "btn btn-warning",
+			sale_id: data.sale_id
+			};
+		T.render('pos/sales_transaction', function(t){
+			$('#sale_status_area').prepend(t(sales_tx_info));
+		});
+
+	};
+	var onError = function(xhr, textStatus, errorThrown){
+		show_alert($('#status_messages'), "Error creating new sale: "+errorThrown);
+	};
+	$.ajax({
+		type: 'POST',
+		url: '/account/api/newsale',
+		data: {reference: reference, amount: amount},
+		dataType: 'json',
+		success: onSuccess,
+		error: onError
 	});
 });

@@ -22,6 +22,7 @@ from coinexchange.main.lib import CoinExchangeContext, StatusMessages
 from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest, SellOffer
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
+from coinexchange.btc.pos.models import SalesTransaction
 
 
 @login_required
@@ -49,6 +50,33 @@ def state(request):
     else:
         session_status = dict()
     http_response = HttpResponse(json.dumps(session_status, indent=2)+"\n")
+    http_response['Content-Type'] = 'application/json'
+    return http_response
+
+@login_required
+def newsale(request):
+    profile = request.user.get_profile()
+    address = clientlib.get_user_address(profile)
+    currency = "USD"
+    exchange_rate = 795
+    fiat_amount = decimal.Decimal(request.POST['amount'])
+    btc_amount = fiat_amount/exchange_rate
+    sale = SalesTransaction(merchant=profile,
+                            reference=request.POST['reference'],
+                            amount=fiat_amount,
+                            currency=currency,
+                            currency_btc_exchange_rate=exchange_rate,
+                            btc_amount=btc_amount,
+                            btc_address=address)
+    sale.save()
+    response = {
+                'sale_id': sale.id,
+                'address': address,
+                'currency': 'USD',
+                'fiat_amount': "%0.2f" % fiat_amount,
+                'btc_amount': "%0.8f" % btc_amount,
+                }
+    http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response
 

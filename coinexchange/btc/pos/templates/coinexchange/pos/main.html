@@ -8,12 +8,16 @@ CoinExchange Sale
 <script type="application/javascript" src="/static/qr/qrcode.js"></script>
 <script type="application/javascript" src="/static/strophe.js"></script>
 
-<h2>Point of Sale Home</h2>
+<!-- <h2>Point of Sale Home</h2> -->
 
-<div class="span12">
-	<div class="row">
+<div class="span12" id="posUILoading" style="min-height: 300px;max-height:300px; height:300px;text-align:center;">
+	<h1>Point of Sale Loading...</h1>
+</div>
+
+<div class="span12" id="posUI" style="display:none;">
+	<div class="row" style="min-height:500px;">
 		<div class="span2">
-			<div class="btn-group-vertical btn-block">
+			<div class="btn-group-vertical btn-block" id="controlButtons">
 				<button type="button" class="btn btn-primary btn-block" style="height:70px;" data-toggle="modal" data-target="#new-sale" id="newSaleButton">New Sale</button>
 				<button type="button" class="btn btn-default btn-block" id="test-btn">Test</button>
 			</div>
@@ -22,6 +26,11 @@ CoinExchange Sale
 			<div class="row" id="sale_status_area">
 				
 			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="span12">
+			Bitcoin Address: {{coinexchange_account.address}}
 		</div>
 	</div>
 </div>
@@ -63,7 +72,5 @@ CoinExchange Sale
 <div id="handlebar-test" class="span12"></div>
 
 <script type="application/javascript" src="/static/pos/pos.js"></script>
-
-Address: {{coinexchange_account.address}}
 
 {% endblock %}
