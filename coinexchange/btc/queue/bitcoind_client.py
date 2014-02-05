@@ -98,7 +98,6 @@ class BitcoindClient():
                 raise BitcoindClientTimeoutError("Timeout waiting for command %s" % self.command)
             self.mqconn.process_data_events()
         return_body = self.response_body
-        print "Command: %s -> %s" % (self.command, response_body)
         # cleanup state for next round
         self.correlation_id = None
         self.response_body = None
