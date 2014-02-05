@@ -39,6 +39,43 @@ function showPosUI(state){
 	}
 }
 
+///////////////////////////////
+////  Sales Transaction Objects
+///////////////////////////////
+var SalesTransactions = new Array();
+
+function SalesTransaction(reference, amount){
+	this.request_text;
+	this.reference = reference;
+	this.amount = amount;
+	this.fiat_amount;
+	this.btc_amount;
+	this.status = 'pending';
+	this.sale_id;
+	this.html_element;
+}
+
+SalesTransaction.prototype.newsaleUpdate = function(data){
+	this.fiat_amount = data.fiat_amount+' '+data.currency;
+	this.request_text = 'bitcoin:'+data.address+'?amount='+data.btc_amount;
+	this.btc_amount = data.btc_amount;
+	this.sale_id = data.sale_id;
+	SalesTransactions[this.sale_id] = this;
+	return this;
+};
+
+SalesTransaction.prototype.generateQR = function(){
+	var qr = qrcode(4, 'M');
+	qr.addData(this.request_text);
+	qr.make();
+	return qr.createImgTag(7,5);
+};
+
+SalesTransaction.prototype.get_html_element = function(){
+	return $('div[saleID='+this.sale_id+']')[0];
+};
+///////////////////////////////
+
 var xmpp_connection = null;
 
 function onMessage(msg){
@@ -101,7 +138,6 @@ $('#newSaleButton').bind("click", function(){
 	$(sale_form).show();
 	sale_form.reset();
 });
-
 $('#newSaleSubmit').bind("click", function(){
 	var sale_form = $($('#newSaleForm')[0]);
 	var reference = $(sale_form.find('[name=reference]')[0]).val();
@@ -113,20 +149,14 @@ $('#newSaleSubmit').bind("click", function(){
 	}
 
 	var onSuccess = function(data, textStatus, xhr){
-		var qr = qrcode(4, 'M');
-		var request_text = 'bitcoin:'+data.address+'?amount='+data.btc_amount;
-		qr.addData(request_text);
-		qr.make();
-
-		$('#newSaleQR').html(qr.createImgTag(7,5));
-		$('#newSaleQR').append('<br/>'+reference+' - '+data.fiat_amount+' '+data.currency+'<br/>('+data.btc_amount+' BTC)<br/>'+request_text);
+		sale_tx = new SalesTransaction(reference, amount);
+		sale_tx.newsaleUpdate(data);
+		$('#newSaleQR').html(sale_tx.generateQR());
+		$('#newSaleQR').append('<br/>'+reference+' - '+sale_tx.fiat_amount+'<br/>('+sale_tx.btc_amount+' BTC)<br/>'+sale_tx.request_text);
 		sale_form.hide();
 		$('#newSaleErrors').html('');
 		var sales_tx_info = {
-			reference: reference,
-			amount: data.fiat_amount+' '+data.currency,
-			btc_amount: data.btc_amount,
-			status: 'pending',
+			sale_tx: sale_tx,
 			style: "",
 			extra_class: "btn btn-warning",
 			sale_id: data.sale_id
@@ -134,7 +164,6 @@ $('#newSaleSubmit').bind("click", function(){
 		T.render('pos/sales_transaction', function(t){
 			$('#sale_status_area').prepend(t(sales_tx_info));
 		});
-
 	};
 	var onError = function(xhr, textStatus, errorThrown){
 		show_alert($('#status_messages'), "Error creating new sale: "+errorThrown);

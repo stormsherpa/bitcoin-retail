@@ -1,6 +1,8 @@
 
 from django.core.management.base import BaseCommand, CommandError
 
+from coinexchange.btc.models import CoinExchangeUser
+
 from coinexchange.btc.queue.bitcoind_agent import BitcoindAgent
 
 class Command(BaseCommand):

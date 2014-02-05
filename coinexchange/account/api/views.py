@@ -23,6 +23,7 @@ from coinexchange.btc.models import CoinTxnLog, WithdrawlRequest, SellOffer
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
 from coinexchange.btc.pos.models import SalesTransaction
+from coinexchange.btc.pos import lib
 
 
 @login_required
@@ -56,7 +57,8 @@ def state(request):
 @login_required
 def newsale(request):
     profile = request.user.get_profile()
-    address = clientlib.get_user_address(profile)
+#     address = clientlib.get_user_address(profile)
+    receive_address = lib.get_available_receive_address(profile)
     currency = "USD"
     exchange_rate = 795
     fiat_amount = decimal.Decimal(request.POST['amount'])
@@ -67,11 +69,12 @@ def newsale(request):
                             currency=currency,
                             currency_btc_exchange_rate=exchange_rate,
                             btc_amount=btc_amount,
-                            btc_address=address)
+                            btc_address=receive_address)
     sale.save()
+    print receive_address.address
     response = {
                 'sale_id': sale.id,
-                'address': address,
+                'address': receive_address.address,
                 'currency': 'USD',
                 'fiat_amount': "%0.2f" % fiat_amount,
                 'btc_amount': "%0.8f" % btc_amount,

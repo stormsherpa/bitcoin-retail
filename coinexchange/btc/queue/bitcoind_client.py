@@ -17,9 +17,12 @@ class BitcoindClientError(Exception):
 class BitcoindClientTimeoutError(Exception):
     pass
 
+print BITCOIN_QUEUE['url']
+
 class BitcoindClient():
     def __init__(self):
         mqparam = pika.connection.URLParameters(BITCOIN_QUEUE['url'])
+        
         self.mqconn = pika.BlockingConnection(mqparam)
         self.channel = self.mqconn.channel()
         result = self.channel.queue_declare(exclusive=True)
@@ -85,7 +88,7 @@ class BitcoindClient():
         self.rpc_timeout = int(time.time()) + self.rpc_timeout_interval
 
     def _receive_response(self, ch, method, props, body):
-#         print "Got response:\n===%s\n===" % body
+        print "Got response:\n===%s\n===" % body
         if self.correlation_id == props.correlation_id:
             self.response_body = body
 
@@ -95,6 +98,7 @@ class BitcoindClient():
                 raise BitcoindClientTimeoutError("Timeout waiting for command %s" % self.command)
             self.mqconn.process_data_events()
         return_body = self.response_body
+        print "Command: %s -> %s" % (self.command, response_body)
         # cleanup state for next round
         self.correlation_id = None
         self.response_body = None
@@ -111,6 +115,15 @@ class BitcoindClient():
         self._send_command(cmd_yaml)
         return self._response_wait()
 
+    def getaddressesbyaccount(self, account):
+        cmd_yaml = self._prep_command('getaddressesbyaccount', account)
+        self._send_command(cmd_yaml)
+        return self._response_wait()
+
+    def getnewaddress(self, account):
+        cmd_yaml = self._prep_command('getnewaddress', account)
+        self._send_command(cmd_yaml)
+        return self._response_wait()
 
     def user_withdrawl(self, request):
         self._send_command(request.as_yaml())

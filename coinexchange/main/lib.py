@@ -13,7 +13,7 @@ class CoinExchangeContext(RequestContext):
 #                                     'balance': balance,
                                     'address': address,
                                     }
-            print coinexchange_account
+            print "Coinexchange account: %s" % coinexchange_account
             context['coinexchange_account'] = coinexchange_account
         else:
             context['coinexchange_account'] = dict()

@@ -32,11 +32,11 @@ class CoinExchangeUserInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'profile'
 
-class CoinExchangeUserAdmin(UserAdmin):
+class CoinExchangeUserInlineAdmin(UserAdmin):
     inlines = (CoinExchangeUserInline, )
 
 admin.site.unregister(User)
-admin.site.register(User, CoinExchangeUserAdmin)
+admin.site.register(User, CoinExchangeUserInlineAdmin)
 
 class CoinExchangeUserAdmin(admin.ModelAdmin):
     list_display = ('user', 'btc_account')

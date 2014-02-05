@@ -14,6 +14,7 @@ class BitcoindAgent():
         self.rpcconn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'],
                                                     **BITCOINRPC_ARGS['kwargs'])
         mqparam = pika.connection.URLParameters(BITCOIN_QUEUE['url'])
+        print BITCOIN_QUEUE['url']
         self.mqconn = pika.BlockingConnection(mqparam)
         self.channel = self.mqconn.channel()
         self.channel.queue_declare(queue='bitcoind_rpc',
@@ -25,11 +26,14 @@ class BitcoindAgent():
 #         self.channel.basic_consume(self._cast_callback, queue='bitcoind_cast')
 
     def start_consuming(self):
+        print "Starting..."
         self.channel.start_consuming()
 
     rpc_passthru_commands = ['getaccountaddress',
                              'listaccounts',
                              'getbalance',
+                             'getaddressesbyaccount',
+                             'getnewaddress',
                             ]
 
 #     def _cast_callback(self, ch, method, properties, body):
@@ -55,6 +59,8 @@ class BitcoindAgent():
                 rpc_result = {'result': getattr(self.rpcconn, command)(*rpc_args, **rpc_kwargs),
                               'error': False}
             except Exception as e:
+                print command
+                print e
                 rpc_result = {'result': {'error_string': e, 'error_type': e.__class__},
                               'error': True}
         elif command == "user_withdrawl":
