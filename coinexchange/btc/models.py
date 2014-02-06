@@ -15,6 +15,7 @@ class CoinExchangeUser(models.Model):
     btc_account = models.CharField(max_length=20, unique=True)
     btc_address = models.CharField(max_length=200, null=True, unique=True)
     btc_balance = models.DecimalField(max_digits=20, decimal_places=8, default=0)
+    currency = models.CharField(max_length=10, default='USD')
 
     def __unicode__(self):
         return str(self.user.username)

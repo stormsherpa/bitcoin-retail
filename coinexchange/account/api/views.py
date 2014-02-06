@@ -58,26 +58,14 @@ def state(request):
 def newsale(request):
     profile = request.user.get_profile()
 #     address = clientlib.get_user_address(profile)
-    receive_address = lib.get_available_receive_address(profile)
-    currency = "USD"
-    exchange_rate = 795
-    fiat_amount = decimal.Decimal(request.POST['amount'])
-    btc_amount = fiat_amount/exchange_rate
-    sale = SalesTransaction(merchant=profile,
-                            reference=request.POST['reference'],
-                            amount=fiat_amount,
-                            currency=currency,
-                            currency_btc_exchange_rate=exchange_rate,
-                            btc_amount=btc_amount,
-                            btc_address=receive_address)
-    sale.save()
-    print receive_address.address
+    sale = lib.make_new_sale(profile, request.POST['amount'], request.POST['reference'])
+
     response = {
                 'sale_id': sale.id,
-                'address': receive_address.address,
-                'currency': 'USD',
-                'fiat_amount': "%0.2f" % fiat_amount,
-                'btc_amount': "%0.8f" % btc_amount,
+                'address': sale.btc_address.address,
+                'currency': sale.currency,
+                'fiat_amount': "%0.2f" % sale.amount,
+                'btc_amount': "%0.8f" % sale.btc_amount,
                 }
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'

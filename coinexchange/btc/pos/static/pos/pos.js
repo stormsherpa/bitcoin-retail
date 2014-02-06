@@ -134,6 +134,7 @@ $('#test-btn').bind("click", function(){
 
 $('#newSaleButton').bind("click", function(){
 	$('#newSaleQR').html("");
+	$('#newSaleQR').attr('thisSale', null);
 	var sale_form = $('#newSaleForm')[0];
 	$(sale_form).show();
 	sale_form.reset();
@@ -151,8 +152,10 @@ $('#newSaleSubmit').bind("click", function(){
 	var onSuccess = function(data, textStatus, xhr){
 		sale_tx = new SalesTransaction(reference, amount);
 		sale_tx.newsaleUpdate(data);
+		$('#newSaleQR').attr('thisSale', data.sale_id);
 		$('#newSaleQR').html(sale_tx.generateQR());
 		$('#newSaleQR').append('<br/>'+reference+' - '+sale_tx.fiat_amount+'<br/>('+sale_tx.btc_amount+' BTC)<br/>'+sale_tx.request_text);
+		$('#newSaleQR').append('<button id="closeNewSale" data-dismiss="modal" class="btn btn-primary">Close</button>');
 		sale_form.hide();
 		$('#newSaleErrors').html('');
 		var sales_tx_info = {
