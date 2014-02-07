@@ -91,14 +91,26 @@ function onMessage(msg){
 	return true;
 }
 
+function onConfirm(msg){
+	var elems = msg.getElementsByTagName('confirm');
+	if(elems.length > 0){
+		var json_msg = $(elems[0]).text();
+		var jmsg = JSON.parse(json_msg);
+		show_alert($('#status_messages'), jmsg.status+' - '+jmsg.sale_id, "alert-success");
+	}
+	return true;
+}
+
 function xmpp_onConnect(status){
 	if(status == Strophe.Status.CONNECTING){
+		show_alert($('#loadPosStatus'), "XMPP Connecting...", "alert-success");
 		// show_alert($('#status_messages'), "XMPP Connecting");
 	}else if(status==Strophe.Status.CONNECTED){
+		show_alert($('#loadPosStatus'), "XMPP Connected!");
 		xmpp_connection.send($pres().tree());
-		xmpp_connection.addHandler(onMessage, null, 'message', null, null, null);
+		// xmpp_connection.addHandler(onMessage, null, 'message', null, null, null);
+		xmpp_connection.addHandler(onConfirm, "coinexchange:tx:confirm", 'message', null, null, null);
 		showPosUI(true);
-		// show_alert($('#status_messages'), "XMPP Connected!");
 	}else if(status==Strophe.Status.CONNFAIL){
 		show_alert($('#status_messages'), "XMPP Connection failed!");
 	}else if(status==Strophe.Status.DISCONNECTING){
@@ -124,14 +136,6 @@ $(document).ready(function(){
 	});
 });
 
-var exchange_rate = 810;
-
-var item_count=1;
-$('#test-btn').bind("click", function(){
-	var itemhtml = '<div class="span2"><h4>Inserted Item'+ item_count++ +'</h4></div>';
-	$('#sale_status_area').prepend(itemhtml);
-});
-
 $('#newSaleButton').bind("click", function(){
 	$('#newSaleQR').html("");
 	$('#newSaleQR').attr('thisSale', null);
@@ -139,6 +143,7 @@ $('#newSaleButton').bind("click", function(){
 	$(sale_form).show();
 	sale_form.reset();
 });
+
 $('#newSaleSubmit').bind("click", function(){
 	var sale_form = $($('#newSaleForm')[0]);
 	var reference = $(sale_form.find('[name=reference]')[0]).val();
@@ -166,6 +171,13 @@ $('#newSaleSubmit').bind("click", function(){
 			};
 		T.render('pos/sales_transaction', function(t){
 			$('#sale_status_area').prepend(t(sales_tx_info));
+			$('div[saleid='+data.sale_id+']').bind('click', function(){
+				$('#ReviewSale').modal();
+				$('h4#ReviewSaleModal').html("Review Transaction "+data.sale_id);
+				$('#ReviewSaleBody').html(sale_tx.generateQR());
+				$('#ReviewSaleBody').append('<br/>'+reference+' - '+sale_tx.fiat_amount+'<br/>('+sale_tx.btc_amount+' BTC)<br/>'+sale_tx.request_text);
+				$('#ReviewSaleBody').append('<button id="closeNewSale" data-dismiss="modal" class="btn btn-primary">Close</button>');
+			});
 		});
 	};
 	var onError = function(xhr, textStatus, errorThrown){

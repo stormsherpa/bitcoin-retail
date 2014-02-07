@@ -4,17 +4,18 @@ import yaml
 import pika
 import bitcoinrpc
 
-from coinexchange.btc.config import BITCOINRPC_ARGS
-from coinexchange.btc.config import BITCOIN_QUEUE
+from django.conf import settings
 
 from coinexchange.btc import agentlib
+
+BITCOINRPC_ARGS = settings.BITCOINRPC_ARGS
 
 class BitcoindAgent():
     def __init__(self):
         self.rpcconn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'],
                                                     **BITCOINRPC_ARGS['kwargs'])
-        mqparam = pika.connection.URLParameters(BITCOIN_QUEUE['url'])
-        print BITCOIN_QUEUE['url']
+        mqparam = pika.connection.URLParameters(settings.BITCOIN_QUEUE_URL)
+        print settings.BITCOIN_QUEUE_URL
         self.mqconn = pika.BlockingConnection(mqparam)
         self.channel = self.mqconn.channel()
         self.channel.queue_declare(queue='bitcoind_rpc',

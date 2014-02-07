@@ -164,3 +164,14 @@ LOGGING = {
         },
     }
 }
+
+BITCOIN_QUEUE_URL = "amqp://coinexchange:coinexchange@jenkins.stormsherpa.com:5672/coinexchange"
+BITCOINRPC_ARGS = {'args':['bitcoin', 'R7q2heIYxi'],
+                   'kwargs': {'port': 8321}}
+
+XMPP = {'userjid': 'admin@localhost',
+        'password': 'testing',
+        'url': "http://stormsherpa.com:5280/api",
+        }
+
+XMPP_DOMAIN = "stormsherpa.com"

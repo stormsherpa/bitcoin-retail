@@ -5,7 +5,7 @@ import time
 
 import pika
 
-from coinexchange.btc.config import BITCOIN_QUEUE
+from django.conf import settings
 
 _client_instances = list()
 
@@ -17,11 +17,9 @@ class BitcoindClientError(Exception):
 class BitcoindClientTimeoutError(Exception):
     pass
 
-print BITCOIN_QUEUE['url']
-
 class BitcoindClient():
     def __init__(self):
-        mqparam = pika.connection.URLParameters(BITCOIN_QUEUE['url'])
+        mqparam = pika.connection.URLParameters(settings.get("BITCOIN_QUEUE_URL"))
         
         self.mqconn = pika.BlockingConnection(mqparam)
         self.channel = self.mqconn.channel()

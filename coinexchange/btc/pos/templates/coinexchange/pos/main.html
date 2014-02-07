@@ -12,6 +12,7 @@ CoinExchange Sale
 
 <div class="span12" id="posUILoading" style="min-height: 300px;max-height:300px; height:300px;text-align:center;">
 	<h1>Point of Sale Loading...</h1>
+	<div id="loadPosStatus"></div>
 </div>
 
 <div class="span12" id="posUI" style="display:none;">
@@ -19,7 +20,7 @@ CoinExchange Sale
 		<div class="span2">
 			<div class="btn-group-vertical btn-block" id="controlButtons">
 				<button type="button" class="btn btn-primary btn-block" style="height:70px;" data-toggle="modal" data-target="#new-sale" id="newSaleButton">New Sale</button>
-				<button type="button" class="btn btn-default btn-block" id="test-btn">Test</button>
+				<!-- <button type="button" class="btn btn-default btn-block" id="test-btn">Test</button> -->
 			</div>
 		</div>
 		<div class="span10">
@@ -65,6 +66,18 @@ CoinExchange Sale
 	</div>
 </div>
 
+<div class="modal fade" id="ReviewSale" tabindex="-1" role="dialog" aria-labelledby="ReviewSaleModal" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="ReviewSaleModal">New Sale</h4>
+			</div>
+			<div class="modal-body" id="ReviewSaleBody" style="text-align: center;">
+			</div>
+		</div>
+	</div>
+</div>
 
 
 

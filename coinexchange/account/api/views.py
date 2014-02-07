@@ -73,13 +73,15 @@ def newsale(request):
 
 @login_required
 def xmpp_creds(request):
-    username = "account-id-%s" % request.user.id
+    from coinexchange import xmpp
+#     username = "account-id-%s" % request.user.id
+    username = xmpp.get_userjid(request.user)
     domain = getattr(settings, 'XMPP_DOMAIN', 'stormsherpa.com')
     server = getattr(settings, 'XMPP_BOSH_URL', 'http://stormsherpa.com:5280/http-bind')
     password_psk = getattr(settings, 'XMPP_AUTH_PRESHARED_KEY', 'coinExchange')
-    passwd_in_str = "%s@%s:%s" % (username, domain, password_psk)
+    passwd_in_str = "%s:%s" % (username, password_psk)
     passwd_str = hashlib.md5(passwd_in_str).hexdigest()
-    creds = {'username': "%s@%s" % (username, domain),
+    creds = {'username': username,
              'password': passwd_str,
              'bosh_url': server}
     http_response = HttpResponse(json.dumps(creds, indent=2))

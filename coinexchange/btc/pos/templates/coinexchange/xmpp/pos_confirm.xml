@@ -1,0 +1,5 @@
+<message to="{{to}}" type="chat">
+	<confirm xmlns="coinexchange:tx:confirm">
+		{{json_body}}
+	</confirm>
+</message>
