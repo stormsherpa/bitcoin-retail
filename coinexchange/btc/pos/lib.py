@@ -39,12 +39,27 @@ def make_new_sale(merchant, fiat_amount, reference):
     amount = decimal.Decimal(fiat_amount)
     btc_amount = amount/exchange_rate
     receive_address = get_available_receive_address(merchant)
+    btc_url = "bitcoin:%s?amount=%0.8f" % (receive_address.address, btc_amount)
     sale = SalesTransaction(merchant=merchant,
                             reference=reference,
                             amount=amount,
                             currency=merchant.currency,
                             currency_btc_exchange_rate=exchange_rate,
                             btc_amount=btc_amount,
-                            btc_address=receive_address)
+                            btc_address=receive_address,
+                            btc_request_url=btc_url)
     sale.save()
     return sale
+
+def sale_json(sale):
+    response = {
+            'reference': sale.reference,
+            'sale_id': sale.id,
+            'address': sale.btc_address.address,
+            'currency': sale.currency,
+            'fiat_amount': "%0.2f" % sale.amount,
+            'btc_amount': "%0.8f" % sale.btc_amount,
+            'btc_request_url': sale.btc_request_url,
+            'pending': bool(not sale.btc_txid),
+            }
+    return response

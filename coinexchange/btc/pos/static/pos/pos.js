@@ -51,6 +51,7 @@ function SalesTransaction(reference, amount){
 	this.fiat_amount;
 	this.btc_amount;
 	this.status = 'pending';
+	this.pending;
 	this.sale_id;
 	this.html_element;
 }
@@ -60,6 +61,7 @@ SalesTransaction.prototype.newsaleUpdate = function(data){
 	this.request_text = 'bitcoin:'+data.address+'?amount='+data.btc_amount;
 	this.btc_amount = data.btc_amount;
 	this.sale_id = data.sale_id;
+	this.pending = data.pending;
 	SalesTransactions[this.sale_id] = this;
 	return this;
 };
@@ -91,14 +93,43 @@ function onMessage(msg){
 	return true;
 }
 
+function updateTxStatus(status, sale_id){
+	var el = $('div[type=sales_tx][saleid='+sale_id+']');
+	if(status == "confirmed"){
+		el.animate({height: "toggle"}, 200, function(){
+			el.attr("class", "span2 btn btn-success");
+			el.animate({height: "toggle"}, 200);
+		});
+	}else{
+		var msg = "Unexpected transaction update status: "+status+"\nSaleID: "+sale_id;
+		show_alert($('#status_messages'), msg, "alert-error");
+		el.attr("class", "span2 btn btn-error");
+	}
+}
+
 function onConfirm(msg){
 	var elems = msg.getElementsByTagName('confirm');
 	if(elems.length > 0){
 		var json_msg = $(elems[0]).text();
 		var jmsg = JSON.parse(json_msg);
-		show_alert($('#status_messages'), jmsg.status+' - '+jmsg.sale_id, "alert-success");
+		updateTxStatus(jmsg.status, jmsg.sale_id);
+		// show_alert($('#status_messages'), jmsg.status+' - '+jmsg.sale_id, "alert-success");
 	}
 	return true;
+}
+
+function xmpp_doConnect(){
+	$.ajax({
+		url: '/account/api/xmpp',
+		dataType: 'json',
+		success: function(settings){
+			xmpp_connection = new Strophe.Connection(settings.bosh_url);
+			xmpp_connection.connect(settings.username, settings.password, xmpp_onConnect);
+		},
+		error: function(xhr, textStatus, err){
+			show_alert($('#status_messages'), "Could not get XMPP credentials: "+textStatus+'\n'+err);
+		}
+	});
 }
 
 function xmpp_onConnect(status){
@@ -113,6 +144,7 @@ function xmpp_onConnect(status){
 		showPosUI(true);
 	}else if(status==Strophe.Status.CONNFAIL){
 		show_alert($('#status_messages'), "XMPP Connection failed!");
+		setTimeout(xmpp_doConnect, 5000);
 	}else if(status==Strophe.Status.DISCONNECTING){
 		show_alert($('#status_messages'), "XMPP Disconnecting...");
 	}else if(status==Strophe.Status.DISCONNECTED){
@@ -121,19 +153,67 @@ function xmpp_onConnect(status){
 		show_alert($('#status_messages'), "XMPP Encountered an unexpected connection error state: "+status);
 	}
 }
+var last_sale_tx;
+function add_sale_div(sale_tx){
+	last_sale_tx = sale_tx;
+	var extra_class = sale_tx.pending ? "btn btn-warning" : "btn btn-success";
+	var sales_tx_info = {
+		sale_tx: sale_tx,
+		style: "",
+		extra_class: extra_class,
+		sale_id: sale_tx.sale_id
+	};
+	T.render('pos/sales_transaction', function(t){
+		$('#sale_status_area').prepend(t(sales_tx_info));
+		$('div[saleid='+sale_tx.sale_id+']').bind('click', function(){
+			$('#ReviewSale').modal();
+			$('h4#ReviewSaleModal').html("Review Transaction "+sale_tx.sale_id);
+			$('#ReviewSaleBody').html(sale_tx.generateQR());
+			$('#ReviewSaleBody').append('<br/>'+sale_tx.reference+' - '+sale_tx.fiat_amount+'<br/>('+sale_tx.btc_amount+' BTC)<br/>'+sale_tx.request_text);
+			$('#ReviewSaleBody').append('<button id="closeNewSale" data-dismiss="modal" class="btn btn-primary">Close</button>');
+		});
+	});
+}
 
-$(document).ready(function(){
+function load_sale_history_items(item_list){
+	if(item_list.length>0){
+		sale_id = item_list.shift();
+		$.ajax({
+			type: 'GET',
+			url: '/account/api/sale/'+sale_id,
+			dataType: 'json',
+			success: function(data, textStatus, xhr){
+				if(data.pending){
+					sale_tx = new SalesTransaction(data.reference, data.fiat_amount);
+					sale_tx.newsaleUpdate(data);
+					add_sale_div(sale_tx);
+				}
+				load_sale_history_items(item_list);
+			}
+		});
+	}
+	// console.log(sale_id);
+}
+
+function load_sale_history(){
+	console.log("test");
 	$.ajax({
-		url: '/account/api/xmpp',
+		type: 'GET',
+		url: '/account/api/sale',
 		dataType: 'json',
-		success: function(settings){
-			xmpp_connection = new Strophe.Connection(settings.bosh_url);
-			xmpp_connection.connect(settings.username, settings.password, xmpp_onConnect);
-		},
-		error: function(xhr, textStatus, err){
-			show_alert($('#status_messages'), "Could not get XMPP credentials: "+textStatus+'\n'+err);
+		success: function(data, textSTatus, xhr){
+			// console.log(data.transaction_ids.length);
+			var txids = data.transaction_ids;
+			txids.sort();
+			load_sale_history_items(txids);
 		}
 	});
+}
+
+$(document).ready(function(){
+	xmpp_doConnect();
+	// alert("1");
+	load_sale_history();
 });
 
 $('#newSaleButton').bind("click", function(){
@@ -163,22 +243,7 @@ $('#newSaleSubmit').bind("click", function(){
 		$('#newSaleQR').append('<button id="closeNewSale" data-dismiss="modal" class="btn btn-primary">Close</button>');
 		sale_form.hide();
 		$('#newSaleErrors').html('');
-		var sales_tx_info = {
-			sale_tx: sale_tx,
-			style: "",
-			extra_class: "btn btn-warning",
-			sale_id: data.sale_id
-			};
-		T.render('pos/sales_transaction', function(t){
-			$('#sale_status_area').prepend(t(sales_tx_info));
-			$('div[saleid='+data.sale_id+']').bind('click', function(){
-				$('#ReviewSale').modal();
-				$('h4#ReviewSaleModal').html("Review Transaction "+data.sale_id);
-				$('#ReviewSaleBody').html(sale_tx.generateQR());
-				$('#ReviewSaleBody').append('<br/>'+reference+' - '+sale_tx.fiat_amount+'<br/>('+sale_tx.btc_amount+' BTC)<br/>'+sale_tx.request_text);
-				$('#ReviewSaleBody').append('<button id="closeNewSale" data-dismiss="modal" class="btn btn-primary">Close</button>');
-			});
-		});
+		add_sale_div(sale_tx);
 	};
 	var onError = function(xhr, textStatus, errorThrown){
 		show_alert($('#status_messages'), "Error creating new sale: "+errorThrown);
