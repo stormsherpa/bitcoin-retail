@@ -21,12 +21,12 @@ def store_btc_tx(tx):
             return None
         except CoinTxnLog.DoesNotExist:
             pass
-        if tx.confirmations < 20:
+        if tx.confirmations < 0:
             print "New transaction found, but has insufficient confirmations."
             print "---> txid=%s to %s has %s confirmations needs %s" % (tx.txid,
                                                                         tx.account,
                                                                         tx.confirmations,
-                                                                        20)
+                                                                        0)
             return None
 
         print "Creating log entry for %s" % tx.txid

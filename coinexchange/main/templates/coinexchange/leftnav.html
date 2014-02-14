@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="span2">
+	<div class="col-md-2">
 		<h3>Menu</h3>
 		<ul class="nav nav-tabs nav-stacked">
 			<li><a href="{% url "home" %}">Home</a></li>
@@ -23,7 +23,7 @@
 		</ul>
 		{% endif %}
 	</div>
-	<div class="span10">
+	<div class="col-md-10">
 		{% block innercontent %}
 		{% endblock %}
 	</div>

@@ -10,27 +10,27 @@ CoinExchange Sale
 
 <!-- <h2>Point of Sale Home</h2> -->
 
-<div class="span12" id="posUILoading" style="min-height: 300px;max-height:300px; height:300px;text-align:center;">
+<div class="col-md-12" id="posUILoading" style="min-height: 300px;max-height:300px; height:300px;text-align:center;">
 	<h1>Point of Sale Loading...</h1>
 	<div id="loadPosStatus"></div>
 </div>
 
-<div class="span12" id="posUI" style="display:none;">
+<div class="col-md-12" id="posUI" style="display:none;">
 	<div class="row" style="min-height:500px;">
-		<div class="span2">
+		<div class="col-md-2">
 			<div class="btn-group-vertical btn-block" id="controlButtons">
 				<button type="button" class="btn btn-primary btn-block" style="height:70px;" data-toggle="modal" data-target="#new-sale" id="newSaleButton">New Sale</button>
 				<!-- <button type="button" class="btn btn-default btn-block" id="test-btn">Test</button> -->
 			</div>
 		</div>
-		<div class="span10">
+		<div class="col-md-10">
 			<div class="row" id="sale_status_area">
 				
 			</div>
 		</div>
 	</div>
 	<div class="row">
-		<div class="span12">
+		<div class="col-md-12">
 			Bitcoin Address: {{coinexchange_account.address}}
 		</div>
 	</div>
@@ -82,7 +82,7 @@ CoinExchange Sale
 
 
 
-<div id="handlebar-test" class="span12"></div>
+<div id="handlebar-test" class="col-md-12"></div>
 
 <script type="application/javascript" src="/static/pos/pos.js"></script>
 

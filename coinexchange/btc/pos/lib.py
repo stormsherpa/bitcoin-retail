@@ -1,11 +1,16 @@
 
 import decimal
 import json
-
+import datetime
 import requests
+
+from django.template import Context, loader
+from django.utils.safestring import mark_safe
+from django.utils.timezone import utc
 
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction
+from coinexchange import xmpp
 
 class NewReceiveAddressException(Exception):
     pass
@@ -63,3 +68,38 @@ def sale_json(sale):
             'pending': bool(not sale.btc_txid),
             }
     return response
+
+def match_pending_transaction(tx, tx_rec):
+    try:
+        rx_addr = ReceiveAddress.objects.get(address=tx.address)
+    except ReceiveAddress.DoesNotExist:
+        return None
+#     print "match_pending_transaction: %s" % tx.txid
+#     print tx
+    try:
+        tx_list = SalesTransaction.objects.filter(btc_address=rx_addr,
+                                               btc_amount=tx.amount,
+                                               btc_txid__isnull=True)
+    except SalesTransaction.DoesNotExist:
+        return None
+    if not tx_list:
+        return None
+    s_tx = tx_list[0]
+    print "Found sales tx: %s" % tx.txid
+    return s_tx
+
+def process_btc_transaction(tx, tx_rec, sales_tx):
+    sales_tx.btc_txid = tx.txid
+    tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
+    sales_tx.tx_published_timestamp = tstamp
+    sales_tx.save()
+
+def notify_transaction(sales_tx, status):
+    t = loader.get_template("coinexchange/xmpp/pos_confirm.xml")
+    body = {'sale_id': sales_tx.id,
+            'status': status
+            }
+    c = Context({'tx': sales_tx,
+                 'json_body': mark_safe(json.dumps(body)),
+                 'to': xmpp.get_userjid(sales_tx.merchant.user)})
+    xmpp.send_message(t.render(c))

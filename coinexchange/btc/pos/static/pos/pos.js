@@ -97,13 +97,13 @@ function updateTxStatus(status, sale_id){
 	var el = $('div[type=sales_tx][saleid='+sale_id+']');
 	if(status == "confirmed"){
 		el.animate({height: "toggle"}, 200, function(){
-			el.attr("class", "span2 btn btn-success");
+			el.attr("class", "col-md-2 bg-success");
 			el.animate({height: "toggle"}, 200);
 		});
 	}else{
 		var msg = "Unexpected transaction update status: "+status+"\nSaleID: "+sale_id;
 		show_alert($('#status_messages'), msg, "alert-error");
-		el.attr("class", "span2 btn btn-error");
+		el.attr("class", "col-md-2 bg-error");
 	}
 }
 
@@ -156,7 +156,7 @@ function xmpp_onConnect(status){
 var last_sale_tx;
 function add_sale_div(sale_tx){
 	last_sale_tx = sale_tx;
-	var extra_class = sale_tx.pending ? "btn btn-warning" : "btn btn-success";
+	var extra_class = sale_tx.pending ? "bg-warning" : "bg-success";
 	var sales_tx_info = {
 		sale_tx: sale_tx,
 		style: "",

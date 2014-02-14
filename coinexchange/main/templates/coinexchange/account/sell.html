@@ -6,13 +6,13 @@ Sell Bitcoin
 
 {% block innercontent %}
 <div class="row">
-	<div class="span7">
+	<div class="col-md-7">
 		<h3>My Offers</h3>
 		{% for offer in coinexchange_account.profile.sell_offers.all %}
 		<p>{{offer.price|floatformat:2}} {{offer.units}} / 1 BTC</p>
 		{% endfor %}
 	</div>
-	<div class="span3">
+	<div class="col-md-3">
 		<h3>Sell Bitcoin</h3>
 		<form method="post">
 			{% csrf_token %}

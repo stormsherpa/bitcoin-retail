@@ -12,7 +12,7 @@ def send_message(message):
     url = "%s/message/send/xml" % cfg.get('url')
     headers={'Content-Type': 'application/xml'}
     r = requests.post(url, data=message, auth=(user,passwd), headers=headers)
-    print r.status_code
+#     print r.status_code
 
 def get_userjid(user):
     return "account-id-%s@%s" % (user.id, domain)

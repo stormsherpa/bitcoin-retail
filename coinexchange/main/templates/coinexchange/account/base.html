@@ -3,11 +3,11 @@
 {% block content %}
 
 <div class="row">
-	<div class="span8">
+	<div class="col-md-8">
 		{% block accountcontent %}
 		{% endblock %}
 	</div>
-	<div class="span4">
+	<div class="col-md-4">
 		<h3>Account Information</h3>
 		<h5>Balance</h5>
 		<p>{{coinexchange_account.balance|floatformat:8}}</p>

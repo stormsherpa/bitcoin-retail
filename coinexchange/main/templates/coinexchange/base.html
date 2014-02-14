@@ -5,7 +5,9 @@
 			{% block title %}{% endblock %}
 		</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="/static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"/>
+
 		{% block head %}{% endblock %}
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="/static/bootstrap/js/bootstrap.min.js"></script>
@@ -13,16 +15,19 @@
 		<script src="/static/handlebar_http_template.js"></script>
 		<script src="/account/api/js"></script>
 	</head>
-	<body>
-	<div class="navbar navbar-inverse navbar-fixed-top">
-		<div class="navbar-inner">
-			<div class="container">
-				<a class="brand" href="/">Coin Exchange</a>
+	<body role="document">
+	<div class="navbar navbar-inverse navbar-fixed-top" role="navbar">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">Coin Exchange</a>
 				<div class="nav-collapse collapse">
-					<ul class="nav">
-						<li><a href="/">Home</a></li>
-					</ul>
-					<ul class="nav pull-right">
+				</div>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="/">Home</a></li>
+				</ul>
+				<ul class="nav navbar-nav pull-right">
 						{% if user and user.is_authenticated %}
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -42,27 +47,24 @@
 						<li><a href="{% url "account_signup" %}">Signup</a></li>
 						{% endif %}
 					</ul>
-					
-				</div>
-				
 			</div>
 		</div>
 	</div>
-	<div class="container" style="margin-top:50px;">
+	<div class="container theme-showcase" role="main" style="margin-top:50px;"> <!--  -->
 		<div class="row" id="status_messages">
 		{% if status_messages.list_errors %}
 				{% for e in status_messages.consume_errors %}
-			<div class="span12">Error: {{e}}</div>
+			<div class="col-md-12">Error: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_warnings %}
 				{% for e in status_messages.consume_warnings %}
-			<div class="span12">Warning: {{e}}</div>
+			<div class="col-md-12">Warning: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_success %}
 				{% for e in status_messages.consume_success %}
-			<div class="span12">Success: {{e}}</div>
+			<div class="col-md-12">Success: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		</div>
