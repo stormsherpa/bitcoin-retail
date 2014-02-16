@@ -19,7 +19,7 @@ class BitcoindClientTimeoutError(Exception):
 
 class BitcoindClient():
     def __init__(self):
-        mqparam = pika.connection.URLParameters(settings.get("BITCOIN_QUEUE_URL"))
+        mqparam = pika.connection.URLParameters(settings.BITCOIN_QUEUE_URL)
         
         self.mqconn = pika.BlockingConnection(mqparam)
         self.channel = self.mqconn.channel()
@@ -32,7 +32,7 @@ class BitcoindClient():
         self.correlation_id = None
         self.response_body = None
         self.rpc_timeout = None
-        self.rpc_timeout_interval = BITCOIN_QUEUE.get('rpc_timeout', 5)
+        self.rpc_timeout_interval = 5 #BITCOIN_QUEUE.get('rpc_timeout', 5)
         self.last_healthcheck = int(time.time())
         
         _client_instances.append(self)
@@ -119,6 +119,11 @@ class BitcoindClient():
 
     def getnewaddress(self, account):
         cmd_yaml = self._prep_command('getnewaddress', account)
+        self._send_command(cmd_yaml)
+        return self._response_wait()
+
+    def gettransaction(self, txid):
+        cmd_yaml = self._prep_command('gettransaction', txid)
         self._send_command(cmd_yaml)
         return self._response_wait()
 

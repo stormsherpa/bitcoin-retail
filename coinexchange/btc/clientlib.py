@@ -45,3 +45,9 @@ def move_btc(from_account, to_account, amount):
 def send_to_escrow(buyer, seller, amount):
     (from_tx, to_tx) = move_btc(buyer.btc_account, 'escrow', amount)
     pass
+
+def get_tx_confirmations(txid):
+    response = BitcoindClient.get_instance().gettransaction(txid)
+    print response
+    if not response.get('error', True):
+        return response.get('result')

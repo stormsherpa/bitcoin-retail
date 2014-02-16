@@ -13,6 +13,7 @@ from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
 
 from coinexchange.btc.pos.forms import NewSalesTransactionForm
+from coinexchange.btc.pos.models import SalesTransaction, TransactionBatch
 
 @login_required
 def main(request):
@@ -22,3 +23,18 @@ def main(request):
     t = loader.get_template("coinexchange/pos/main.html")
     c = CoinExchangeContext(request, data)
     return HttpResponse(t.render(c))
+
+def admin(request):
+    profile = request.user.get_profile()
+    open_tx = SalesTransaction.objects.filter(batch__isnull=True,
+                                              btc_txid__isnull=False,
+                                              merchant=profile).order_by('tx_timestamp')
+    for tx in open_tx:
+        tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
+        print tx.tx_detail
+    data = {'unbatched_tx': [x for x in open_tx],
+            }
+    t = loader.get_template("coinexchange/pos/admin.html")
+    c = CoinExchangeContext(request, data)
+    return HttpResponse(t.render(c))
+

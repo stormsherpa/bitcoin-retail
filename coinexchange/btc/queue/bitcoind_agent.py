@@ -35,6 +35,7 @@ class BitcoindAgent():
                              'getbalance',
                              'getaddressesbyaccount',
                              'getnewaddress',
+                             'gettransaction',
                             ]
 
 #     def _cast_callback(self, ch, method, properties, body):

@@ -11,6 +11,7 @@
 		</ul>
 		{% if user and user.is_authenticated %}
 		<ul class="nav nav-tabs nav-stacked">
+			<li><a href="{% url "pos_admin" %}">POS Admin</a></li>
 			<li><a href="{% url "account_home" %}">Your Account</a></li>
 			{% if user.is_superuser %}
 			<li><a href="/djangoadmin" target="_blank">Django Admin Portal</a></li>

@@ -1,0 +1,7 @@
+from django.conf.urls import patterns, include, url
+
+import coinexchange.account.api.views
+
+urlpatterns = patterns('',
+    url(r'^$', 'coinexchange.btc.pos.views.admin', name='pos_admin'),
+)

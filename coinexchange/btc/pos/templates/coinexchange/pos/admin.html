@@ -1,0 +1,55 @@
+{% extends "coinexchange/leftnav.html" %}
+
+{% block title %}
+POS Admin - {{user.username}}
+{% endblock %}
+
+{% block innercontent %}
+<ul class="nav nav-tabs" id="posTab">
+	<li class="active"><a data-toggle="tab" href="#newbatch">Unbatched</a></li>
+	<li><a data-toggle="tab" href="#batch">Batches</a></li>
+</ul>
+<div class="tab-content">
+	<div class="tab-pane active" id="newbatch">
+		<h3>Unbatched POS Transactions</h3>
+		<table class="table table-condensed table-striped">
+			<tr>
+				<th>Amount</th>
+				<th>Exchange Rate</th>
+				<th>Timestamp</th>
+				<th>Confirmations</th>
+			</tr>
+			<tr>
+				<th></th>
+				<th colspan="3">Transaction ID</th>
+			</tr>
+		{% for tx in unbatched_tx %}
+			<tr>
+				<td>{{tx.amount}}</td>
+				<td>{{tx.currency_btc_exchange_rate}}</td>
+				<td>{{tx.tx_timestamp}}</td>
+				<td>{{tx.tx_detail.confirmations}}</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td colspan="3">
+					<a href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
+						{{tx.btc_txid}}
+					</a>
+				</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+	<div class="tab-pane" id="batch">
+		<h3>Transaction Batches</h3>
+		<table class="table table-condensed table-striped">
+			<tr>
+				<th>ID</th>
+				<th>Timestamp</th>
+			</tr>
+		</table>
+	</div>
+</div>
+
+{% endblock %}
