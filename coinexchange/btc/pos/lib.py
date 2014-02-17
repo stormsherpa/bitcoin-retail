@@ -9,6 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
+from coinexchange.btc import clientlib
 from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction
 from coinexchange import xmpp
 
@@ -103,3 +104,11 @@ def notify_transaction(sales_tx, status):
                  'json_body': mark_safe(json.dumps(body)),
                  'to': xmpp.get_userjid(sales_tx.merchant.user)})
     xmpp.send_message(t.render(c))
+
+def get_unbatched_transactions(merchant):
+    open_tx = SalesTransaction.objects.filter(batch__isnull=True,
+                                              btc_txid__isnull=False,
+                                              merchant=merchant).order_by('tx_timestamp')
+    for tx in open_tx:
+        tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
+        yield tx

@@ -1,4 +1,6 @@
 
+import json
+
 from django.http import HttpResponse, Http404
 from django.template import loader
 from django.shortcuts import redirect
@@ -14,6 +16,7 @@ from coinexchange.btc import clientlib
 
 from coinexchange.btc.pos.forms import NewSalesTransactionForm
 from coinexchange.btc.pos.models import SalesTransaction, TransactionBatch
+from coinexchange.btc.pos import lib
 
 @login_required
 def main(request):
@@ -26,15 +29,19 @@ def main(request):
 
 def admin(request):
     profile = request.user.get_profile()
-    open_tx = SalesTransaction.objects.filter(batch__isnull=True,
-                                              btc_txid__isnull=False,
-                                              merchant=profile).order_by('tx_timestamp')
-    for tx in open_tx:
-        tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
-        print tx.tx_detail
-    data = {'unbatched_tx': [x for x in open_tx],
+    data = {'unbatched_tx': [x for x in lib.get_unbatched_transactions(profile)],
             }
     t = loader.get_template("coinexchange/pos/admin.html")
     c = CoinExchangeContext(request, data)
     return HttpResponse(t.render(c))
 
+def make_batch(request):
+    profile = request.user.get_profile()
+    batch_tx = [x for x in lib.get_unbatched_transactions(profile)]
+    batch_tx_ids = [x.btc_txid for x in batch_tx]
+    raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD')
+    print raw_tx
+    response = {"batch_tx_ids": batch_tx_ids}
+    http_response = HttpResponse(json.dumps(response)+"\n")
+    http_response['Content-Type'] = 'application/json'
+    return http_response

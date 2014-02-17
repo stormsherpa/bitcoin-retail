@@ -11,6 +11,9 @@ POS Admin - {{user.username}}
 </ul>
 <div class="tab-content">
 	<div class="tab-pane active" id="newbatch">
+		{% if unbatched_tx %}
+		<button id="makebatch" style="float:right;" class="btn btn-primary">Make Batch</button>
+		{% endif %}
 		<h3>Unbatched POS Transactions</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
@@ -51,5 +54,11 @@ POS Admin - {{user.username}}
 		</table>
 	</div>
 </div>
+
+<script type="application/javascript">
+$('#makebatch').bind("click", function(){
+	alert("Make transaction batch");
+});
+</script>
 
 {% endblock %}

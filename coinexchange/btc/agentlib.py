@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from django.core.management.base import BaseCommand, CommandError
 from coinexchange.btc.models import CoinTxnLog, CoinExchangeUser
@@ -114,3 +115,25 @@ def store_btc_tx(tx):
     else:
         print "Unknown transaction type: %s" % tx
         return None
+
+def send_all_tx_inputs(rpcconn, txid_in, to_addr):
+    tx_list = [rpcconn.gettransaction(x) for x in txid_in]
+    total = decimal.Decimal(0)
+    tx_in = list()
+    for tx in tx_list:
+        print "Adding %0.8f" % tx.amount
+        total += tx.amount
+        tx_in.append({"txid": tx.txid, "vout": 0})
+    print "Total  %0.8f" % total
+    print tx_in
+#     total_str = "%0.8f" % total
+    test_raw_tx = rpcconn.createrawtransaction(tx_in, {to_addr: float(total)})
+    tx_size = (len(test_raw_tx)/1000)+1
+    tx_fee = decimal.Decimal(0.0001)*decimal.Decimal(tx_size)
+    print "Size in k: %s" % tx_size
+    print "Fee: %0.8f" % tx_fee
+    fee_total = total-tx_fee
+    final_raw_tx = rpcconn.createrawtransaction(tx_in, {to_addr: float(fee_total)})
+    print rpcconn.decoderawtransaction(final_raw_tx)
+#     print response
+#     print "Length: %s" % len(response)

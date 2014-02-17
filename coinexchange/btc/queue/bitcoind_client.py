@@ -96,6 +96,7 @@ class BitcoindClient():
                 raise BitcoindClientTimeoutError("Timeout waiting for command %s" % self.command)
             self.mqconn.process_data_events()
         return_body = self.response_body
+        print return_body
         # cleanup state for next round
         self.correlation_id = None
         self.response_body = None
@@ -133,5 +134,10 @@ class BitcoindClient():
 
     def rescan_transactions(self, account):
         cmd_yaml = self._prep_command('rescan_transactions', account)
+        self._send_command(cmd_yaml)
+        return self._response_wait()
+
+    def send_all_tx_inputs(self, tx_in, send_addr):
+        cmd_yaml = self._prep_command('send_all_tx_inputs', tx_in, send_addr)
         self._send_command(cmd_yaml)
         return self._response_wait()

@@ -103,6 +103,17 @@ class BitcoindAgent():
             else:
                 rpc_result = {'result': None,
                               'error': True}
+        elif command == "send_all_tx_inputs":
+            rpc_args = yaml_body.get('args', list())
+            print rpc_args
+            try:
+                res = agentlib.send_all_tx_inputs(self.rpcconn, *rpc_args)
+                rpc_result = {'result': res,
+                          'error': False}
+            except Exception as e:
+                print "send_all_tx_inputs exception: %s" % e
+                rpc_result = {'result': None,
+                          'error': True}
         else:
             rpc_result = {'result': 'unknown rpc command',
                           'error': True}

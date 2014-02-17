@@ -51,3 +51,6 @@ def get_tx_confirmations(txid):
     print response
     if not response.get('error', True):
         return response.get('result')
+
+def send_all_tx_inputs(tx_list, send_addr):
+    response = BitcoindClient.get_instance().send_all_tx_inputs(tx_list, send_addr)
