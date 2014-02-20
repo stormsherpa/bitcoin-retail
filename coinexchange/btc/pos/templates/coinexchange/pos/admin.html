@@ -48,16 +48,20 @@ POS Admin - {{user.username}}
 		<h3>Transaction Batches</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
+				<th>ID</th>
 				<th>Amount</th>
 				<th>Fee</th>
 				<th>Timestamp</th>
 			</tr>
 			<tr>
 				<th></th>
-				<th colspan="2">Transaction ID</th>
+				<th colspan="3">Transaction ID</th>
 			</tr>
 			{% for batch in batches %}
 			<tr>
+				<td>
+					<a href="{% url 'pos_batch' batch.id %}">{{batch.id}}</a>
+				</td>
 				<td>{{batch.btc_amount}} BTC</td>
 				<td>{{batch.btc_tx_fee}}</td>
 				<td>
@@ -66,7 +70,7 @@ POS Admin - {{user.username}}
 			</tr>
 			<tr>
 				<td></td>
-				<td colspan="2">
+				<td colspan="3">
 					{% if batch.txid %}
 					<a href="http://blockchain.info/tx/{{batch.txid}}" target="_blank">
 						{{batch.txid}}
@@ -83,7 +87,18 @@ POS Admin - {{user.username}}
 
 <script type="application/javascript">
 $('#makebatch').bind("click", function(){
-	alert("Make transaction batch");
+	$.ajax({
+		type: 'GET',
+		url: '/account/pos/make_batch',
+		dataType: 'json',
+		success: function(data, textStatus, xhr){
+			alert("Batch created: "+data.raw_tx.txid);
+			location.reload();
+		},
+		error: function(xhr, textStatus, errorThrown){
+			alert("Unable to make batch. "+textStatus);
+		}
+	});
 });
 var url = document.location.toString();
 if(url.match('#')){

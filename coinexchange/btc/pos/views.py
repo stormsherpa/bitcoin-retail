@@ -27,15 +27,32 @@ def main(request):
     c = CoinExchangeContext(request, data)
     return HttpResponse(t.render(c))
 
+@login_required
 def admin(request):
     profile = request.user.get_profile()
+    batches = TransactionBatch.objects.filter(merchant=profile).order_by('-batch_timestamp')
     data = {'unbatched_tx': [x for x in lib.get_unbatched_transactions(profile)],
-            'batches': [x for x in TransactionBatch.objects.all().order_by('batch_timestamp')],
+            'batches': [x for x in batches],
             }
     t = loader.get_template("coinexchange/pos/admin.html")
     c = CoinExchangeContext(request, data)
     return HttpResponse(t.render(c))
 
+@login_required
+def batch(request, batch_id):
+    profile = request.user.get_profile()
+    try:
+        batch = TransactionBatch.objects.get(id=batch_id)
+        if batch.merchant != profile:
+            raise Http404()
+    except TransactionBatch.DoesNotExist:
+        raise Http404()
+    data = {'batch': batch}
+    t = loader.get_template("coinexchange/pos/batch.html")
+    c = CoinExchangeContext(request, data)
+    return HttpResponse(t.render(c))
+
+@login_required
 def make_batch(request):
     profile = request.user.get_profile()
     batch_tx = [x for x in lib.get_unbatched_transactions(profile)]
@@ -43,7 +60,8 @@ def make_batch(request):
     if batch_tx_ids:
         raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD')
         print raw_tx
-    response = {"batch_tx_ids": batch_tx_ids}
+    response = {"batch_tx_ids": batch_tx_ids,
+                "raw_tx": raw_tx}
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response
