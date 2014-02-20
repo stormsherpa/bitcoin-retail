@@ -2,8 +2,11 @@ import datetime
 import decimal
 
 from django.core.management.base import BaseCommand, CommandError
-from coinexchange.btc.models import CoinTxnLog, CoinExchangeUser
 from django.utils.timezone import utc
+
+from coinexchange.btc.models import CoinTxnLog, CoinExchangeUser
+from coinexchange.btc.pos.models import TransactionBatch, SalesTransaction
+from coinexchange.btc.pos import lib as pos_lib
 
 def get_account_user(account):
     try:
@@ -116,6 +119,26 @@ def store_btc_tx(tx):
         print "Unknown transaction type: %s" % tx
         return None
 
+def create_batch_record(txid_in, to_addr):
+    try:
+        tx_list = [SalesTransaction.objects.get(btc_txid=x) for x in txid_in]
+    except TransactionBatch.DoesNotExist as e:
+        raise e
+    merchant = tx_list[0].merchant
+    btc_amount = decimal.Decimal(0)
+    for tx in tx_list:
+        if merchant != tx.merchant:
+            raise pos_lib.CreateBatchException("Input transactions don't all belong to the same merchant!")
+        btc_amount += tx.btc_amount
+    batch = TransactionBatch(merchant=merchant,
+                             btc_amount=btc_amount,
+                             btc_address=to_addr)
+    batch.save()
+    for tx in tx_list:
+        tx.batch = batch
+        tx.save()
+    return batch
+
 def send_all_tx_inputs(rpcconn, txid_in, to_addr):
     tx_list = [rpcconn.gettransaction(x) for x in txid_in]
     total = decimal.Decimal(0)
@@ -134,6 +157,13 @@ def send_all_tx_inputs(rpcconn, txid_in, to_addr):
     print "Fee: %0.8f" % tx_fee
     fee_total = total-tx_fee
     final_raw_tx = rpcconn.createrawtransaction(tx_in, {to_addr: float(fee_total)})
-    print rpcconn.decoderawtransaction(final_raw_tx)
-#     print response
+    signed_tx = rpcconn.signrawtransaction(final_raw_tx)
+    print signed_tx
+    print rpcconn.decoderawtransaction(signed_tx["hex"])
+    response = {'txid': rpcconn.sendrawtransaction(signed_tx["hex"]),
+                'tx_fee': tx_fee,
+                'tx_total': total,
+                }
+    print response
+    return response
 #     print "Length: %s" % len(response)

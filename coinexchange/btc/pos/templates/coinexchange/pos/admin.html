@@ -48,9 +48,35 @@ POS Admin - {{user.username}}
 		<h3>Transaction Batches</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
-				<th>ID</th>
+				<th>Amount</th>
+				<th>Fee</th>
 				<th>Timestamp</th>
 			</tr>
+			<tr>
+				<th></th>
+				<th colspan="2">Transaction ID</th>
+			</tr>
+			{% for batch in batches %}
+			<tr>
+				<td>{{batch.btc_amount}} BTC</td>
+				<td>{{batch.btc_tx_fee}}</td>
+				<td>
+					{{batch.batch_timestamp}}
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td colspan="2">
+					{% if batch.txid %}
+					<a href="http://blockchain.info/tx/{{batch.txid}}" target="_blank">
+						{{batch.txid}}
+					</a>
+					{% else %}
+					-
+					{% endif %}
+				</td>
+			</tr>
+			{% endfor %}
 		</table>
 	</div>
 </div>
@@ -58,6 +84,13 @@ POS Admin - {{user.username}}
 <script type="application/javascript">
 $('#makebatch').bind("click", function(){
 	alert("Make transaction batch");
+});
+var url = document.location.toString();
+if(url.match('#')){
+	$('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show');
+}
+$('.nav-tabs a').on('shown', function (e){
+	window.location.hash = e.target.hash;
 });
 </script>
 

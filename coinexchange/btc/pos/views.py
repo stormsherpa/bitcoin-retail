@@ -30,6 +30,7 @@ def main(request):
 def admin(request):
     profile = request.user.get_profile()
     data = {'unbatched_tx': [x for x in lib.get_unbatched_transactions(profile)],
+            'batches': [x for x in TransactionBatch.objects.all().order_by('batch_timestamp')],
             }
     t = loader.get_template("coinexchange/pos/admin.html")
     c = CoinExchangeContext(request, data)
@@ -38,9 +39,10 @@ def admin(request):
 def make_batch(request):
     profile = request.user.get_profile()
     batch_tx = [x for x in lib.get_unbatched_transactions(profile)]
-    batch_tx_ids = [x.btc_txid for x in batch_tx]
-    raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD')
-    print raw_tx
+    batch_tx_ids = [x.btc_txid for x in batch_tx if (x.tx_detail.confirmations >= 3)]
+    if batch_tx_ids:
+        raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD')
+        print raw_tx
     response = {"batch_tx_ids": batch_tx_ids}
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'

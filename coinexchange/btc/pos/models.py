@@ -19,6 +19,7 @@ class TransactionBatch(models.Model):
     currency = models.CharField(max_length=10, blank=True, default="USD")
     txid = models.CharField(max_length=200, null=True, blank=True)
     btc_amount = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    btc_tx_fee = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
     btc_address = models.CharField(max_length=200, null=True, blank=True)
 
 class SalesTransaction(models.Model):

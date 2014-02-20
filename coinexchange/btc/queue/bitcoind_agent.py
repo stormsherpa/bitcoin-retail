@@ -5,6 +5,7 @@ import pika
 import bitcoinrpc
 
 from django.conf import settings
+from django.db import transaction
 
 from coinexchange.btc import agentlib
 
@@ -105,15 +106,7 @@ class BitcoindAgent():
                               'error': True}
         elif command == "send_all_tx_inputs":
             rpc_args = yaml_body.get('args', list())
-            print rpc_args
-            try:
-                res = agentlib.send_all_tx_inputs(self.rpcconn, *rpc_args)
-                rpc_result = {'result': res,
-                          'error': False}
-            except Exception as e:
-                print "send_all_tx_inputs exception: %s" % e
-                rpc_result = {'result': None,
-                          'error': True}
+            rpc_result = self.send_all_tx_inputs(*rpc_args)
         else:
             rpc_result = {'result': 'unknown rpc command',
                           'error': True}
@@ -127,3 +120,24 @@ class BitcoindAgent():
                          properties=pika.BasicProperties(correlation_id = properties.correlation_id),
                          body = rpc_yaml_result)
         ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    @transaction.commit_manually
+    def send_all_tx_inputs(self, txid_in, to_addr):
+        try:
+            if not txid_in:
+                return {'result': None,
+                        'error': False}
+            batch = agentlib.create_batch_record(txid_in, to_addr)
+            newtx = agentlib.send_all_tx_inputs(self.rpcconn, txid_in, to_addr)
+            batch.txid = newtx.get('txid')
+            batch.btc_tx_fee = newtx.get('tx_fee')
+            batch.save()
+            transaction.commit()
+            return {'result': {'batch_id': batch.id,
+                               'txid': newtx.get('txid')},
+                    'error': False}
+        except Exception as e:
+            print "send_all_tx_inputs exception: %s" % e
+            transaction.rollback()
+            return {'result': None,
+                    'error': True}

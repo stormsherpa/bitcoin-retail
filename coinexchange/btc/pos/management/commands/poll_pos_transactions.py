@@ -42,10 +42,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         conn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'], **BITCOINRPC_ARGS['kwargs'])
         poll_transactions(conn, 50)
-        return
+#         return
         try:
             while True:
                  poll_transactions(conn, 5)
-                 time.sleep(1)
+                 time.sleep(5)
         except KeyboardInterrupt:
             print "Keyboard interrupt received.  Exiting."

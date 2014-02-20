@@ -19,6 +19,9 @@ class NewReceiveAddressException(Exception):
 class ExchangeRateException(Exception):
     pass
 
+class CreateBatchException(Exception):
+    pass
+
 def get_available_receive_address(merchant):
     try:
         return merchant.pos_receive_address.filter(available=True)[0]
@@ -111,4 +114,5 @@ def get_unbatched_transactions(merchant):
                                               merchant=merchant).order_by('tx_timestamp')
     for tx in open_tx:
         tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
+        print tx.tx_detail
         yield tx
