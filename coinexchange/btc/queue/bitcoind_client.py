@@ -141,3 +141,8 @@ class BitcoindClient():
         cmd_yaml = self._prep_command('send_all_tx_inputs', tx_in, send_addr)
         self._send_command(cmd_yaml)
         return self._response_wait()
+
+    def validateaddress(self, addr):
+        cmd_yaml = self._prep_command('validateaddress', addr)
+        self._send_command(cmd_yaml)
+        return self._response_wait()

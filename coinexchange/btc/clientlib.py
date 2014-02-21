@@ -54,3 +54,10 @@ def get_tx_confirmations(txid):
 
 def send_all_tx_inputs(tx_list, send_addr):
     response = BitcoindClient.get_instance().send_all_tx_inputs(tx_list, send_addr)
+    return response
+
+def valid_bitcoin_address(btc_addr):
+    r = BitcoindClient.get_instance().validateaddress(btc_addr)
+    if not r.get('error', True):
+        return r.get('result').isvalid
+    return False

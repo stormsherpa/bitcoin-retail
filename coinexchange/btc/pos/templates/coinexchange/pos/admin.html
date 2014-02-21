@@ -5,9 +5,15 @@ POS Admin - {{user.username}}
 {% endblock %}
 
 {% block innercontent %}
+<style type="text/css">
+form#merchant_settings_form input#id_btc_payout_address {
+	width: 100%
+}
+</style>
 <ul class="nav nav-tabs" id="posTab">
 	<li class="active"><a data-toggle="tab" href="#newbatch">Unbatched</a></li>
 	<li><a data-toggle="tab" href="#batch">Batches</a></li>
+	<li><a data-toggle="tab" href="#settings">Settings</a></li>
 </ul>
 <div class="tab-content">
 	<div class="tab-pane active" id="newbatch">
@@ -83,13 +89,28 @@ POS Admin - {{user.username}}
 			{% endfor %}
 		</table>
 	</div>
+	<div class="tab-pane" id="settings">
+		<h3>Merchant Settings</h3>
+		<form action="#" id="merchant_settings_form">
+			<table class="table table-condensed">
+			{{settings_form.as_table}}
+			<tr>
+				<td></td>
+				<td style="text-align: right;">
+					<button id="save_merchant_settings">Save</button>
+				</td>
+			</tr>
+			</table>
+			<p></p>
+		</form>
+	</div>
 </div>
 
 <script type="application/javascript">
 $('#makebatch').bind("click", function(){
 	$.ajax({
 		type: 'GET',
-		url: '/account/pos/make_batch',
+		url: '{% url "pos_make_batch" %}',
 		dataType: 'json',
 		success: function(data, textStatus, xhr){
 			alert("Batch created: "+data.raw_tx.txid);
@@ -100,13 +121,30 @@ $('#makebatch').bind("click", function(){
 		}
 	});
 });
-var url = document.location.toString();
-if(url.match('#')){
-	$('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show');
-}
-$('.nav-tabs a').on('shown', function (e){
-	window.location.hash = e.target.hash;
+$('button#save_merchant_settings').bind("click", function(){
+	var btc_addr = $('input#id_btc_payout_address').val();
+	var data = {btc_payout_address: btc_addr}
+	$.ajax({
+		type: 'post',
+		url: '{% url "pos_merchant_settings" %}',
+		dataType: 'json',
+		traditional: true,
+		data: data,
+		success: function(data, textStatus, xhr){
+			if (data.error){
+				display_error(data.response);
+			}else{
+				display_success("Merchant Settings saved.");
+			}
+		},
+		error: function(xhr, textStatus, errorThrown){
+			alert("Error saving settings.");
+		}
+	});
+	return false;
 });
+var debug_e;
+
 </script>
 
 {% endblock %}

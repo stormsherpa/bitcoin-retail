@@ -7,5 +7,28 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 {% block innercontent %}
 <h2>Batch #{{batch.id}}</h2>
 
+<table class="table table-condensed table-striped">
+	<tr>
+		<th>Amount</th>
+		<th>BTC Amount</th>
+		<th>Timestamp</th>
+		<th>Details</th>
+	</tr>
+	{% for tx in transactions %}
+	<tr>
+		<td>{{tx.amount}} {{tx.currency}}</td>
+		<td>{{tx.btc_amount}}</td>
+		<td>{{tx.tx_timestamp}}</td>
+		<td>
+			<a href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
+				<div class="btn btn-default">
+					<span class="glyphicon glyphicon-info-sign"></span>
+				</div>
+			</a>
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+
 
 {% endblock %}

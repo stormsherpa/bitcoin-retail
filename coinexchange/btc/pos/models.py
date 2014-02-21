@@ -9,6 +9,17 @@ class ReceiveAddress(models.Model):
     address = models.CharField(max_length=200)
     available = models.BooleanField(default=True)
 
+class MerchantSettings(models.Model):
+    merchant = models.OneToOneField('btc.CoinExchangeUser', related_name='merchant_settings')
+    btc_payout_address = models.CharField(max_length=200)
+
+    @classmethod
+    def load_by_merchant(cls, merchant):
+        try:
+            return cls.objects.get(merchant=merchant)
+        except cls.DoesNotExist:
+            return cls(merchant=merchant)
+
 class TransactionBatch(models.Model):
     merchant = models.ForeignKey('btc.CoinExchangeUser', related_name='pos_batches')
     batch_timestamp = models.DateTimeField(auto_now_add=True)

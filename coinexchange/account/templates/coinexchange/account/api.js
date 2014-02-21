@@ -70,4 +70,15 @@ AccountAPI.prototype.withdraw_bitcoin = function(form, id){
 	return false;
 };
 
+$(function(){
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+		debug_e = e;
+		var tab_id = $(e.target).attr('href');
+		localStorage.setItem('lastTab', tab_id);
+	});
+	var lastTab = localStorage.getItem('lastTab');
+	if (lastTab){
+		$('a[data-toggle="tab"][href="'+lastTab+'"]').tab('show');
+	}
+});
 
