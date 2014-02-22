@@ -175,3 +175,11 @@ XMPP = {'userjid': 'admin@localhost',
         }
 
 XMPP_DOMAIN = "stormsherpa.com"
+
+try:
+    from coinexchange_config.settings import *
+    print "External config imported into %s" % __name__
+    EXTERNAL_CONFIG_LOADED=True
+except Exception:
+    print "No external config imported into %s" % __name__
+    EXTERNAL_CONFIG_LOADED=False
