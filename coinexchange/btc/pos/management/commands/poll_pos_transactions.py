@@ -45,8 +45,8 @@ class Command(BaseCommand):
         poll_transactions(conn, 50)
         try:
             while True:
-                 poll_transactions(conn, 5)
-                 time.sleep(3)
+                poll_transactions(conn, 5)
+                time.sleep(3)
 #                  print "Tick..."
         except KeyboardInterrupt:
             print "Keyboard interrupt received.  Exiting."
