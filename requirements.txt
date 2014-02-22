@@ -1,3 +1,5 @@
 Django==1.5
 pika
 psycopg2
+PyYaml
+requests
