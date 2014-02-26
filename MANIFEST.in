@@ -1,0 +1,5 @@
+recursive-include coinexchange/main/templates *
+recursive-include coinexchange/account/templates *
+recursive-include coinexchange/btc/pos/templates *
+recursive-include coinexchange/main/static *
+recursive-include coinexchange/btc/pos/static *
