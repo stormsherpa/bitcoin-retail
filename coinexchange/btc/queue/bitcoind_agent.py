@@ -13,8 +13,11 @@ BITCOINRPC_ARGS = settings.BITCOINRPC_ARGS
 
 class BitcoindAgent():
     def __init__(self):
-        self.rpcconn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'],
-                                                    **BITCOINRPC_ARGS['kwargs'])
+        if BITCOINRPC_ARGS:
+            self.rpcconn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'],
+                                                        **BITCOINRPC_ARGS['kwargs'])
+        else:
+            self.rpcconn = bitcoinrpc.connect_to_local()
         mqparam = pika.connection.URLParameters(settings.BITCOIN_QUEUE_URL)
         print settings.BITCOIN_QUEUE_URL
         self.mqconn = pika.BlockingConnection(mqparam)

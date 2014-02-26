@@ -15,7 +15,10 @@ class Command(BaseCommand):
     help = 'Check bitcoin ledger for new transactions'
     
     def handle(self, *args, **options):
-        conn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'], **BITCOINRPC_ARGS['kwargs'])
+        if BITCOINRPC_ARGS:
+            conn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'], **BITCOINRPC_ARGS['kwargs'])
+        else:
+            conn = bitcoinrpc.connect_to_local()
         for tx in conn.listtransactions():
             agentlib.store_btc_tx(tx)
 
