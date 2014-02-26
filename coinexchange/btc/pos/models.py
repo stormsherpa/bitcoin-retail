@@ -50,4 +50,5 @@ class SalesTransaction(models.Model):
     batch = models.ForeignKey(TransactionBatch,
                               blank=True,
                               default=None,
+                              null=True,
                               related_name='transactions')
