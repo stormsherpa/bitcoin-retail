@@ -1,8 +1,12 @@
-<div class="col-md-2 {{extra_class}}" style="{{style}}" type="sales_tx" txref="{{sale_tx.reference}}" status="{{sale_tx.status}}" saleID="{{sale_tx.sale_id}}">
-	<h4>Reference: {{sale_tx.reference}}</h4>
-	Amount: {{sale_tx.fiat_amount}}<br/>
-	BTC: {{sale_tx.btc_amount}}<br/>
-	Status: <span class="tx_status">{{sale_tx.status}}</span><br/>
-	SaleID: {{sale_tx.sale_id}}
-
+<div class="col-md-3" style="{{style}}" type="sales_tx" txref="{{sale_tx.reference}}" status="{{sale_tx.status}}" saleID="{{sale_tx.sale_id}}">
+	<div class="panel panel-warning">
+		<div class="panel-heading">
+			<h3>Ref: {{sale_tx.reference}}</h3>
+		</div>
+		<div class="panel-body">
+			{{sale_tx.fiat_amount}}<br/>
+			{{sale_tx.btc_amount}} BTC<br/>
+			id: {{sale_tx.sale_id}}
+		</div>
+	</div>
 </div>

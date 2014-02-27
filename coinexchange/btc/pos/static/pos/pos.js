@@ -97,7 +97,8 @@ function updateTxStatus(status, sale_id){
 	var el = $('div[type=sales_tx][saleid='+sale_id+']');
 	if(status == "confirmed"){
 		el.animate({height: "toggle"}, 200, function(){
-			el.attr("class", "col-md-2 bg-success");
+			el.find('div.panel').attr('class', 'panel panel-success');
+			// el.attr("class", "col-md-2 bg-success");
 			el.animate({height: "toggle"}, 200);
 		});
 	}else{
@@ -166,11 +167,12 @@ function add_sale_div(sale_tx){
 	T.render('pos/sales_transaction', function(t){
 		$('#sale_status_area').prepend(t(sales_tx_info));
 		$('div[saleid='+sale_tx.sale_id+']').bind('click', function(){
-			$('#ReviewSale').modal();
-			$('h4#ReviewSaleModal').html("Review Transaction "+sale_tx.sale_id);
-			$('#ReviewSaleBody').html(sale_tx.generateQR());
-			$('#ReviewSaleBody').append('<br/>'+sale_tx.reference+' - '+sale_tx.fiat_amount+'<br/>('+sale_tx.btc_amount+' BTC)<br/>'+sale_tx.request_text);
-			$('#ReviewSaleBody').append('<button id="closeNewSale" data-dismiss="modal" class="btn btn-primary">Close</button>');
+			T.render('pos/sales_transaction_detail', function(td){
+				var tx_detail = {qr_code: sale_tx.generateQR(), sale_tx: sale_tx};
+				$('#ReviewSale').modal();
+				$('h4#ReviewSaleModal').html("Review Transaction "+sale_tx.sale_id);
+				$('#ReviewSaleBody').html(td(tx_detail));
+			});
 		});
 	});
 }

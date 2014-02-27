@@ -15,14 +15,16 @@ var Template = function() {
 var T = new Template();
 $.extend(Template.prototype, {
     render: function(name, callback) {
-        if (T.isCached(name)) {
-            callback(T.cached[name]);
-        } else {
+        // if (T.isCached(name)) {
+            // callback(T.cached[name]);
+        // } else {
             $.get(T.urlFor(name), function(raw) {
-                T.store(name, raw);
-                T.render(name, callback);
+            	// alert("got: "+name+'\n'+raw);
+            	callback(Handlebars.compile(raw));
+                // T.store(name, raw);
+                // T.render(name, callback);
             });
-        }
+        // }
     },
     renderSync: function(name, callback) {
         if (!T.isCached(name)) {
