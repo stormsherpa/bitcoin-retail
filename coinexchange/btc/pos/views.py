@@ -82,7 +82,8 @@ def make_batch(request):
     batch_tx = [x for x in lib.get_unbatched_transactions(profile)]
     batch_tx_ids = [x.btc_txid for x in batch_tx if (x.tx_detail.confirmations >= 3)]
     if batch_tx_ids:
-        raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, merchant_settings.btc_payout_address)
+        r = clientlib.send_all_tx_inputs(batch_tx_ids, merchant_settings.btc_payout_address)
+        raw_tx = r.get('result')
         print raw_tx
     response = {"batch_tx_ids": batch_tx_ids,
                 "raw_tx": raw_tx,

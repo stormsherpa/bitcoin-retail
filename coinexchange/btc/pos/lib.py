@@ -46,7 +46,7 @@ def get_available_receive_address(merchant, btc_amount=None):
 
     r = BitcoindClient.get_instance().getnewaddress(merchant.btc_account)
     if r.get('error', True):
-        raise NewReceiveAddressException()
+        raise NewReceiveAddressException(json.dumps(r))
     addr = r.get('result')
     print "Returning addr: %s" % addr
     new_addr = ReceiveAddress(merchant=merchant, address=addr, available=True)
