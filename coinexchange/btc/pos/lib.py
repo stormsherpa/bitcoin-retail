@@ -22,11 +22,28 @@ class ExchangeRateException(Exception):
 class CreateBatchException(Exception):
     pass
 
-def get_available_receive_address(merchant):
+def get_available_receive_address(merchant, btc_amount=None):
     try:
-        return merchant.pos_receive_address.filter(available=True)[0]
+        available_addresses = [x for x in merchant.pos_receive_address.filter(available=True)]
     except IndexError:
         pass
+    print available_addresses
+    if available_addresses:
+        print "%0.8f" % decimal.Decimal(btc_amount)
+        tx_list = SalesTransaction.objects.filter(merchant=merchant,
+                                                  btc_amount=btc_amount,
+                                                  btc_txid__isnull=True)#
+        pending_tx = [t for t in tx_list]
+        print [t.btc_amount for t in pending_tx]
+        def available_addr(addr):
+            for tx in pending_tx:
+                if tx.btc_address == addr:
+                    return False
+            return True
+        final_addresses = filter(available_addr, available_addresses)
+        if final_addresses:
+            return final_addresses[0]
+
     r = BitcoindClient.get_instance().getnewaddress(merchant.btc_account)
     if r.get('error', True):
         raise NewReceiveAddressException()
@@ -46,8 +63,8 @@ def get_exchange_rate(currency):
 def make_new_sale(merchant, fiat_amount, reference):
     exchange_rate = get_exchange_rate(merchant.currency)
     amount = decimal.Decimal(fiat_amount)
-    btc_amount = amount/exchange_rate
-    receive_address = get_available_receive_address(merchant)
+    btc_amount = decimal.Decimal("%0.8f" % (amount/exchange_rate))
+    receive_address = get_available_receive_address(merchant, btc_amount=btc_amount)
     btc_url = "bitcoin:%s?amount=%0.8f" % (receive_address.address, btc_amount)
     sale = SalesTransaction(merchant=merchant,
                             reference=reference,
