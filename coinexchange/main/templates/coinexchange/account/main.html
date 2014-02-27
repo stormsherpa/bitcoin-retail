@@ -7,10 +7,6 @@
 {% block innercontent %}
 <ul class="nav nav-tabs" id="accountTab">
 	<li class="active"><a data-toggle="tab" href="#transactions">Transactions</a></li>
-	<li><a data-toggle="tab" href="#offers">Offers</a></li>
-	<li><a data-toggle="tab" href="#deposit">Deposit</a></li>
-	<li><a data-toggle="tab" href="#withdraw">Withdraw</a></li>
-	<li><a data-toggle="tab" href="#escrow">Escrow</a></li>
 </ul>
 <div class="tab-content">
 	<div class="tab-pane active" id="transactions">
@@ -56,95 +52,6 @@
 		{% endfor %}
 		</table>
 	</div>
-	<div class="tab-pane" id="offers">
-		<div class="row">
-			<div class="col-md-7">
-				<h3>Sell Offers</h3>
-				<table class="table table-condensed table-striped">
-					<tr>
-						<th>Price</th>
-						<th>Max BTC</th>
-						<th>Min BTC</th>
-						<th>Active</th>
-					</tr>
-					{% for offer in sell_offers %}
-					<tr>
-						<td>{{offer.price.value}} {{offer.units.value}} / 1 BTC</td>
-						<td>{{offer.max_btc.value}}</td>
-						<td>{{offer.min_btc.value}}</td>
-						<td>{{offer.is_active.value}}</td>
-						<td><button onclick="$('#edit_offer_{{offer.instance.id}}').toggle();return false;">Edit</button></td>
-					</tr>
-					<tr id="edit_offer_{{offer.instance.id}}" style="display: none;">
-						<td colspan="5">
-							<form id="edit_offer_{{offer.instance.id}}_form">
-								{% csrf_token %}
-								{{offer.as_p}}
-								<!-- <input type="hidden" name="id" value="{{offer.instance.id}}"/> -->
-								<button onclick="return new AccountAPI().update_sell_offer($(this).parent(),{{offer.instance.id}});">Update</button>
-							</form>
-							
-						</td>
-					</tr>
-					{% endfor %}
-
-				</table>
-			</div>
-			<div class="col-md-3">
-				<h3>Sell Bitcoin</h3>
-				<form method="post" action="#">
-					{% csrf_token %}
-					{{sell_form.as_p}}
-					<button onclick="return new AccountAPI().new_sell_offer($(this).parent());">Sell</button>
-				</form>
-
-			</div>
-		</div>
-	</div>
-	<div class="tab-pane" id="deposit">
-		<div class="row">
-			<div class="col-md-4 col-md-offset-3">
-				<h3>Deposit Bitcoin</h3>
-				<p>{{coinexchange_account.address}}</p>
-				<p id="bitcoin_address_qr"></p>
-				<script type="application/javascript" src="/static/qr/qrcode.js"></script>
-				<script type="application/javascript">
-					var qr = qrcode(4, 'M');
-					qr.addData('bitcoin:{{coinexchange_account.address}}');
-					qr.make();
-					document.getElementById('bitcoin_address_qr').innerHTML = qr.createImgTag(7,5);
-				</script>
-			</div>
-		</div>
-	</div>
-	<div class="tab-pane" id="withdraw">
-		<div class="row">
-			<div class="col-md-4 col-md-offset-3">
-				<h3>Withdraw Bitcoin</h3>
-				<p>
-					Current balance: {{coinexchange_account.balance|floatformat:8}}
-				</p>
-				<form method="post" action="#">
-					{% csrf_token %}
-					{{withdrawl_form.as_p}}
-					<button onclick="return new AccountAPI().withdraw_bitcoin($(this).parent());">Withdraw Bitcoin</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<div class="tab-pane" id="escrow">
-		<h3>Escrow</h3>
-	</div>
 </div>
-
-<script type="application/javascript">
-	var url = document.location.toString();
-	if(url.match('#')){
-		$('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show');
-	}
-	$('.nav-tabs a').on('shown', function (e){
-		window.location.hash = e.target.hash;
-	});
-</script>
 
 {% endblock %}
