@@ -18,6 +18,7 @@ class BitcoindAgent():
                                                         **BITCOINRPC_ARGS['kwargs'])
         else:
             self.rpcconn = bitcoinrpc.connect_to_local()
+        print "Bitcoind URL: %s" % self.rpcconn.url
         mqparam = pika.connection.URLParameters(settings.BITCOIN_QUEUE_URL)
         print settings.BITCOIN_QUEUE_URL
         self.mqconn = pika.BlockingConnection(mqparam)

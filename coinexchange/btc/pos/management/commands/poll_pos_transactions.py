@@ -1,4 +1,5 @@
 
+import sys
 import time
 import datetime
 # import objgraph
@@ -9,7 +10,7 @@ import bitcoinrpc
 
 from coinexchange.btc.models import CoinTxnLog, CoinExchangeUser
 from coinexchange.btc import agentlib
-from coinexchange.btc.config import BITCOINRPC_ARGS
+from coinexchange.settings import BITCOINRPC_ARGS
 
 from coinexchange.btc.pos import lib
 
@@ -30,7 +31,14 @@ def find_tx_parent(conn, tx):
 my_processed_tx_list = list()
 
 def poll_transactions(conn, count=5):
-    for tx in conn.listtransactions(count=count):
+    try:
+        tx_list = conn.listtransactions(count=count)
+    except Exception as e:
+        print "Could not list transactions."
+        print "%s: %s" % (e.__class__, e)
+        print conn.url
+        sys.exit(1)
+    for tx in tx_list:
         if tx.category in ['receive', 'send'] and not tx.txid in my_processed_tx_list:
             tx_rec = agentlib.store_btc_tx(tx)
             my_processed_tx_list.append(str(tx.txid))
@@ -51,10 +59,15 @@ class Command(BaseCommand):
     help = 'Poll for Transactions'
 
     def handle(self, *args, **options):
-        if BITCOINRPC_ARGS:
-            conn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'], **BITCOINRPC_ARGS['kwargs'])
-        else:
-            conn = bitcoinrpc.connect_to_local()
+        try:
+            if BITCOINRPC_ARGS:
+                conn = bitcoinrpc.connect_to_remote(*BITCOINRPC_ARGS['args'], **BITCOINRPC_ARGS['kwargs'])
+            else:
+                conn = bitcoinrpc.connect_to_local()
+        except Exception as e:
+            print "Could not connect to bitcoind."
+            print "%s: %s" % (e.__class__, e)
+            sys.exit(1)
         poll_transactions(conn, 50)
         expire_time = next_timeout(5)
         try:
