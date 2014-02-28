@@ -1,5 +1,6 @@
 
 import json
+import decimal
 
 from django.http import HttpResponse, Http404
 from django.template import loader
@@ -68,8 +69,17 @@ def batch(request, batch_id):
             raise Http404()
     except TransactionBatch.DoesNotExist:
         raise Http404()
+    transactions = [x for x in batch.transactions.order_by('tx_timestamp')]
+    total_amount = 0
+    total_bitcoin = decimal.Decimal(0)
+    for tx in transactions:
+        total_amount += tx.amount
+        total_bitcoin += tx.btc_amount
     data = {'batch': batch,
-            'transactions': batch.transactions.order_by('tx_timestamp')
+            'transactions': transactions,
+            'total_amount': total_amount,
+            'total_bitcoin': total_bitcoin,
+            'average_exchange_rate': total_amount/total_bitcoin,
             }
     t = loader.get_template("coinexchange/pos/batch.html")
     c = CoinExchangeContext(request, data)

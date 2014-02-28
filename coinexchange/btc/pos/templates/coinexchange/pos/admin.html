@@ -64,9 +64,13 @@ form#merchant_settings_form input#id_btc_payout_address {
 				<th colspan="3">Transaction ID</th>
 			</tr>
 			{% for batch in batches %}
-			<tr>
+			<tr class="batch_row" batchid="{{batch.id}}">
 				<td>
-					<a href="{% url 'pos_batch' batch.id %}">{{batch.id}}</a>
+					<a href="{% url 'pos_batch' batch.id %}">
+						<button class="btn btn-primary">
+							Details
+						</button>
+					</a>
 				</td>
 				<td>{{batch.btc_amount}} BTC</td>
 				<td>{{batch.btc_tx_fee}}</td>
@@ -107,6 +111,10 @@ form#merchant_settings_form input#id_btc_payout_address {
 </div>
 
 <script type="application/javascript">
+$('.batch_row').bind("click", function(ev){
+	var batch_id = $(ev.currentTarget).attr('batchid');
+	window.location.href = "/account/pos/batch/"+batch_id;
+});
 $('#makebatch').bind("click", function(){
 	$.ajax({
 		type: 'GET',

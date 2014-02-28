@@ -6,18 +6,24 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 
 {% block innercontent %}
 <h2>Batch #{{batch.id}}</h2>
+<p><a href="{% url 'pos_admin' %}">Back</a></p>
+<p>Total amount: {{total_amount|floatformat:2}}</p>
+<p>Total Bitcoin: {{total_bitcoin}}</p>
+<p>Average Exchange Rate: {{average_exchange_rate|floatformat:2}}</p>
 
 <table class="table table-condensed table-striped">
 	<tr>
 		<th>Amount</th>
 		<th>BTC Amount</th>
+		<th>Exchange<br/>Rate</th>
 		<th>Timestamp</th>
-		<th>Details</th>
+		<th>Blockchain<br/>Details</th>
 	</tr>
 	{% for tx in transactions %}
 	<tr>
-		<td>{{tx.amount}} {{tx.currency}}</td>
+		<td>{{tx.amount|floatformat:2}} {{tx.currency}}</td>
 		<td>{{tx.btc_amount}}</td>
+		<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
 		<td>{{tx.tx_timestamp}}</td>
 		<td>
 			<a href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
