@@ -17,6 +17,7 @@ packages = [
     'coinexchange.main',
     'coinexchange.main.management',
     'coinexchange.main.management.commands',
+    'coinexchange.coinbase',
     'coinexchange.public',
     ]
 

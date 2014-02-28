@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'coinexchange.btc',
     'coinexchange.btc.pos',
     'coinexchange.account',
+    'coinexchange.coinbase',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -175,6 +176,12 @@ XMPP = {'userjid': 'admin@localhost',
         }
 
 XMPP_DOMAIN = "stormsherpa.com"
+
+COINBASE_API = { # Dev settings registered on shaun.kruger@gmail.com coinbase account
+                'client_id': '160bcddf97a9d1297e5e4a32552b42a93baf8681b3496f877494f32aa6ad4229',
+                'client_secret': 'ad8c5ac6baaffa17c1c3dc5e11c1c63166501c62e1111078a9379c02b7be8541',
+                'redirect_uri': 'http://local.bitcoinretail.info:8000/coinbase/redirect_uri',
+                }
 
 try:
     from coinexchange_config.settings import *
