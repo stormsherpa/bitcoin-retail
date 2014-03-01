@@ -5,6 +5,121 @@ Account Settings for {{user.username}}
 {% endblock %}
 
 {% block innercontent %}
+<style type="text/css">
+form#merchant_settings_form input#id_btc_payout_address {
+	width: 100%
+}
+</style>
 <h2>Account Settings</h2>
+
+<div class="col-md-12">
+	<div class="panel panel-warning">
+		<div class="panel-heading">Point of Sale Settings</div>
+		<div class="panel-body">
+			<form action="#" id="merchant_settings_form">
+				<table class="table table-condensed">
+				{{settings_form.as_table}}
+				<tr>
+					<td></td>
+					<td style="text-align: right;">
+						<button class="btn btn-primary" id="save_merchant_settings">Save</button>
+					</td>
+				</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="col-md-12">
+	<div class="panel panel-warning">
+		<div class="panel-heading">Coinbase Integration</div>
+		<div class="panel-body">
+			{% if coinbase_api %}
+			API Token working
+			<table class="table table-condensed">
+				<tr>
+					<th>Receive Address</th>
+					<td>{{account_info.receive_address}}</td>
+				</tr>
+				<tr>
+					<th>BTC Balance</th>
+					<td>{{coinbase_api.balance}}</td>
+				</tr>
+				<tr>
+					<th>Sell Price</th>
+					<td>{{coinbase_api.sell_price}}</td>
+				</tr>
+			</table>
+			<h3>Transactions</h3>
+			<table class="table table-striped">
+				<tr>
+					<th>Amount</th>
+					<th>Recipient Type</th>
+					<th>Sender Name</th>
+					<th>Recipient Name</th>
+					<th>Addr</th>
+					<th>Recipient Type</th>
+				</tr>
+				{% for tx in coinbase_api.transactions %}
+				<tr>
+					<td>{{tx.amount}}</td>
+					<td>{{tx.recipient_type}}</td>
+					<td>{{tx.sender.name}}</td>
+					<td>{{tx.recipient.name}}</td>
+					<td>
+						{% if tx.amount > 0 %}
+						Sender: {{tx.transaction_id}}
+						{% else %}
+						Receiver: {{tx.recipient_address}}
+						{% endif %}
+					</td>
+					<td>{{tx.recipient_type}}</td>
+				</tr>
+				<tr>
+					<td>{{tx.status}}</td>
+					<td colspan="5">{{tx.notes}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+			{% else %}
+			<a style="float:right;" class="btn btn-primary" href="{% url 'coinbase_authorize' %}">
+				Authorize Coinbase API
+			</a>
+			{% endif %}
+
+		</div>
+	</div>
+</div>
+
+<script type="application/javascript">
+$('button#save_merchant_settings').bind("click", function(){
+	// var btc_addr = $('input#id_btc_payout_address').val();
+	// var exch_rate = $('input#id_exchange_rate').val();
+	// $('input#id_btc_payout_address').val();
+	var data = {btc_payout_address: $('input#id_btc_payout_address').val(),
+				exchange_rate: $('input#id_exchange_rate').val(),
+				payout_with_coinbase: $('input#id_payout_with_coinbase')[0].checked};
+	$.ajax({
+		type: 'post',
+		url: '{% url "pos_merchant_settings" %}',
+		dataType: 'json',
+		traditional: true,
+		data: data,
+		success: function(data, textStatus, xhr){
+			if (data.error){
+				display_error(data.response);
+			}else{
+				display_success("Merchant Settings saved.");
+			}
+		},
+		error: function(xhr, textStatus, errorThrown){
+			alert("Error saving settings.");
+		}
+	});
+	return false;
+});
+
+</script>
 
 {% endblock %}

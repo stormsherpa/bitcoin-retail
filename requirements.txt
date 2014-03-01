@@ -3,3 +3,4 @@ pika
 psycopg2
 PyYaml
 requests
+coinbase

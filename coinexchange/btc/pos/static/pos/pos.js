@@ -170,7 +170,8 @@ function add_sale_div(sale_tx){
 			T.render('pos/sales_transaction_detail', function(td){
 				var tx_detail = {qr_code: sale_tx.generateQR(), sale_tx: sale_tx};
 				$('#ReviewSale').modal();
-				$('h4#ReviewSaleModal').html("Review Transaction "+sale_tx.sale_id);
+				var id_info = "<span style='float:right;margin-right:20px;'>txid: "+sale_tx.sale_id+"</span>";
+				$('h4#ReviewSaleModal').html(id_info+"Review Ref# "+sale_tx.reference);
 				$('#ReviewSaleBody').html(td(tx_detail));
 			});
 		});

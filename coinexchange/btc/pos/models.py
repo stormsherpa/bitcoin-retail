@@ -1,6 +1,8 @@
 
 from django.db import models
 from django.contrib import admin
+
+from django.db.models.signals import post_syncdb
  
 # from coinexchange.btc.models import CoinExchangeUser
  
@@ -9,9 +11,31 @@ class ReceiveAddress(models.Model):
     address = models.CharField(max_length=200)
     available = models.BooleanField(default=True)
 
+class ExchangeRate(models.Model):
+    name = models.CharField(max_length=10, unique=True)
+    label = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.label
+
+def insure_exchange_rates_exist(*args, **kwargs):
+    expected_entries = {'spot': "Coinbase Spot Price",
+                        'sell': "Coinbase Sell Price",
+                        'sell_fees': "Coinbase Sell Price Less Fees"}
+    for name in expected_entries.keys():
+        try:
+            ExchangeRate.objects.get(name=name)
+        except ExchangeRate.DoesNotExist:
+            er = ExchangeRate(name=name, label=expected_entries[name])
+            er.save()
+
+post_syncdb.connect(insure_exchange_rates_exist)
+
 class MerchantSettings(models.Model):
     merchant = models.OneToOneField('btc.CoinExchangeUser', related_name='merchant_settings')
-    btc_payout_address = models.CharField(max_length=200)
+    payout_with_coinbase = models.BooleanField(default=False, blank=True)
+    exchange_rate = models.ForeignKey(ExchangeRate, null=True, blank=True)
+    btc_payout_address = models.CharField(max_length=200, default='', blank=True)
 
     @classmethod
     def load_by_merchant(cls, merchant):

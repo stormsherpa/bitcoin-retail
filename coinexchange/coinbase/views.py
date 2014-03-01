@@ -31,6 +31,6 @@ def redirect(request):
     print request.GET['code']
     creds.code = request.GET['code']
     creds.save()
-    print coinbase.get_access_token(creds)
+    print coinbase.get_access_token(creds, creds.code)
     target = "/account/pos"
     return HttpResponseRedirect(target)

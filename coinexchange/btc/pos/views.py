@@ -46,16 +46,21 @@ def admin(request):
 def merchant_settings(request):
     print request.POST
     btc_addr = request.POST.get('btc_payout_address')
-    if not clientlib.valid_bitcoin_address(btc_addr):
+    if btc_addr != '' and not clientlib.valid_bitcoin_address(btc_addr):
         data = {'error': True,
                 'response': "Invalid bitcoin address given."}
     else:
         profile = request.user.get_profile()
         merchant_settings = MerchantSettings.load_by_merchant(profile)
         settings = MerchantSettingsForm(request.POST, instance=merchant_settings)
-        settings.save()
-        data = {'error': False,
-                'response': 'ok'}
+        if settings.is_valid():
+            settings.save()
+            data = {'error': False,
+                    'response': 'ok'}
+        else:
+#             print settings.errors
+            data = {'error': True,
+                    'response': "Form validation error: %s" % settings.errors}
     http_response = HttpResponse(json.dumps(data)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response

@@ -7,9 +7,26 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 {% block innercontent %}
 <h2>Batch #{{batch.id}}</h2>
 <p><a href="{% url 'pos_admin' %}">Back</a></p>
-<p>Total amount: {{total_amount|floatformat:2}}</p>
-<p>Total Bitcoin: {{total_bitcoin}}</p>
-<p>Average Exchange Rate: {{average_exchange_rate|floatformat:2}}</p>
+<div class="col-md-6">
+	<div class="panel panel-success">
+		<div class="panel-heading">Captured Amount</div>
+		<div class="panel-body">
+			<p>Total Amount: {{total_amount|floatformat:2}}</p>
+			<p>Total Bitcoin: {{total_bitcoin}}</p>
+			<p>Average Exchange Rate: {{average_exchange_rate|floatformat:2}}</p>
+		</div>
+	</div>
+</div>
+<div class="col-md-6">
+	<div class="panel panel-warning">
+		<div class="panel-heading">Realized Amount</div>
+		<div class="panel-body">
+			<p>Amount Received: </p>
+			<p>Effective Exchange Rate: </p>
+			<p>Total Fees: </p>
+		</div>
+	</div>
+</div>
 
 <table class="table table-condensed table-striped">
 	<tr>
@@ -26,10 +43,8 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 		<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
 		<td>{{tx.tx_timestamp}}</td>
 		<td>
-			<a href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
-				<div class="btn btn-default">
-					<span class="glyphicon glyphicon-info-sign"></span>
-				</div>
+			<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
+				<span class="glyphicon glyphicon-info-sign"></span>
 			</a>
 		</td>
 	</tr>

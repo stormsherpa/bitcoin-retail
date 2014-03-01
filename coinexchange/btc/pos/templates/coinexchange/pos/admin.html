@@ -5,15 +5,9 @@ POS Admin - {{user.username}}
 {% endblock %}
 
 {% block innercontent %}
-<style type="text/css">
-form#merchant_settings_form input#id_btc_payout_address {
-	width: 100%
-}
-</style>
 <ul class="nav nav-tabs" id="posTab">
 	<li class="active"><a data-toggle="tab" href="#newbatch">Unbatched</a></li>
 	<li><a data-toggle="tab" href="#batch">Batches</a></li>
-	<li><a data-toggle="tab" href="#settings">Settings</a></li>
 </ul>
 <div class="tab-content">
 	<div class="tab-pane active" id="newbatch">
@@ -27,10 +21,7 @@ form#merchant_settings_form input#id_btc_payout_address {
 				<th>Exchange Rate</th>
 				<th>Timestamp</th>
 				<th>Confirmations</th>
-			</tr>
-			<tr>
-				<th></th>
-				<th colspan="3">Transaction ID</th>
+				<th>Blockchain<br/>Details</th>
 			</tr>
 		{% for tx in unbatched_tx %}
 			<tr>
@@ -38,13 +29,11 @@ form#merchant_settings_form input#id_btc_payout_address {
 				<td>{{tx.currency_btc_exchange_rate}}</td>
 				<td>{{tx.tx_timestamp}}</td>
 				<td>{{tx.tx_detail.confirmations}}</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td colspan="3">
-					<a href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
-						{{tx.btc_txid}}
+				<td>
+					<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
+						<span class="glyphicon glyphicon-info-sign"></span>
 					</a>
+
 				</td>
 			</tr>
 		{% endfor %}
@@ -54,14 +43,11 @@ form#merchant_settings_form input#id_btc_payout_address {
 		<h3>Transaction Batches</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
-				<th>ID</th>
+				<th>Details</th>
 				<th>Amount</th>
 				<th>Fee</th>
 				<th>Timestamp</th>
-			</tr>
-			<tr>
-				<th></th>
-				<th colspan="3">Transaction ID</th>
+				<th>Blockchain<br/>Details</th>
 			</tr>
 			{% for batch in batches %}
 			<tr class="batch_row" batchid="{{batch.id}}">
@@ -77,13 +63,10 @@ form#merchant_settings_form input#id_btc_payout_address {
 				<td>
 					{{batch.batch_timestamp}}
 				</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td colspan="3">
+				<td>
 					{% if batch.txid %}
-					<a href="http://blockchain.info/tx/{{batch.txid}}" target="_blank">
-						{{batch.txid}}
+					<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}" target="_blank">
+						<span class="glyphicon glyphicon-info-sign"></span>
 					</a>
 					{% else %}
 					-
@@ -92,23 +75,6 @@ form#merchant_settings_form input#id_btc_payout_address {
 			</tr>
 			{% endfor %}
 		</table>
-	</div>
-	<div class="tab-pane" id="settings">
-		<h3>Merchant Settings</h3>
-		<form action="#" id="merchant_settings_form">
-			<table class="table table-condensed">
-			{{settings_form.as_table}}
-			<tr>
-				<td></td>
-				<td style="text-align: right;">
-					<button id="save_merchant_settings">Save</button>
-				</td>
-			</tr>
-			</table>
-			<p>
-				<a class="btn btn-primary" href="{% url 'coinbase_authorize' %}">Authorize Coinbase API</a>
-			</p>
-		</form>
 	</div>
 </div>
 
@@ -131,29 +97,6 @@ $('#makebatch').bind("click", function(){
 		}
 	});
 });
-$('button#save_merchant_settings').bind("click", function(){
-	var btc_addr = $('input#id_btc_payout_address').val();
-	var data = {btc_payout_address: btc_addr}
-	$.ajax({
-		type: 'post',
-		url: '{% url "pos_merchant_settings" %}',
-		dataType: 'json',
-		traditional: true,
-		data: data,
-		success: function(data, textStatus, xhr){
-			if (data.error){
-				display_error(data.response);
-			}else{
-				display_success("Merchant Settings saved.");
-			}
-		},
-		error: function(xhr, textStatus, errorThrown){
-			alert("Error saving settings.");
-		}
-	});
-	return false;
-});
-var debug_e;
 
 </script>
 
