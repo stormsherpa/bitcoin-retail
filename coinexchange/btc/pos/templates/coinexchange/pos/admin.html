@@ -89,8 +89,12 @@ $('#makebatch').bind("click", function(){
 		url: '{% url "pos_make_batch" %}',
 		dataType: 'json',
 		success: function(data, textStatus, xhr){
-			alert("Batch created: "+data.raw_tx.txid);
-			location.reload();
+			if(data.error){
+				alert(data.status);
+			}else{
+				alert("Batch created.");
+				location.reload();
+			}
 		},
 		error: function(xhr, textStatus, errorThrown){
 			alert("Unable to make batch. "+textStatus);

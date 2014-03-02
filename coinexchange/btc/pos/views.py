@@ -94,16 +94,16 @@ def batch(request, batch_id):
 @login_required
 def make_batch(request):
     profile = request.user.get_profile()
-    merchant_settings = MerchantSettings.load_by_merchant(profile)
-    batch_tx = [x for x in lib.get_unbatched_transactions(profile)]
-    batch_tx_ids = [x.btc_txid for x in batch_tx if (x.tx_detail.confirmations >= 3)]
-    if batch_tx_ids:
-        r = clientlib.send_all_tx_inputs(batch_tx_ids, merchant_settings.btc_payout_address)
-        raw_tx = r.get('result')
-        print raw_tx
-    response = {"batch_tx_ids": batch_tx_ids,
-                "raw_tx": raw_tx,
-                }
+    batch = lib.make_merchant_batch(profile)
+    if batch:
+        batch_tx_ids = [x.btc_txid for x in batch.transactions.all()]
+        response = {"batch_tx_ids": batch_tx_ids,
+                    "error": False,
+                    }
+    else:
+        response = {"error": True,
+                    "status": "No batch created.",
+                    "batch_tx_ids": list()}
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response

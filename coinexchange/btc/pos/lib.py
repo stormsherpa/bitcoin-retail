@@ -11,8 +11,9 @@ from django.utils.timezone import utc
 
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
-from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, MerchantSettings
+from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, MerchantSettings, TransactionBatch
 from coinexchange import xmpp
+from coinexchange import coinbase
 
 class NewReceiveAddressException(Exception):
     pass
@@ -54,13 +55,7 @@ def get_available_receive_address(merchant, btc_amount=None):
     new_addr.save()
     return new_addr
 
-def get_merchant_exchange_rate(merchant):
-    mode = None
-    if merchant:
-        settings = MerchantSettings.load_by_merchant(merchant)
-        if settings.exchange_rate:
-            mode = settings.exchange_rate.name
-            print "Using configured mode: %s" % mode
+def get_exchange_rate(mode, currency="USD"):
     if mode in ["sell", "sell_fees"]:
         r = requests.get("https://coinbase.com/api/v1/prices/sell", data={'qty': 1})
         if r.status_code == 200:
@@ -75,7 +70,7 @@ def get_merchant_exchange_rate(merchant):
     else:
         if not mode:
             print "Mode unconfigured.  Using spot."
-        spot_req_args = {'currency': merchant.currency}
+        spot_req_args = {'currency': currency}
         r = requests.get("https://coinbase.com/api/v1/prices/spot_rate", data=spot_req_args)
         if r.status_code == 200:
             data = json.loads(r.text)
@@ -83,13 +78,15 @@ def get_merchant_exchange_rate(merchant):
         else:
             raise ExchangeRateException("Could not get spot price from coinbase.")
 
+def get_merchant_exchange_rate(merchant):
+    mode = None
+    if merchant:
+        settings = MerchantSettings.load_by_merchant(merchant)
+        if settings.exchange_rate:
+            mode = settings.exchange_rate.name
+            print "Using configured mode: %s" % mode
+    return get_exchange_rate(mode, currency=merchant.currency)
 
-def get_exchange_rate(currency):
-    r = requests.get("https://coinbase.com/api/v1/prices/spot_rate", data={'currency':currency})
-    if r.status_code == 200:
-        data = json.loads(r.text)
-        return decimal.Decimal(data.get('amount'))
-    raise ExchangeRateException()
 
 def make_new_sale(merchant, fiat_amount, reference):
     exchange_rate = get_merchant_exchange_rate(merchant)
@@ -164,3 +161,24 @@ def get_unbatched_transactions(merchant):
         tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
         print tx.tx_detail
         yield tx
+
+def make_merchant_batch(merchant):
+    merchant_settings = MerchantSettings.load_by_merchant(merchant)
+    if merchant_settings.payout_with_coinbase:
+        coinbase_api = coinbase.get_api_instance(merchant)
+        payout_address = coinbase_api.receive_address
+    else:
+        payout_address = merchant_settings.btc_payout_address
+    if not clientlib.valid_bitcoin_address(payout_address):
+        raise CreateBatchException("Invalid payout address.")
+#     raise CreateBatchException("Merchant batch cancel: %s" % payout_address)
+    batch_tx = [x for x in get_unbatched_transactions(merchant)]
+    batch_tx_ids = [x.btc_txid for x in batch_tx if (x.tx_detail.confirmations >= 3)]
+    if batch_tx_ids:
+        r = clientlib.send_all_tx_inputs(batch_tx_ids, payout_address)
+        raw_tx = r.get('result')
+        print raw_tx
+        batch = TransactionBatch.objects.get(id=raw_tx.get('batch_id'))
+        batch.coinbase_payout = merchant_settings.payout_with_coinbase
+        batch.save()
+        return batch
