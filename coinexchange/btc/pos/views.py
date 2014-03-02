@@ -53,6 +53,7 @@ def merchant_settings(request):
         profile = request.user.get_profile()
         merchant_settings = MerchantSettings.load_by_merchant(profile)
         settings = MerchantSettingsForm(request.POST, instance=merchant_settings)
+        print settings.fields['exchange_rate']
         if settings.is_valid():
             settings.save()
             data = {'error': False,

@@ -4,13 +4,14 @@ import json
 import datetime
 import requests
 
+from django.core.cache import cache
 from django.template import Context, loader
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
-from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction
+from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, MerchantSettings
 from coinexchange import xmpp
 
 class NewReceiveAddressException(Exception):
@@ -53,6 +54,36 @@ def get_available_receive_address(merchant, btc_amount=None):
     new_addr.save()
     return new_addr
 
+def get_merchant_exchange_rate(merchant):
+    mode = None
+    if merchant:
+        settings = MerchantSettings.load_by_merchant(merchant)
+        if settings.exchange_rate:
+            mode = settings.exchange_rate.name
+            print "Using configured mode: %s" % mode
+    if mode in ["sell", "sell_fees"]:
+        r = requests.get("https://coinbase.com/api/v1/prices/sell", data={'qty': 1})
+        if r.status_code == 200:
+            data = r.json()
+            print data
+            sell_price = data['subtotal'].get('amount')
+            sell_fees_price = data.get('amount')
+            if mode == "sell":
+                return decimal.Decimal(sell_price)
+            return decimal.Decimal(sell_fees_price)
+        raise ExchangeRateException("Could not get sell prices from coinbase.")
+    else:
+        if not mode:
+            print "Mode unconfigured.  Using spot."
+        spot_req_args = {'currency': merchant.currency}
+        r = requests.get("https://coinbase.com/api/v1/prices/spot_rate", data=spot_req_args)
+        if r.status_code == 200:
+            data = json.loads(r.text)
+            return decimal.Decimal(data.get('amount'))
+        else:
+            raise ExchangeRateException("Could not get spot price from coinbase.")
+
+
 def get_exchange_rate(currency):
     r = requests.get("https://coinbase.com/api/v1/prices/spot_rate", data={'currency':currency})
     if r.status_code == 200:
@@ -61,7 +92,7 @@ def get_exchange_rate(currency):
     raise ExchangeRateException()
 
 def make_new_sale(merchant, fiat_amount, reference):
-    exchange_rate = get_exchange_rate(merchant.currency)
+    exchange_rate = get_merchant_exchange_rate(merchant)
     amount = decimal.Decimal(fiat_amount)
     btc_amount = decimal.Decimal("%0.8f" % (amount/exchange_rate))
     receive_address = get_available_receive_address(merchant, btc_amount=btc_amount)

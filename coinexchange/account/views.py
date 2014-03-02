@@ -68,9 +68,9 @@ def settings(request):
     except Exception as e:
         print "%s: %s" % (e.__class__, e)
         cb_api = None
-    for tx in cb_api.transactions():
-        print tx
-    print dir(tx)
+#     for tx in cb_api.transactions():
+#         print tx
+#     print dir(tx)
     data = {'settings_form': settings,
             'coinbase_api': cb_api,
             'account_info': account_info}
