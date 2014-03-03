@@ -51,37 +51,6 @@ form#merchant_settings_form input#id_btc_payout_address {
 					<td>{{coinbase_api.sell_price}}</td>
 				</tr>
 			</table>
-			<h3>Transactions</h3>
-			<table class="table table-striped">
-				<tr>
-					<th>Amount</th>
-					<th>Recipient Type</th>
-					<th>Sender Name</th>
-					<th>Recipient Name</th>
-					<th>Addr</th>
-					<th>Recipient Type</th>
-				</tr>
-				{% for tx in coinbase_api.transactions %}
-				<tr>
-					<td>{{tx.amount}}</td>
-					<td>{{tx.recipient_type}}</td>
-					<td>{{tx.sender.name}}</td>
-					<td>{{tx.recipient.name}}</td>
-					<td>
-						{% if tx.amount > 0 %}
-						Sender: {{tx.transaction_id}}
-						{% else %}
-						Receiver: {{tx.recipient_address}}
-						{% endif %}
-					</td>
-					<td>{{tx.recipient_type}}</td>
-				</tr>
-				<tr>
-					<td>{{tx.status}}</td>
-					<td colspan="5">{{tx.notes}}</td>
-				</tr>
-				{% endfor %}
-			</table>
 			{% else %}
 			<a style="float:right;" class="btn btn-primary" href="{% url 'coinbase_authorize' %}">
 				Authorize Coinbase API
