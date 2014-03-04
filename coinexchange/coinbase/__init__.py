@@ -62,6 +62,10 @@ def get_access_token(creds, code=None):
             creds.token_response = json.dumps(rjson)
             creds.save()
             return creds.access_token
+        else:
+            print "Error refreshing token: %s" % r.status_code
+            print r.text
+            raise TokenRefreshException("Could not refresh access token from coinbase")
     else:
         raise TokenRefreshException("Could not get coinbase access token.  Unexpected state: ApiCreds.id=%s" % creds.id)
 
@@ -69,6 +73,7 @@ def get_api_instance(merchant):
     creds = ApiCreds.load_by_merchant(merchant)
     access_token = get_access_token(creds)
     print creds.token_response
+    print "Getting coinbase api instance with access_token: %s" % access_token
     if creds.token_response:
         try:
             return CoinbaseAccount(oauth_access_token=access_token)
