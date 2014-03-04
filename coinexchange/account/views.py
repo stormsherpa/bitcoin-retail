@@ -68,12 +68,20 @@ def settings(request):
     except Exception as e:
         print "%s: %s" % (e.__class__, e)
         cb_api = None
+    transactions = list()
+    if cb_api:
+        try:
+            transactions = [x for x in cb_api.transactions()]
+        except Exception as e:
+            print "Exception getting transactions: %s %s" % (e.__class__, e)
 #     for tx in cb_api.transactions():
 #         print tx
 #     print dir(tx)
     data = {'settings_form': settings,
             'coinbase_api': cb_api,
-            'account_info': account_info}
+            'account_info': account_info,
+            'transactions': transactions,
+            }
     t = loader.get_template("coinexchange/account/settings.html")
     c = CoinExchangeContext(request, data)
     return HttpResponse(t.render(c))
