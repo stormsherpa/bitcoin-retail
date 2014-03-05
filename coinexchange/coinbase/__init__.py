@@ -46,8 +46,9 @@ def get_access_token(creds, code=None):
             print "Using existing access_token: %s" % creds.access_token
             return creds.access_token
     if creds.refresh_token:
+        old_token = json.loads(creds.token_response)
         args = {'grant_type': 'refresh_token',
-                'refresh_token': creds.refresh_token,
+                'refresh_token': old_token.get('refresh_token'),
                 'redirect_uri': COINBASE_API.get('redirect_uri'),
                 'client_id': COINBASE_API.get('client_id'),
                 'client_secret': COINBASE_API.get('client_secret'),
@@ -56,6 +57,7 @@ def get_access_token(creds, code=None):
         if r.status_code == requests.codes.ok:
             rjson = r.json()
             creds.access_token = rjson.get('access_token')
+            creds.refresh_token = rjson.get('refresh_token')
             expire_time = int(time.time()) + rjson.get('expires_in', 0)
             expire_time -= 60
             creds.access_token_expire_time = datetime.datetime.fromtimestamp(expire_time, utc)
