@@ -79,10 +79,10 @@ POS Admin - {{user.username}}
 </div>
 
 <script type="application/javascript">
-$('.batch_row').bind("click", function(ev){
-	var batch_id = $(ev.currentTarget).attr('batchid');
-	window.location.href = "/account/pos/batch/"+batch_id;
-});
+// $('.batch_row').bind("click", function(ev){
+	// var batch_id = $(ev.currentTarget).attr('batchid');
+	// window.location.href = "/account/pos/batch/"+batch_id;
+// });
 $('#makebatch').bind("click", function(){
 	$.ajax({
 		type: 'GET',

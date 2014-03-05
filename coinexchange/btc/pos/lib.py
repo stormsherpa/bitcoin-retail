@@ -14,6 +14,7 @@ from coinexchange.btc import clientlib
 from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, MerchantSettings, TransactionBatch
 from coinexchange import xmpp
 from coinexchange import coinbase
+from coinexchange.coinbase.models import ApiCreds
 
 class NewReceiveAddressException(Exception):
     pass
@@ -175,10 +176,62 @@ def make_merchant_batch(merchant):
     batch_tx = [x for x in get_unbatched_transactions(merchant)]
     batch_tx_ids = [x.btc_txid for x in batch_tx if (x.tx_detail.confirmations >= 3)]
     if batch_tx_ids:
-        r = clientlib.send_all_tx_inputs(batch_tx_ids, payout_address)
-        raw_tx = r.get('result')
+        raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, payout_address)
         print raw_tx
         batch = TransactionBatch.objects.get(id=raw_tx.get('batch_id'))
         batch.coinbase_payout = merchant_settings.payout_with_coinbase
         batch.save()
         return batch
+
+def find_sell_transfer(tx, api):
+    for t in api.transfers():
+        print "    Transfer is %s" % t.transaction_id
+#         print t.btc_amount == tx.amount
+        if t.btc_amount == tx.amount:
+            print "  Sell transfer is %s" % t.transaction_id
+            return t
+    return None
+
+def update_pending_coinbase_payouts():
+    pending = TransactionBatch.objects.filter(coinbase_payout=True,
+                                              coinbase_txid__isnull=True)
+    for p in pending:
+        api = coinbase.get_api_instance(p.merchant)
+        print "Pending batch: %s" % p.id
+        paid_amount = p.btc_amount-p.btc_tx_fee
+        for tx in api.transactions():
+            if tx.amount == float(paid_amount):
+                p.coinbase_txid = tx.transaction_id
+                p.save()
+                print "  Found transaction: %s" % tx.transaction_id
+                break
+
+    selling = TransactionBatch.objects.filter(coinbase_payout=True,
+                                              coinbase_txid__isnull=False,
+                                              received_amount__isnull=True)
+
+    for s in selling:
+        print "Selling batch: %s" % s.id
+        api = coinbase.get_api_instance(s.merchant)
+        tx = api.get_transaction(s.coinbase_txid)
+        print "  Transfer to coinbase is '%s' with amount: %s" % (tx.status, tx.amount)
+        if tx.status == "complete":
+            sell_tx = find_sell_transfer(tx, api)
+            if not sell_tx:
+                print "  No sell transfer found.  Selling %s bitcoin." % tx.amount
+                sell_tx = api.sell_btc(tx.amount)
+            if not sell_tx:
+                continue
+            print "  %s bitcoin was sold for %s" % (sell_tx.btc_amount, sell_tx.total_amount)
+            fees = (sell_tx.fees_coinbase + sell_tx.fees_bank)/100
+            print "  $%.2f fees" % fees
+            print "   Subtotal amount: %s" % sell_tx.subtotal_amount
+            print "   Total amount:    %s" % sell_tx.total_amount
+            exchange_rate_long = sell_tx.subtotal_amount/sell_tx.btc_amount
+            exchange_rate = float("%.2f" % exchange_rate_long)
+            print "   Exchange rate:   %s" % exchange_rate
+#             print dir(sell_tx)
+            s.batch_amount = sell_tx.subtotal_amount
+            s.exchange_fees = fees
+            s.received_amount = sell_tx.total_amount
+            s.save()

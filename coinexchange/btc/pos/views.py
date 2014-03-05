@@ -18,6 +18,7 @@ from coinexchange.btc import clientlib
 from coinexchange.btc.pos.forms import NewSalesTransactionForm, MerchantSettingsForm
 from coinexchange.btc.pos.models import SalesTransaction, TransactionBatch, MerchantSettings
 from coinexchange.btc.pos import lib
+from coinexchange import coinbase
 
 @login_required
 def main(request):
@@ -94,7 +95,14 @@ def batch(request, batch_id):
 @login_required
 def make_batch(request):
     profile = request.user.get_profile()
-    batch = lib.make_merchant_batch(profile)
+    try:
+        batch = lib.make_merchant_batch(profile)
+    except coinbase.TokenRefreshException as e:
+        response = {"error": True,
+                    "status": "Coinbase oauth authorization error!"}
+        http_response = HttpResponse(json.dumps(response)+"\n")
+        http_response['Content-Type'] = 'application/json'
+        return http_response
     if batch:
         batch_tx_ids = [x.btc_txid for x in batch.transactions.all()]
         response = {"batch_tx_ids": batch_tx_ids,
