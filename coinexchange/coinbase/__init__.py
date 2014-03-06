@@ -43,7 +43,8 @@ def get_access_token(creds, code=None):
     if creds.access_token and creds.access_token_expire_time:
         utcnow = datetime.datetime.utcnow().replace(tzinfo=utc)
         if utcnow < creds.access_token_expire_time:
-            print "Using existing access_token: %s" % creds.access_token
+#             print "Using existing access_token: %s" % creds.access_token
+            print "Using existing access token."
             return creds.access_token
     if creds.refresh_token:
         old_token = json.loads(creds.token_response)
@@ -74,8 +75,8 @@ def get_access_token(creds, code=None):
 def get_api_instance(merchant):
     creds = ApiCreds.load_by_merchant(merchant)
     access_token = get_access_token(creds)
-    print creds.token_response
-    print "Getting coinbase api instance with access_token: %s" % access_token
+#     print creds.token_response
+#     print "Getting coinbase api instance with access_token: %s" % access_token
     if creds.token_response:
         try:
             return CoinbaseAccount(oauth_access_token=access_token)
