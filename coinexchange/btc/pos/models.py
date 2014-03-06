@@ -58,6 +58,11 @@ class TransactionBatch(models.Model):
     btc_address = models.CharField(max_length=200, null=True, blank=True)
     coinbase_txid = models.CharField(max_length=50, null=True, blank=True)
     coinbase_payout = models.BooleanField(default=False, blank=True)
+    captured_amount = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    captured_avg_exchange_rate = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    realized_gain = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    realized_btc_amount = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    realized_btc_tx_fee = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
 
 class SalesTransaction(models.Model):
     merchant = models.ForeignKey('btc.CoinExchangeUser', related_name='sales_tx')

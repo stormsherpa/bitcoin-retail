@@ -31,7 +31,7 @@ function _display_status(error_class, message){
 }
 
 function display_error(message){
-	_display_status('alert-error', message);
+	_display_status('alert-danger', message);
 }
 
 function display_success(message){
@@ -39,7 +39,7 @@ function display_success(message){
 }
 
 function display_warning(message){
-	_display_status('alert-block', message);
+	_display_status('alert-warning', message);
 }
 
 function display_info(message){

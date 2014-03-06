@@ -13,3 +13,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         lib.update_pending_coinbase_payouts()
+        lib.update_batch_aggregates()

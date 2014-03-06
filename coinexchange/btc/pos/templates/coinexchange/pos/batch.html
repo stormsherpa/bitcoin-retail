@@ -6,50 +6,97 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 
 {% block innercontent %}
 <h2>Batch #{{batch.id}}</h2>
-<p><a href="{% url 'pos_admin' %}">Back</a></p>
+<p>
+	<a class="btn btn-primary" href="{% url 'pos_admin' %}">
+		<span class="glyphicon glyphicon-arrow-left"></span> Back
+	</a>
+</p>
 <div class="col-md-6">
 	<div class="panel panel-success">
 		<div class="panel-heading">Captured Amount</div>
-		<div class="panel-body">
-			<p>Total Amount: {{total_amount|floatformat:2}}</p>
-			<p>Total Bitcoin: {{total_bitcoin}}</p>
-			<p>Average Exchange Rate: {{average_exchange_rate|floatformat:2}}</p>
-		</div>
+		<!-- <div class="panel-body"> -->
+			<table class="panel-body table table-condensed">
+				<tr>
+					<th>Total Amount:</th>
+					<td>{{batch.captured_amount|floatformat:2}}</td>
+				</tr>
+				<tr>
+					<th>Total Bitcoin:</th>
+					<td>{{batch.btc_amount}}</td>
+				</tr>
+				<tr>
+					<th>Average Exchange Rate:</th>
+					<td>{{batch.captured_avg_exchange_rate|floatformat:2}}</td>
+				</tr>
+			</table>
+		<!-- </div> -->
 	</div>
 </div>
 <div class="col-md-6">
-	<div class="panel panel-warning">
-		<div class="panel-heading">Realized Amount</div>
-		<div class="panel-body">
-			<p>Amount Received: </p>
-			<p>Effective Exchange Rate: </p>
-			<p>Total Fees: </p>
+	<div class="panel {{realized_class}}">
+		<div class="panel-heading">
+			<span style="float:right;">Gain/Loss: {{gain_percent|floatformat:1}}%</span>
+			Realized Amount
 		</div>
+		<table class="panel-body table table-condensed">
+			<tr>
+				<th>Total Realized Value:</th>
+				<td>{{total_value|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Amount Received:</th>
+				<td>{{batch.received_amount|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Realized Exchange Rate:</th>
+				<td>{{batch.exchange_rate|floatformat:2}}</td>
+			</tr>
+		</table>
 	</div>
 </div>
-
-<table class="table table-condensed table-striped">
-	<tr>
-		<th>Amount</th>
-		<th>BTC Amount</th>
-		<th>Exchange<br/>Rate</th>
-		<th>Timestamp</th>
-		<th>Blockchain<br/>Details</th>
-	</tr>
-	{% for tx in transactions %}
-	<tr>
-		<td>{{tx.amount|floatformat:2}} {{tx.currency}}</td>
-		<td>{{tx.btc_amount}}</td>
-		<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
-		<td>{{tx.tx_timestamp}}</td>
-		<td>
-			<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
-				<span class="glyphicon glyphicon-info-sign"></span>
-			</a>
-		</td>
-	</tr>
-	{% endfor %}
-</table>
+<div class="col-md-9">
+	<table class="table table-condensed table-striped">
+		<tr>
+			<th>Amount</th>
+			<th>BTC Amount</th>
+			<th>Exchange<br/>Rate</th>
+			<th>Timestamp</th>
+			<th>Blockchain<br/>Details</th>
+		</tr>
+		{% for tx in transactions %}
+		<tr>
+			<td>{{tx.amount|floatformat:2}} {{tx.currency}}</td>
+			<td>{{tx.btc_amount}}</td>
+			<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
+			<td>{{tx.tx_timestamp}}</td>
+			<td>
+				<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
+					<span class="glyphicon glyphicon-info-sign"></span>
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% if batch.batch_amount %}
+<div class="col-md-3">
+	<div class="panel panel-info">
+		<div class="panel-heading">
+			Batch Details
+		</div>
+		<table class="panel-body table table-condensed">
+			<tr>
+				<th>Bitcoin Tx Fee:</th>
+				<td>{{batch.realized_btc_tx_fee|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Exchange Fee:</th>
+				<td>{{batch.exchange_fees|floatformat:2}}</td>
+			</tr>
+		</table>
+	</div>
+</div>
+{% endif %}
 
 
 {% endblock %}

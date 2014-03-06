@@ -45,7 +45,8 @@ POS Admin - {{user.username}}
 			<tr>
 				<th>Details</th>
 				<th>Amount</th>
-				<th>Fee</th>
+				<th>BTC</th>
+				<th>Gain/Loss</th>
 				<th>Timestamp</th>
 				<th>Blockchain<br/>Details</th>
 			</tr>
@@ -58,11 +59,16 @@ POS Admin - {{user.username}}
 						</button>
 					</a>
 				</td>
+				<td>{{batch.batch_amount|floatformat:2}}</td>
 				<td>{{batch.btc_amount}} BTC</td>
-				<td>{{batch.btc_tx_fee}}</td>
 				<td>
-					{{batch.batch_timestamp}}
+					{% if batch.batch_amount %}
+					<span class="btn {% if batch.realized_gain > 0 %}btn-success{% else %}btn-warning{% endif %}">
+						{{batch.realized_gain|floatformat:2}}
+					</span>
+					{% endif %}
 				</td>
+				<td>{{batch.batch_timestamp}}</td>
 				<td>
 					{% if batch.txid %}
 					<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}" target="_blank">

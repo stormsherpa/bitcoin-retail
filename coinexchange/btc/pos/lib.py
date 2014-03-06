@@ -235,3 +235,28 @@ def update_pending_coinbase_payouts():
             s.exchange_fees = fees
             s.received_amount = sell_tx.total_amount
             s.save()
+
+def update_batch_aggregates():
+    batch_query = """SELECT * FROM pos_transactionbatch where
+                     (batch_amount is not null and exchange_fees is not null and
+                      received_amount is not null)
+                     and 
+                     (captured_amount is null or realized_btc_amount is null or
+                      captured_avg_exchange_rate is null or realized_gain is null or
+                      exchange_rate is null or realized_btc_tx_fee is null)
+                     """
+    batches = TransactionBatch.objects.raw(batch_query)
+    for b in batches:
+        print "Updating aggregates for batch: %s" % b.id
+        amount = 0
+        btc_amount = 0
+        for tx in b.transactions.all():
+            amount += tx.amount
+            btc_amount += tx.btc_amount
+        b.captured_amount = amount
+        b.realized_btc_amount = b.btc_amount - b.btc_tx_fee
+        b.captured_avg_exchange_rate = amount/btc_amount
+        b.exchange_rate = b.batch_amount/b.realized_btc_amount
+        b.realized_btc_tx_fee = b.btc_tx_fee * b.exchange_rate
+        b.realized_gain = (b.exchange_rate*b.btc_amount) - b.captured_amount
+        b.save()
