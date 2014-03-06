@@ -3,30 +3,28 @@
 {% block content %}
 <div class="row">
 	<div class="col-md-2">
-		<h3>Menu</h3>
-		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url "home" %}">Home</a></li>
-			<li><a href="{% url "pos_home" %}">Start Point of Sale</a></li>
-			
-		</ul>
 		{% if user and user.is_authenticated %}
-		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url "pos_admin" %}">POS Admin</a></li>
-			<li><a href="{% url "account_home" %}">Your Account</a></li>
+		<ul class="panel-body nav nav-tabs nav-stacked">
+			<li><a href="{% url "pos_home" %}">Start Sales</a></li>
+			<li><a href="{% url "account_home" %}">Account Home</a></li>
 			{% if user.is_superuser %}
 			<li><a href="/djangoadmin" target="_blank">Django Admin Portal</a></li>
 			{% endif %}
 			<li><a href="{% url "account_settings" %}">Settings</a></li>
 		</ul>
 		{% else %}
-		<ul class="nav nav-tabs nav-stacked">
-			<li><a href="{% url "auth_login" %}">Login</a></li>
-		</ul>
+		<div class="panel panel-success">
+			<div class="panel-heading">Welcome</div>
+			<div class="panel-body">
+				<a class="btn btn-primary" href="{% url 'auth_login' %}">Login</a>
+			</div>
+		</div>
 		{% endif %}
 	</div>
 	<div class="col-md-10">
 		{% block innercontent %}
 		{% endblock %}
 	</div>
+
 </div>
 {% endblock %}

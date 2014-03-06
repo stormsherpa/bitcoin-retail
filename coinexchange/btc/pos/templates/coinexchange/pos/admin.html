@@ -6,11 +6,11 @@ POS Admin - {{user.username}}
 
 {% block innercontent %}
 <ul class="nav nav-tabs" id="posTab">
-	<li class="active"><a data-toggle="tab" href="#newbatch">Unbatched</a></li>
-	<li><a data-toggle="tab" href="#batch">Batches</a></li>
+	<li class="active"><a data-toggle="tab" href="#batch">Completed Batches</a></li>
+	<li><a data-toggle="tab" href="#newbatch">Current Batch</a></li>
 </ul>
 <div class="tab-content">
-	<div class="tab-pane active" id="newbatch">
+	<div class="tab-pane" id="newbatch">
 		{% if unbatched_tx %}
 		<button id="makebatch" style="float:right;" class="btn btn-primary">Make Batch</button>
 		{% endif %}
@@ -25,8 +25,8 @@ POS Admin - {{user.username}}
 			</tr>
 		{% for tx in unbatched_tx %}
 			<tr>
-				<td>{{tx.amount}}</td>
-				<td>{{tx.currency_btc_exchange_rate}}</td>
+				<td>{{tx.amount|floatformat:2}}</td>
+				<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
 				<td>{{tx.tx_timestamp}}</td>
 				<td>{{tx.tx_detail.confirmations}}</td>
 				<td>
@@ -39,7 +39,7 @@ POS Admin - {{user.username}}
 		{% endfor %}
 		</table>
 	</div>
-	<div class="tab-pane" id="batch">
+	<div class="tab-pane active" id="batch">
 		<h3>Transaction Batches</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
@@ -62,10 +62,16 @@ POS Admin - {{user.username}}
 				<td>{{batch.batch_amount|floatformat:2}}</td>
 				<td>{{batch.btc_amount}} BTC</td>
 				<td>
-					{% if batch.batch_amount %}
-					<span class="btn {% if batch.realized_gain > 0 %}btn-success{% else %}btn-warning{% endif %}">
-						{{batch.realized_gain|floatformat:2}}
-					</span>
+					{% if batch.coinbase_payout %}
+						{% if batch.batch_amount %}
+						<span class="btn {% if batch.realized_gain > 0 %}btn-success{% else %}btn-warning{% endif %}">
+							{{batch.realized_gain|floatformat:2}}
+						</span>
+						{% else %}
+						<span class="btn btn-danger">Pending</span>
+						{% endif %}
+					{% else %}
+						<span class="btn btn-info">No Payout</span>
 					{% endif %}
 				</td>
 				<td>{{batch.batch_timestamp}}</td>

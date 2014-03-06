@@ -6,91 +6,99 @@ Account Settings for {{user.username}}
 
 {% block innercontent %}
 <style type="text/css">
-form#merchant_settings_form input#id_btc_payout_address {
+input#id_btc_payout_address {
 	width: 100%
 }
 </style>
 <h2>Account Settings</h2>
 
-<div class="col-md-12">
-	<div class="panel panel-warning">
+<div class="col-md-7">
+	<div class="panel panel-info">
 		<div class="panel-heading">Point of Sale Settings</div>
-		<div class="panel-body">
-			<form action="#" id="merchant_settings_form">
-				<table class="table table-condensed">
-				{{settings_form.as_table}}
-				<tr>
-					<td></td>
-					<td style="text-align: right;">
-						<button class="btn btn-primary" id="save_merchant_settings">Save</button>
-					</td>
-				</tr>
-				</table>
-			</form>
-		</div>
+		<table class="panel-body table table-condensed">
+		{{settings_form.as_table}}
+		<tr>
+			<td></td>
+			<td style="text-align: right;">
+				<button class="btn btn-primary" id="save_merchant_settings">Save</button>
+			</td>
+		</tr>
+		</table>
 	</div>
 </div>
 
-<div class="col-md-12">
-	<div class="panel panel-warning">
+<div class="col-md-5">
+	<div class="panel panel-success">
 		<div class="panel-heading">Coinbase Integration</div>
-		<div class="panel-body">
-			{% if coinbase_api %}
-			API Token working
-			<table class="table table-condensed">
-				<tr>
-					<th>Receive Address</th>
-					<td>{{account_info.receive_address}}</td>
-				</tr>
-				<tr>
-					<th>BTC Balance</th>
-					<td>{{coinbase_api.balance}}</td>
-				</tr>
-				<tr>
-					<th>Sell Price</th>
-					<td>{{coinbase_api.sell_price}}</td>
-				</tr>
-			</table>
-			<h3>Transactions</h3>
-			<table class="table table-striped">
-				<tr>
-					<th>Amount</th>
-					<th>Recipient Type</th>
-					<th>Sender Name</th>
-					<th>Recipient Name</th>
-					<th>Addr</th>
-					<th>Recipient Type</th>
-				</tr>
-				{% for tx in transactions %}
-				<tr>
-					<td>{{tx.amount}}</td>
-					<td>{{tx.recipient_type}}</td>
-					<td>{{tx.sender.name}}</td>
-					<td>{{tx.recipient.name}}</td>
-					<td>
-						{% if tx.amount > 0 %}
-						Sender: {{tx.transaction_id}}
-						{% else %}
-						Receiver: {{tx.recipient_address}}
-						{% endif %}
-					</td>
-					<td>{{tx.recipient_type}}</td>
-				</tr>
-				<tr>
-					<td>{{tx.status}}</td>
-					<td colspan="5">{{tx.notes}}</td>
-				</tr>
-				{% endfor %}
-			</table>
-			{% else %}
+		{% if coinbase_api %}
+		<table class="panel-body table table-condensed">
+			<tr>
+				<th colspan="2">Receive Address</th>
+			</tr>
+			<tr>
+				<td colspan="2">{{account_info.receive_address}}</td>
+			</tr>
+			<tr>
+				<th>BTC Balance</th>
+				<td>{{coinbase_api.balance}}</td>
+			</tr>
+			<tr>
+				<th>Sell Price</th>
+				<td>{{coinbase_api.sell_price}}</td>
+			</tr>
+		</table>
+		{% else %}
+		<div clas="panel-body">
 			<a style="float:right;" class="btn btn-primary" href="{% url 'coinbase_authorize' %}">
 				Authorize Coinbase API
 			</a>
-			{% endif %}
-
 		</div>
+		{% endif %}
 	</div>
 </div>
+
+{% if coinbase_api %}
+<div class="col-md-12">
+	<div class="panel panel-success">
+		<div class="panel-heading">Coinbase Transactions</div>
+		<table class="panel-body table table-striped">
+			<tr>
+				<td colspan="6">
+					<h3>Transactions</h3>
+				</td>
+			</tr>
+			<tr>
+				<th>Amount</th>
+				<th>Recipient Type</th>
+				<th>Sender Name</th>
+				<th>Recipient Name</th>
+				<th>Addr</th>
+				<th>Recipient Type</th>
+			</tr>
+			{% for tx in transactions %}
+			<tr>
+				<td>{{tx.amount}}</td>
+				<td>{{tx.recipient_type}}</td>
+				<td>{{tx.sender.name}}</td>
+				<td>{{tx.recipient.name}}</td>
+				<td>
+					{% if tx.amount > 0 %}
+					Sender: {{tx.transaction_id}}
+					{% else %}
+					Receiver: {{tx.recipient_address}}
+					{% endif %}
+				</td>
+				<td>{{tx.recipient_type}}</td>
+			</tr>
+			<tr>
+				<td>{{tx.status}}</td>
+				<td colspan="5">{{tx.notes}}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+{% endif %}
 
 <script type="application/javascript">
 $('button#save_merchant_settings').bind("click", function(){
