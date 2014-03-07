@@ -7,13 +7,20 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 {% block innercontent %}
 <h2>Batch #{{batch.id}}</h2>
 <p>
+	<span style="float:right;">
+		<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}?show_adv=true" target="_blank">
+			<span class="glyphicon glyphicon-link"></span>
+		</a>
+	</span>
 	<a class="btn btn-primary" href="{% url 'account_home' %}">
 		<span class="glyphicon glyphicon-arrow-left"></span> Back
 	</a>
 </p>
 <div class="col-md-6">
 	<div class="panel panel-success">
-		<div class="panel-heading">Captured Amount</div>
+		<div class="panel-heading">
+			Captured Amount
+		</div>
 		<!-- <div class="panel-body"> -->
 			<table class="panel-body table table-condensed">
 				<tr>
@@ -70,8 +77,8 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 			<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
 			<td>{{tx.tx_timestamp}}</td>
 			<td>
-				<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
-					<span class="glyphicon glyphicon-info-sign"></span>
+				<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}?show_adv=true" target="_blank">
+					<span class="glyphicon glyphicon-link"></span>
 				</a>
 			</td>
 		</tr>

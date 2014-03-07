@@ -7,6 +7,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 		<link href="/static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"/>
+		<link href="/static/coinexchange.css" rel="stylesheet"/>
 
 		{% block head %}{% endblock %}
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -70,6 +71,19 @@
 		</div>
 		{% block content %}		
 		{% endblock %}
+	</div>
+	<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true" id="help-modal">
+		<div class="modal-dialog modal-md">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 id="help-modal-header">Loading Help...</h4>
+				</div>
+				<div class="modal-body" id="help-modal-body">
+					Loading help text...
+				</div>
+			</div>
+		</div>
 	</div>
 	</body>
 </html>

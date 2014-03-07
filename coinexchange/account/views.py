@@ -72,6 +72,8 @@ def settings(request):
     if cb_api:
         try:
             transactions = [x for x in cb_api.transactions()]
+            if len(transactions) > 7:
+                transactions = transactions[:7]
         except Exception as e:
             print "Exception getting transactions: %s %s" % (e.__class__, e)
 #     for tx in cb_api.transactions():

@@ -69,8 +69,29 @@ AccountAPI.prototype.withdraw_bitcoin = function(form, id){
 		});
 	return false;
 };
-
+var e_alert;
 $(function(){
+	$('.coinexchange-help').bind('click', function(e){
+		e_alert = e;
+		var doc = $(e.currentTarget).attr('help-document');
+		var title = $(e.currentTarget).attr('help-title');
+		// alert(doc);
+		$('#help-modal').modal();
+		$('#help-modal-header').html(title);
+		$('#help-modal-body').html("Loading... ("+doc+")");
+		help_url = "/static/coinexchange/help/"+doc+".html";
+		$.ajax({
+			type: 'get',
+			url: help_url,
+			success: function(data, textStatus, jqXHR){
+				$('#help-modal-body').html(data);
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				$('#help-modal-body').html("Error loading help document: "+errorThrown+"<br/>"+help_url);
+			}
+		});
+		
+	});
 	$('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
 		debug_e = e;
 		var tab_id = $(e.target).attr('href');

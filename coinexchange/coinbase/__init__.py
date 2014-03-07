@@ -86,17 +86,6 @@ def get_api_instance(merchant):
     msg = "No token response object in merchant's api creds. Merchant user id: %s" % merchant.user.id
     raise InvalidAccountException(msg)
 
-# def get_addresses(access_token):
-#     return access_token.
-
-# def get_transactions(access_token):
-#     req_args = {'access_token': access_token}
-#     r = requests.get("https://coinbase.com/api/v1/transactions", data=req_args)
-#     if r.status_code == requests.codes.ok:
-#         rjson = r.json()
-#         return rjson
-#     print r.status_code
-
 def get_account_info(coinbase_api):
     acct_info = dict()
 #     rjson = get_addresses(access_token)

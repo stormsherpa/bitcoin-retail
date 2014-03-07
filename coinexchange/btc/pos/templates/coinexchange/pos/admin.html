@@ -6,10 +6,20 @@ POS Admin - {{user.username}}
 
 {% block innercontent %}
 <ul class="nav nav-tabs" id="posTab">
-	<li class="active"><a data-toggle="tab" href="#batch">Completed Batches</a></li>
+	<li class="active"><a data-toggle="tab" href="#account">Account Home</a></li>
+	<li><a data-toggle="tab" href="#batch">Completed Batches</a></li>
 	<li><a data-toggle="tab" href="#newbatch">Current Batch</a></li>
 </ul>
 <div class="tab-content">
+	<div class="tab-pane active" id="account">
+		<h4>Welcome</h4>
+		<p>
+			Add aggregates and reports about transaction batches for monthly
+			reconciliation here.<br/>
+			<a class="coinexchange-help glyphicon glyphicon-question-sign" help-document="testing" help-title="Test Help Document"></a>
+			
+		</p>
+	</div>
 	<div class="tab-pane" id="newbatch">
 		{% if unbatched_tx %}
 		<button id="makebatch" style="float:right;" class="btn btn-primary">Make Batch</button>
@@ -39,13 +49,15 @@ POS Admin - {{user.username}}
 		{% endfor %}
 		</table>
 	</div>
-	<div class="tab-pane active" id="batch">
+	<div class="tab-pane" id="batch">
 		<h3>Transaction Batches</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
 				<th>Details</th>
-				<th>Amount</th>
 				<th>BTC</th>
+				<th>Average<br/>Exchange Rate</th>
+				<th>Captured<span class="glyphicon glyphicon-usd"></span></th>
+				<th>Realized<span class="glyphicon glyphicon-usd"></span></th>
 				<th>Gain/Loss</th>
 				<th>Timestamp</th>
 				<th>Blockchain<br/>Details</th>
@@ -59,8 +71,10 @@ POS Admin - {{user.username}}
 						</button>
 					</a>
 				</td>
+				<td>{{batch.btc_amount}}</td>
+				<td>{{batch.captured_avg_exchange_rate|floatformat:2}}</td>
+				<td>{{batch.captured_amount|floatformat:2}}</td>
 				<td>{{batch.batch_amount|floatformat:2}}</td>
-				<td>{{batch.btc_amount}} BTC</td>
 				<td>
 					{% if batch.coinbase_payout %}
 						{% if batch.batch_amount %}
@@ -71,14 +85,14 @@ POS Admin - {{user.username}}
 						<span class="btn btn-danger">Pending</span>
 						{% endif %}
 					{% else %}
-						<span class="btn btn-info">No Payout</span>
+						<span class="btn btn-info">BTC Transfer</span>
 					{% endif %}
 				</td>
 				<td>{{batch.batch_timestamp}}</td>
 				<td>
 					{% if batch.txid %}
-					<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}" target="_blank">
-						<span class="glyphicon glyphicon-info-sign"></span>
+					<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}?show_adv=true" target="_blank">
+						<span class="glyphicon glyphicon-link"></span>
 					</a>
 					{% else %}
 					-

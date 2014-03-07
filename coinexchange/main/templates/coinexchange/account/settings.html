@@ -48,8 +48,8 @@ input#id_btc_payout_address {
 			</tr>
 		</table>
 		{% else %}
-		<div clas="panel-body">
-			<a style="float:right;" class="btn btn-primary" href="{% url 'coinbase_authorize' %}">
+		<div class="panel-body" style="text-align: center;">
+			<a class="btn btn-primary" href="{% url 'coinbase_authorize' %}">
 				Authorize Coinbase API
 			</a>
 		</div>
@@ -63,37 +63,24 @@ input#id_btc_payout_address {
 		<div class="panel-heading">Coinbase Transactions</div>
 		<table class="panel-body table table-striped">
 			<tr>
-				<td colspan="6">
-					<h3>Transactions</h3>
-				</td>
-			</tr>
-			<tr>
 				<th>Amount</th>
-				<th>Recipient Type</th>
-				<th>Sender Name</th>
-				<th>Recipient Name</th>
-				<th>Addr</th>
-				<th>Recipient Type</th>
+				<th>Status</th>
+				<th>Tx ID</th>
+				<th>Timestamp</th>
 			</tr>
 			{% for tx in transactions %}
 			<tr>
 				<td>{{tx.amount}}</td>
-				<td>{{tx.recipient_type}}</td>
-				<td>{{tx.sender.name}}</td>
-				<td>{{tx.recipient.name}}</td>
-				<td>
-					{% if tx.amount > 0 %}
-					Sender: {{tx.transaction_id}}
-					{% else %}
-					Receiver: {{tx.recipient_address}}
-					{% endif %}
-				</td>
-				<td>{{tx.recipient_type}}</td>
-			</tr>
-			<tr>
 				<td>{{tx.status}}</td>
-				<td colspan="5">{{tx.notes}}</td>
+				<td>{{tx.transaction_id}}</td>
+				<td>{{tx.created_at}}</td>
 			</tr>
+				{% if tx.notes %}
+			<tr>
+				<td></td>
+				<td colspan="3">{{tx.notes}}</td>
+			</tr>
+				{% endif %}
 			{% endfor %}
 		</table>
 	</div>
