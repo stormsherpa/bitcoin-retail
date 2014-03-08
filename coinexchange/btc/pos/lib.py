@@ -2,16 +2,21 @@
 import decimal
 import json
 import datetime
+import traceback
+import time
+
 import requests
 
 from django.core.cache import cache
 from django.template import Context, loader
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
-from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, MerchantSettings, TransactionBatch
+from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, MerchantSettings, TransactionBatch, UnexpectedPaymentNotification
 from coinexchange import xmpp
 from coinexchange import coinbase
 from coinexchange.coinbase.models import ApiCreds
@@ -26,8 +31,10 @@ class CreateBatchException(Exception):
     pass
 
 def get_available_receive_address(merchant, btc_amount=None):
+    msettings = MerchantSettings.load_by_merchant(merchant)
     try:
-        available_addresses = [x for x in merchant.pos_receive_address.filter(available=True)]
+        available_addresses = [x for x in merchant.pos_receive_address.filter(available=True,
+                                                                              coinbase_address=msettings.coinbase_wallet)]
     except IndexError:
         pass
     print available_addresses
@@ -46,15 +53,27 @@ def get_available_receive_address(merchant, btc_amount=None):
         final_addresses = filter(available_addr, available_addresses)
         if final_addresses:
             return final_addresses[0]
-
-    r = BitcoindClient.get_instance().getnewaddress(merchant.btc_account)
-    if r.get('error', True):
-        raise NewReceiveAddressException(json.dumps(r))
-    addr = r.get('result')
-    print "Returning addr: %s" % addr
-    new_addr = ReceiveAddress(merchant=merchant, address=addr, available=True)
-    new_addr.save()
-    return new_addr
+    if msettings.coinbase_wallet:
+        coinbase_api = coinbase.get_api_instance(merchant)
+        new_addr = ReceiveAddress(merchant=merchant, address='1',
+                                  available=True,
+                                  coinbase_address=True)
+        new_addr.save()
+        callback_url = "%s%s" % (settings.SITE_HOSTNAME,
+                                 reverse('coinbase_recv_callback', args=[new_addr.id]))
+        cb_addr = coinbase_api.generate_receive_address(callback_url=callback_url)
+        new_addr.address = cb_addr
+        new_addr.save()
+        return new_addr
+    else:
+        r = BitcoindClient.get_instance().getnewaddress(merchant.btc_account)
+        if r.get('error', True):
+            raise NewReceiveAddressException(json.dumps(r))
+        addr = r.get('result')
+        print "Returning addr: %s" % addr
+        new_addr = ReceiveAddress(merchant=merchant, address=addr, available=True, coinbase_address=False)
+        new_addr.save()
+        return new_addr
 
 def get_exchange_rate(mode, currency="USD"):
     if mode in ["sell", "sell_fees"]:
@@ -82,9 +101,9 @@ def get_exchange_rate(mode, currency="USD"):
 def get_merchant_exchange_rate(merchant):
     mode = None
     if merchant:
-        settings = MerchantSettings.load_by_merchant(merchant)
-        if settings.exchange_rate:
-            mode = settings.exchange_rate.name
+        msettings = MerchantSettings.load_by_merchant(merchant)
+        if msettings.exchange_rate:
+            mode = msettings.exchange_rate.name
             print "Using configured mode: %s" % mode
     return get_exchange_rate(mode, currency=merchant.currency)
 
@@ -102,7 +121,8 @@ def make_new_sale(merchant, fiat_amount, reference):
                             currency_btc_exchange_rate=exchange_rate,
                             btc_amount=btc_amount,
                             btc_address=receive_address,
-                            btc_request_url=btc_url)
+                            btc_request_url=btc_url,
+                            coinbase_api_tx=receive_address.coinbase_address)
     sale.save()
     return sale
 
@@ -143,6 +163,44 @@ def process_btc_transaction(tx, tx_rec, sales_tx):
     tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
     sales_tx.tx_published_timestamp = tstamp
     sales_tx.save()
+
+def save_unexpected_payment(payment):
+    p = UnexpectedPaymentNotification(merchant=payment.receive_address.merchant,
+                                      body=payment._raw_text)
+    p.save()
+    return p
+
+def process_coinbase_payment_notification(payment):
+    print "Processing payment notification - address_id: %s" % payment.receive_address.id
+    print "payment amount: %s (%s)" % (payment.amount, payment.amount.__class__)
+    if not payment.receive_address:
+        print "Receive address was not found! (%s)" % payment.address
+        return save_unexpected_payment(payment)
+    try:
+        tx_list = SalesTransaction.objects.filter(btc_address=payment.receive_address,
+                                                  btc_amount=decimal.Decimal("%s" % payment.amount),
+                                                  btc_txid__isnull=True)
+#         print [x for x in tx_list if decimal.Decimal(x.btc_amount) == decimal.Decimal(payment.amount)]
+#         print tx_list
+#         raise Exception("Not done")
+    except SalesTransaction.DoesNotExist:
+        print "Unexpected payment notification from coinbase."
+        return save_unexpected_payment(payment)
+    except Exception as e:
+        print "%s: %s" %(e.__class__, e)
+        traceback.print_exc()
+        raise e
+    if not tx_list:
+        return False
+    s_tx = tx_list[0]
+    print "Found sales_tx: %s" % s_tx.id
+    s_tx.btc_txid = payment.transaction_hash
+#     tstamp = datetime.datetime.fromtimestamp(tx.time, utc)
+    tstamp = datetime.datetime.fromtimestamp(time.time(), utc)
+    s_tx.tx_published_timestamp = tstamp
+    s_tx.coinbase_txid = payment.transaction_id
+    s_tx.save()
+    return s_tx
 
 def notify_transaction(sales_tx, status):
     t = loader.get_template("coinexchange/xmpp/pos_confirm.xml")

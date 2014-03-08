@@ -189,6 +189,8 @@ COINBASE_API = { # Dev settings registered on shaun.kruger@gmail.com coinbase ac
                 'redirect_uri': 'http://local.bitcoinretail.info:8000/coinbase/redirect_uri',
                 }
 
+SITE_HOSTNAME = "http://jenkins.stormsherpa.com:8000"
+
 try:
     from coinexchange_config.settings import *
     print "External config imported into %s" % __name__

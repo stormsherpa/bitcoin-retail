@@ -16,9 +16,10 @@ from coinexchange.btc.queue.bitcoind_client import BitcoindClient
 from coinexchange.btc import clientlib
 
 from coinexchange.btc.pos.forms import NewSalesTransactionForm, MerchantSettingsForm
-from coinexchange.btc.pos.models import SalesTransaction, TransactionBatch, MerchantSettings
+from coinexchange.btc.pos.models import SalesTransaction, TransactionBatch, MerchantSettings, ReceiveAddress
 from coinexchange.btc.pos import lib
 from coinexchange import coinbase
+from coinexchange.btc.queue import CoinexchangePublisher
 
 @login_required
 def main(request):
@@ -137,3 +138,15 @@ def make_batch(request):
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response
+
+def coinbase_recv_callback(request, recv_addr_id):
+    try:
+        address = ReceiveAddress.objects.get(id=recv_addr_id)
+    except ReceiveAddress.DoesNotExist as e:
+        raise Http404()
+    r = CoinexchangePublisher.get_instance('coinbase_receive_callback').send(request.body)
+    print "Published: %s" % r
+    if r:
+        return HttpResponse("ok\n")
+    else:
+        return HttpResponse("queue unavailable\n", status_code=500)

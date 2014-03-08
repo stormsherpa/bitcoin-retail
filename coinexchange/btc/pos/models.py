@@ -1,4 +1,6 @@
 
+import json
+
 from django.db import models
 from django.contrib import admin
 
@@ -10,6 +12,7 @@ class ReceiveAddress(models.Model):
     merchant = models.ForeignKey('btc.CoinExchangeUser', related_name='pos_receive_address')
     address = models.CharField(max_length=200)
     available = models.BooleanField(default=True)
+    coinbase_address = models.BooleanField(default=False)
 
 class ExchangeRate(models.Model):
     name = models.CharField(max_length=10, unique=True)
@@ -36,6 +39,7 @@ class MerchantSettings(models.Model):
     payout_with_coinbase = models.BooleanField(default=False, blank=True)
     exchange_rate = models.ForeignKey(ExchangeRate, null=True, blank=True)
     btc_payout_address = models.CharField(max_length=200, default='', blank=True)
+    coinbase_wallet = models.BooleanField(default=True, blank=True)
 
     @classmethod
     def load_by_merchant(cls, merchant):
@@ -83,3 +87,24 @@ class SalesTransaction(models.Model):
                               default=None,
                               null=True,
                               related_name='transactions')
+    coinbase_txid = models.CharField(max_length=30, null=True, blank=True, default=None)
+    coinbase_api_tx = models.BooleanField(default=False, blank=True)
+
+class PaymentNotification():
+    def __init__(self, json_text):
+        self._raw_text = json_text
+        self._raw_notification = json.loads(json_text)
+        self.address = self._raw_notification.get('address')
+        self.amount = self._raw_notification.get('amount')
+        try:
+            self.receive_address = ReceiveAddress.objects.get(address=self.address)
+        except ReceiveAddress.DoesNotExist:
+            self.receive_address = None
+        transaction = self._raw_notification.get('transaction', dict())
+        for k in transaction.keys():
+            label = "transaction_%s" % k
+            setattr(self, label, transaction[k])
+
+class UnexpectedPaymentNotification(models.Model):
+    merchant = models.ForeignKey('btc.CoinExchangeUser', null=True, related_name='unexpected_payment')
+    body = models.TextField()
