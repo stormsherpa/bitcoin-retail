@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View
+from django.db import transaction
+
 
 from coinexchange.views import LoginView, JsonResponse
 from coinexchange.main.lib import CoinExchangeContext, StatusMessages
@@ -116,16 +118,30 @@ def batch(request, batch_id):
     return HttpResponse(t.render(c))
 
 @login_required
+@transaction.commit_on_success
 def make_batch(request):
     profile = request.user.get_profile()
     try:
         batch = lib.make_merchant_batch(profile)
+#         transaction.commit()
     except coinbase.TokenRefreshException as e:
+#         transaction.rollback()
         response = {"error": True,
                     "status": "Coinbase oauth authorization error!"}
         http_response = HttpResponse(json.dumps(response)+"\n")
         http_response['Content-Type'] = 'application/json'
         return http_response
+    except lib.CreateBatchException as e:
+#         transaction.rollback()
+        response = {"error": True,
+                    "status": str(e)}
+        http_response = HttpResponse(json.dumps(response)+"\n")
+        http_response['Content-Type'] = 'application/json'
+        return http_response
+    except Exception as e:
+        print "%s: %s" % (e.__class__, e)
+#         transaction.rollback()
+        raise e
     if batch:
         batch_tx_ids = [x.btc_txid for x in batch.transactions.all()]
         response = {"batch_tx_ids": batch_tx_ids,

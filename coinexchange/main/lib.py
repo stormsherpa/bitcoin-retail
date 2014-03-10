@@ -8,10 +8,10 @@ class CoinExchangeContext(RequestContext):
         if request.user.is_authenticated():
             profile = request.user.get_profile()
 #             balance = clientlib.get_user_balance(profile)
-            address = clientlib.get_user_address(profile)
+#             address = clientlib.get_user_address(profile)
             coinexchange_account = {'profile': profile,
 #                                     'balance': balance,
-                                    'address': address,
+#                                     'address': address,
                                     }
             print "Coinexchange account: %s" % coinexchange_account
             context['coinexchange_account'] = coinexchange_account

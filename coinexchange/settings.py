@@ -191,6 +191,8 @@ COINBASE_API = { # Dev settings registered on shaun.kruger@gmail.com coinbase ac
 
 SITE_HOSTNAME = "http://jenkins.stormsherpa.com:8000"
 
+SERVICE_FEE_MULTIPLIER = 0.01
+
 try:
     from coinexchange_config.settings import *
     print "External config imported into %s" % __name__

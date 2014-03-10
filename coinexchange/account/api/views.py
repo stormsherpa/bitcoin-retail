@@ -68,8 +68,9 @@ def newsale(request):
 @login_required
 def sale_list(request):
     profile = request.user.get_profile()
-    txids = [tx.id for tx in SalesTransaction.objects.filter(merchant=profile).order_by('tx_timestamp')]
-    response = {"transaction_ids": txids}
+    txids = [lib.sale_json(tx) for tx in SalesTransaction.objects.filter(merchant=profile).order_by('-tx_timestamp')[:25]]
+    sorted_txids = sorted(txids, key=lambda tx: tx.get('id'))
+    response = {"transactions": txids}
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response

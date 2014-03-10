@@ -20,6 +20,7 @@ from coinexchange.btc.pos.models import ReceiveAddress, SalesTransaction, Mercha
 from coinexchange import xmpp
 from coinexchange import coinbase
 from coinexchange.coinbase.models import ApiCreds
+from coinexchange.btc.queue import CoinexchangePublisher
 
 class NewReceiveAddressException(Exception):
     pass
@@ -216,30 +217,60 @@ def get_unbatched_transactions(merchant):
     open_tx = SalesTransaction.objects.filter(batch__isnull=True,
                                               btc_txid__isnull=False,
                                               merchant=merchant).order_by('tx_timestamp')
+    try:
+        coinbase_api = coinbase.get_api_instance(merchant)
+    except coinbase.TokenRefreshException:
+        coinbase_api = None
     for tx in open_tx:
-        tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
-        print tx.tx_detail
+        if tx.coinbase_txid and coinbase_api:
+            print "Try loading coinbase info: %s" % tx.coinbase_txid
+            if coinbase_api:
+                tx.coinbase_tx_detail = coinbase_api.get_transaction(tx.coinbase_txid)
+            else:
+                tx.coinbase_tx_detail = None
+#         tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
+#         print tx.tx_detail
         yield tx
 
 def make_merchant_batch(merchant):
     merchant_settings = MerchantSettings.load_by_merchant(merchant)
-    if merchant_settings.payout_with_coinbase:
-        coinbase_api = coinbase.get_api_instance(merchant)
-        payout_address = coinbase_api.receive_address
-    else:
-        payout_address = merchant_settings.btc_payout_address
-    if not clientlib.valid_bitcoin_address(payout_address):
-        raise CreateBatchException("Invalid payout address.")
-#     raise CreateBatchException("Merchant batch cancel: %s" % payout_address)
     batch_tx = [x for x in get_unbatched_transactions(merchant)]
-    batch_tx_ids = [x.btc_txid for x in batch_tx if (x.tx_detail.confirmations >= 3)]
-    if batch_tx_ids:
-        raw_tx = clientlib.send_all_tx_inputs(batch_tx_ids, payout_address)
-        print raw_tx
-        batch = TransactionBatch.objects.get(id=raw_tx.get('batch_id'))
-        batch.coinbase_payout = merchant_settings.payout_with_coinbase
-        batch.save()
+    batch_tx_list = [x for x in batch_tx if (x.coinbase_tx_detail.status == "complete")]
+    if not batch_tx_list:
+        raise CreateBatchException("No transactions available for batching.")
+    total_btc = sum([x.btc_amount for x in batch_tx_list])
+    total_amount = sum([x.amount for x in batch_tx_list])
+    print total_btc
+    print total_amount
+    print batch_tx_list
+    avg_exchange_rate = decimal.Decimal(total_amount)/decimal.Decimal(total_btc)
+    batch = TransactionBatch(merchant=merchant,
+                             btc_amount=total_btc,
+                             btc_address="coinbase",
+                             captured_amount=total_amount,
+                             captured_avg_exchange_rate=avg_exchange_rate,
+                             btc_tx_fee=0,
+                             coinbase_payout=merchant_settings.payout_with_coinbase)
+    batch.save()
+    for tx in batch_tx_list:
+        tx.batch = batch
+        tx.save()
+
+    msg = json.dumps({'command': 'payout_batch', 'batch_id': batch.id})
+    publish = CoinexchangePublisher.get_instance('payment_batches').send(msg)
+    if publish:
         return batch
+    else:
+        raise CreateBatchException("Post processing queue unavailable.  Cancelling batch.")
+
+def pay_coinbase_batch(batch):
+    btc_tx_fee = batch.btc_amount * decimal.Decimal(settings.SERVICE_FEE_MULTIPLIER)
+    realized_btc_amount = batch.btc_amount - btc_tx_fee
+    print "Batch amount:     %.8f" % batch.btc_amount
+    print "Coinexchange fee: %.8f" % btc_tx_fee
+    print "Total paid:       %.8f" % realized_btc_amount
+    tx_fee_usd = batch.captured_amount/batch.btc_amount*btc_tx_fee
+    print "Coinexchange USD: %.2f" % tx_fee_usd
 
 def find_sell_transfer(tx, api):
     for t in api.transfers():

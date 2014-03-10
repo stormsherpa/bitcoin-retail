@@ -206,9 +206,22 @@ function load_sale_history(){
 		dataType: 'json',
 		success: function(data, textSTatus, xhr){
 			// console.log(data.transaction_ids.length);
-			var txids = data.transaction_ids;
-			txids.sort();
-			load_sale_history_items(txids);
+			var txids = data.transactions;
+			// txids.sort();
+			txids.sort(function(a,b){
+				return a.id - b.id;
+			});
+			// console.debug(txids.length);
+			for(var i=0; i < txids.length; i++){
+				var tx = txids[i];
+				if(tx.pending){
+					var sale_tx = new SalesTransaction(tx.reference, tx.fiat_amount);
+					sale_tx.newsaleUpdate(tx);
+					add_sale_div(sale_tx);
+				}
+				// console.debug(i);
+			}
+			// load_sale_history_items(txids);
 		}
 	});
 }

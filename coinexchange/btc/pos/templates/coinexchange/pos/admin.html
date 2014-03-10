@@ -38,7 +38,13 @@ POS Admin - {{user.username}}
 				<td>{{tx.amount|floatformat:2}}</td>
 				<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
 				<td>{{tx.tx_timestamp}}</td>
-				<td>{{tx.tx_detail.confirmations}}</td>
+				<td>
+					{% if tx.tx_detail %}
+					{{tx.tx_detail.confirmations}}
+					{% elif tx.coinbase_tx_detail %}
+					{{tx.coinbase_tx_detail.status}}
+					{% endif %}
+				</td>
 				<td>
 					<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
 						<span class="glyphicon glyphicon-info-sign"></span>
