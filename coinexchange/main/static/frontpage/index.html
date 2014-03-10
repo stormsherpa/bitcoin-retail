@@ -22,6 +22,21 @@
 		<!--[if lte IE 9]><link rel="stylesheet" href="/static/frontpage/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><script src="/static/frontpage/js/html5shiv.js"></script><link rel="stylesheet" href="/static/frontpage/css/ie8.css" /><![endif]-->
 		<!--[if lte IE 7]><link rel="stylesheet" href="/static/frontpage/css/ie7.css" /><![endif]-->
+		<script type="application/javascript">
+			$(document).ready(function(){
+				$.ajax({
+					type: 'get',
+					url: '/account/api/state',
+					// dataType: 'json',
+					success: function(data, textStatus, jqXHR){
+						if(data.is_authenticated){
+							var newlink = '<a href="/account">Your Account</a>';
+							$("#login_or_myaccount").html(newlink);
+						}
+					}
+				});
+			});
+		</script>
 	</head>
 	<body>
 
@@ -32,6 +47,7 @@
 					<li><a href="#processing">Processing</a></li>
 					<li><a href="#accounting">Accounting</a></li>
 					<li><a href="#signup">Signup</a></li>
+					<li id="login_or_myaccount"><a href="/login">Login</a></li>
 				</ul>
 			</nav>
 
@@ -191,7 +207,7 @@
 										</div>
 										<div class="row">
 											<div class="12u">
-												<a href="#" class="button form-button-submit">Send Message</a>
+												<a href="#" class="button form-button-submit">Sign Up</a>
 												<a href="#" class="button button-alt form-button-reset">Clear Form</a>
 											</div>
 										</div>
@@ -199,8 +215,8 @@
 								</form>
 							</div>
 						</div>
-						<div class="row">
-							<div class="12u" style="display:none;">
+						<div class="row" style="display:none;">
+							<div class="12u">
 								<hr />
 								<h3>Find me on ...</h3>
 								<ul class="social">

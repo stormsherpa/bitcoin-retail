@@ -42,14 +42,15 @@ def js(request):
     return http_response
 
 def state(request):
-    if request.user.is_authenticated():
-        profile = request.user.get_profile()
-        session_status = {
-                          'balance': "%0.8f" % clientlib.get_user_balance(profile),
-                          'address': clientlib.get_user_address(profile),
-                          }
-    else:
-        session_status = dict()
+    session_status = {'is_authenticated': request.user.is_authenticated()}
+#     if request.user.is_authenticated():
+#         profile = request.user.get_profile()
+# #         session_status = {
+# # #                           'balance': "%0.8f" % clientlib.get_user_balance(profile),
+# # #                           'address': clientlib.get_user_address(profile),
+# #                           }
+#     else:
+#         session_status = dict()
     http_response = HttpResponse(json.dumps(session_status, indent=2)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response
