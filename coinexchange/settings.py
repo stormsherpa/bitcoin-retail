@@ -112,7 +112,8 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTH_PROFILE_MODULE = 'btc.CoinExchangeUser'
-LOGIN_REDIRECT_URL='/'
+LOGIN_REDIRECT_URL='/account'
+LOGIN_URL='/login'
 
 ROOT_URLCONF = 'coinexchange.urls'
 
