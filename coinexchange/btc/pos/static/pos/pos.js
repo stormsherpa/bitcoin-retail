@@ -128,28 +128,28 @@ function xmpp_doConnect(){
 			xmpp_connection.connect(settings.username, settings.password, xmpp_onConnect);
 		},
 		error: function(xhr, textStatus, err){
-			show_alert($('#status_messages'), "Could not get XMPP credentials: "+textStatus+'\n'+err);
+			show_alert($('#status_messages'), "Could not get messaging credentials: "+textStatus+'\n'+err);
 		}
 	});
 }
 
 function xmpp_onConnect(status){
 	if(status == Strophe.Status.CONNECTING){
-		show_alert($('#loadPosStatus'), "XMPP Connecting...", "alert-success");
+		show_alert($('#loadPosStatus'), "Connecting...", "alert-success");
 		// show_alert($('#status_messages'), "XMPP Connecting");
 	}else if(status==Strophe.Status.CONNECTED){
-		show_alert($('#loadPosStatus'), "XMPP Connected!");
+		show_alert($('#loadPosStatus'), "Connected!");
 		xmpp_connection.send($pres().tree());
 		// xmpp_connection.addHandler(onMessage, null, 'message', null, null, null);
 		xmpp_connection.addHandler(onConfirm, "coinexchange:tx:confirm", 'message', null, null, null);
 		showPosUI(true);
 	}else if(status==Strophe.Status.CONNFAIL){
-		show_alert($('#status_messages'), "XMPP Connection failed!");
+		show_alert($('#status_messages'), "Connection failed!");
 		setTimeout(xmpp_doConnect, 5000);
 	}else if(status==Strophe.Status.DISCONNECTING){
-		show_alert($('#status_messages'), "XMPP Disconnecting...");
+		show_alert($('#status_messages'), "Disconnecting...");
 	}else if(status==Strophe.Status.DISCONNECTED){
-		show_alert($('#status_messages'), "XMPP Disconnected!");
+		show_alert($('#status_messages'), "Disconnected!");
 	}else{
 		show_alert($('#status_messages'), "XMPP Encountered an unexpected connection error state: "+status);
 	}
