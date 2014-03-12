@@ -193,6 +193,9 @@ COINBASE_API = { # Dev settings registered on shaun.kruger@gmail.com coinbase ac
 SITE_HOSTNAME = "http://jenkins.stormsherpa.com:8000"
 
 SERVICE_FEE_MULTIPLIER = 0.01
+SERVICE_FEE_MINIMUM = 0.40
+SERVICE_FEE_ADDRESS = '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD' # Cell Phone wallet
+# SERVICE_FEE_ADDRESS = '16Ahupk8RHinN4B21vbtiqfgE8FQe6cgPN' # shaun.kruger@gmail.com coinbase
 
 try:
     from coinexchange_config.settings import *

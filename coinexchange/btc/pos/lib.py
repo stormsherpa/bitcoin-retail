@@ -263,14 +263,66 @@ def make_merchant_batch(merchant):
     else:
         raise CreateBatchException("Post processing queue unavailable.  Cancelling batch.")
 
+def calc_batch_fee(batch):
+    print "1"
+    btc_tx_fee= batch.btc_amount * decimal.Decimal(settings.SERVICE_FEE_MULTIPLIER)
+    exchange_rate = get_exchange_rate('sell')
+    usd_amount = exchange_rate * btc_tx_fee
+    min_fee = decimal.Decimal(settings.SERVICE_FEE_MINIMUM)
+    if usd_amount < min_fee:
+        btc_tx_fee = min_fee/exchange_rate
+    print "Calc fee: %s" % btc_tx_fee
+    return btc_tx_fee
+
 def pay_coinbase_batch(batch):
-    btc_tx_fee = batch.btc_amount * decimal.Decimal(settings.SERVICE_FEE_MULTIPLIER)
-    realized_btc_amount = batch.btc_amount - btc_tx_fee
+    if batch.coinbase_payout and batch.coinbase_txid and batch.received_amount:
+        print "Batch %s already processed!"
+        return
+    api = coinbase.get_api_instance(batch.merchant)
+    btc_tx_fee = calc_batch_fee(batch)
+    realized_btc_amount_long = batch.btc_amount - btc_tx_fee
+    realized_btc_amount = float("%.8f" % realized_btc_amount_long)
     print "Batch amount:     %.8f" % batch.btc_amount
     print "Coinexchange fee: %.8f" % btc_tx_fee
     print "Total paid:       %.8f" % realized_btc_amount
+    return
+    batch.btc_tx_fee = btc_tx_fee
+    batch.realized_btc_amount = realized_btc_amount
     tx_fee_usd = batch.captured_amount/batch.btc_amount*btc_tx_fee
     print "Coinexchange USD: %.2f" % tx_fee_usd
+    print "Pay service fee."
+    try:
+        transaction_params = dict() #{'idem': "batch_id=%s" % batch.id}
+        real_btc_tx_fee = btc_tx_fee
+        if btc_tx_fee < .01:
+            print "Deducting send fee of .0002 for small payment. (< .01 BTC)"
+            transaction_params['user_fee'] = "0.0002"
+            real_btc_tx_fee -= decimal.Decimal(.0002)
+        service_fee = api.send(settings.SERVICE_FEE_ADDRESS,
+                               float("%.8f" % real_btc_tx_fee),
+                               transaction_params=transaction_params)
+        print "Service fee tx: %s -> %s" % (service_fee.amount,
+                                            service_fee.transaction_id)
+    except Exception as e:
+        traceback.print_exc()
+
+        print "%s: %s" % (e.__class__, e)
+        raise e
+    sell_tx = api.sell_btc(realized_btc_amount)
+    batch.coinbase_txid = sell_tx.transaction_id
+    print "sold: %s" % sell_tx.transaction_id
+    print "  %s bitcoin was sold for %s" % (sell_tx.btc_amount, sell_tx.total_amount)
+    fees = (sell_tx.fees_coinbase + sell_tx.fees_bank)/100
+    print "  $%.2f fees" % fees
+    print "   Subtotal amount: %s" % sell_tx.subtotal_amount
+    print "   Total amount:    %s" % sell_tx.total_amount
+    exchange_rate_long = sell_tx.subtotal_amount/sell_tx.btc_amount
+    exchange_rate = float("%.2f" % exchange_rate_long)
+    print "   Exchange rate:   %s" % exchange_rate
+    batch.batch_amount = sell_tx.subtotal_amount
+    batch.exchange_fees = fees
+    batch.received_amount = sell_tx.total_amount
+    batch.save()
 
 def find_sell_transfer(tx, api):
     for t in api.transfers():
@@ -349,3 +401,7 @@ def update_batch_aggregates():
         b.realized_btc_tx_fee = b.btc_tx_fee * b.exchange_rate
         b.realized_gain = (b.exchange_rate*b.btc_amount) - b.captured_amount
         b.save()
+
+class TransactionBatchReport():
+    def __init__(self, start_date, end_date):
+        pass

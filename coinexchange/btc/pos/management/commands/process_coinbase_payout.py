@@ -12,5 +12,5 @@ class Command(BaseCommand):
     help = 'Update coinbase payout transactions'
 
     def handle(self, *args, **kwargs):
-        lib.update_pending_coinbase_payouts()
+#         lib.update_pending_coinbase_payouts()
         lib.update_batch_aggregates()

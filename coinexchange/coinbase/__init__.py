@@ -12,7 +12,7 @@ from coinbase import CoinbaseAccount
 from coinexchange.settings import COINBASE_API
 from coinexchange.coinbase.models import ApiCreds
 
-COINBASE_PERMS = 'balance+addresses+sell+transfers+transactions'
+COINBASE_PERMS = 'balance+addresses+sell+transfers+transactions+send'
 TOKEN_URL = "https://coinbase.com/oauth/token"
 
 class TokenRefreshException(Exception):

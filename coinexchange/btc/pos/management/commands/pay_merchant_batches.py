@@ -37,8 +37,12 @@ def my_handler(ch, method, properties, body):
         if not batch.coinbase_txid:
             try:
                 lib.pay_coinbase_batch(batch)
+                lib.update_batch_aggregates()
+                ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
                 print e
+        else:
+            ch.basic_ack(delivery_tag=method.delivery_tag)
     else:
         print "Unknown command: %s" % cmd
 #     payment = PaymentNotification(body)

@@ -24,6 +24,9 @@ def my_handler(ch, method, properties, body):
         print "There was an error decoding json: %s: %s" % (e.__class__, e)
         ch.basic_ack(delivery_tag=method.delivery_tag)
         return
+    if data.get('batch_id'):
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
     payment = PaymentNotification(body)
     print "Payment notification: %s" % payment
     result = lib.process_coinbase_payment_notification(payment)

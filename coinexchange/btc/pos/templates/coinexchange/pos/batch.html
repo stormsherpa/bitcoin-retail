@@ -7,11 +7,13 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 {% block innercontent %}
 <h2>Batch #{{batch.id}}</h2>
 <p>
+	{% if batch.txid %}
 	<span style="float:right;">
 		<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}?show_adv=true" target="_blank">
 			<span class="glyphicon glyphicon-link"></span>
 		</a>
 	</span>
+	{% endif %}
 	<a class="btn btn-primary" href="{% url 'account_home' %}">
 		<span class="glyphicon glyphicon-arrow-left"></span> Back
 	</a>
@@ -61,7 +63,7 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 		</table>
 	</div>
 </div>
-<div class="col-md-9">
+<div class="col-md-8">
 	<table class="table table-condensed table-striped">
 		<tr>
 			<th>Amount</th>
@@ -86,18 +88,18 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 	</table>
 </div>
 {% if batch.batch_amount %}
-<div class="col-md-3">
+<div class="col-md-4">
 	<div class="panel panel-info">
 		<div class="panel-heading">
 			Batch Details
 		</div>
 		<table class="panel-body table table-condensed">
 			<tr>
-				<th>Bitcoin Tx Fee:</th>
+				<th>Batch Processing Fee:</th>
 				<td>{{batch.realized_btc_tx_fee|floatformat:2}}</td>
 			</tr>
 			<tr>
-				<th>Exchange Fee:</th>
+				<th>Coinbase Payout Fee:</th>
 				<td>{{batch.exchange_fees|floatformat:2}}</td>
 			</tr>
 		</table>

@@ -19,7 +19,21 @@ POS Admin - {{user.username}}
 			<a class="coinexchange-help glyphicon glyphicon-question-sign" help-document="testing" help-title="Test Help Document"></a>
 			
 		</p>
+		<p>
+			<div class="input-group date col-md-2" style="float:right;">
+				<input type="text" class="form-control" id="end_date"/>
+				<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+			</div>
+			<div class="input-group date col-md-2">
+				<input type="text" class="form-control" id="start_date"/>
+				<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+			</div>
+
+		</p>
 	</div>
+	<script type="application/javascript">
+		$('.input-group.date').datepicker({});
+	</script>
 	<div class="tab-pane" id="newbatch">
 		{% if unbatched_tx %}
 		<button id="makebatch" style="float:right;" class="btn btn-primary">Make Batch</button>
@@ -30,7 +44,7 @@ POS Admin - {{user.username}}
 				<th>Amount</th>
 				<th>Exchange Rate</th>
 				<th>Timestamp</th>
-				<th>Confirmations</th>
+				<th>Status</th>
 				<th>Blockchain<br/>Details</th>
 			</tr>
 		{% for tx in unbatched_tx %}
