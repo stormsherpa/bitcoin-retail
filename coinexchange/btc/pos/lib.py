@@ -285,7 +285,6 @@ def pay_coinbase_batch(batch):
     print "Batch amount:     %.8f" % batch.btc_amount
     print "Coinexchange fee: %.8f" % btc_tx_fee
     print "Total paid:       %.8f" % realized_btc_amount
-    return
     batch.btc_tx_fee = btc_tx_fee
     batch.realized_btc_amount = realized_btc_amount
     tx_fee_usd = batch.captured_amount/batch.btc_amount*btc_tx_fee

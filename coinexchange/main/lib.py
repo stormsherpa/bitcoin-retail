@@ -2,11 +2,19 @@
 from django.template import RequestContext
 
 from coinexchange.btc import clientlib
+from coinexchange import coinbase
 
 class CoinExchangeContext(RequestContext):
     def __init__(self, request, context, *args, **kwargs):
         if request.user.is_authenticated():
             profile = request.user.get_profile()
+            try:
+                api = coinbase.get_api_instance(profile)
+            except coinbase.TokenRefreshException:
+                api = None
+            if not api:
+                StatusMessages.add_warning(request, "Your account is not linked to coinbase.  Go to settings and authorize Bitcoin Retail.")
+                print "Not authorized"
 #             balance = clientlib.get_user_balance(profile)
 #             address = clientlib.get_user_address(profile)
             coinexchange_account = {'profile': profile,
