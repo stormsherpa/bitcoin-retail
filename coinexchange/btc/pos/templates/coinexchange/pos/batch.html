@@ -44,13 +44,13 @@ POS Admin - batch {{batch.id}} - {{user.username}}
 <div class="col-md-6">
 	<div class="panel {{realized_class}}">
 		<div class="panel-heading">
-			<span style="float:right;">Gain/Loss: {{gain_percent|floatformat:1}}%</span>
+			<span style="float:right;">Gain/Loss: {{batch.gain_percent|floatformat:1}}%</span>
 			Realized Amount
 		</div>
 		<table class="panel-body table table-condensed">
 			<tr>
 				<th>Total Realized Value:</th>
-				<td>{{total_value|floatformat:2}}</td>
+				<td>{{batch.total_realized_value|floatformat:2}}</td>
 			</tr>
 			<tr>
 				<th>Amount Received:</th>

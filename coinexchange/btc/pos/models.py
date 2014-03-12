@@ -1,5 +1,6 @@
 
 import json
+import decimal
 
 from django.db import models
 from django.contrib import admin
@@ -67,6 +68,20 @@ class TransactionBatch(models.Model):
     realized_gain = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
     realized_btc_amount = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
     realized_btc_tx_fee = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+
+    @property
+    def total_realized_value(self):
+        try:
+            return decimal.Decimal(self.exchange_rate * self.btc_amount)
+        except:
+            return None
+
+    @property
+    def gain_percent(self):
+        try:
+            return decimal.Decimal(self.realized_gain/self.batch_amount)*100
+        except:
+            return 0
 
 class SalesTransaction(models.Model):
     merchant = models.ForeignKey('btc.CoinExchangeUser', related_name='sales_tx')

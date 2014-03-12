@@ -91,23 +91,15 @@ def batch(request, batch_id):
     if not batch.captured_avg_exchange_rate:
         batch.captured_avg_exchange_rate = total_amount/total_bitcoin
         batch.save()
-    try:
-        total_value = decimal.Decimal(batch.exchange_rate * batch.btc_amount)
-        gain_percent = decimal.Decimal(batch.realized_gain/batch.batch_amount)*100
-    except:
-        total_value = None
-        gain_percent = 0
     realized_class = "panel-warning"
-    if gain_percent > 0:
+    if batch.gain_percent > 0:
         realized_class = "panel-success"
-    elif gain_percent == 0:
+    elif batch.gain_percent == 0:
         realized_class = "panel-info"
     else:
         realized_class = "panel-danger"
     data = {'batch': batch,
             'transactions': transactions,
-            'total_value': total_value,
-            'gain_percent': gain_percent,
             'realized_class': realized_class,
 #             'total_amount': total_amount,
 #             'total_bitcoin': total_bitcoin,
