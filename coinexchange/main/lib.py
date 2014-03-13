@@ -1,5 +1,6 @@
 
-from django.template import RequestContext
+
+from django.template import RequestContext, Context, loader
 
 from coinexchange.btc import clientlib
 from coinexchange import coinbase
@@ -14,7 +15,9 @@ def warn_missing_coinbase_api(request):
             print "%s: %s" % (e.__class__, e)
             api = None
         if not api:
-            msg = "Account not linked to coinbase.  Link to coinbase to access Point of Sale."
+            t = loader.get_template("coinexchange/account/link_to_coinbase_error.html")
+            c = Context({})
+            msg = t.render(c)
             if not msg in StatusMessages(request).list_warnings():
                 StatusMessages.add_warning(request, msg)
 #             setattr(request, 'missing_coinbase_api', True)

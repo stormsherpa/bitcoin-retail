@@ -13,26 +13,43 @@ POS Admin - {{user.username}}
 <div class="tab-content">
 	<div class="tab-pane active" id="account">
 		<h4>Welcome</h4>
-		<p>
+		<!-- <p>
 			Add aggregates and reports about transaction batches for monthly
 			reconciliation here.<br/>
 			<a class="coinexchange-help glyphicon glyphicon-question-sign" help-document="testing" help-title="Test Help Document"></a>
 			
-		</p>
-		<p>
-			<div class="input-group date col-md-2" style="float:right;">
-				<input type="text" class="form-control" id="end_date"/>
-				<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+		</p> -->
+		<div class="row">
+			<div class="col-md-3">
+				<div class="input-group date date-start">
+					<span class="input-group-addon">Start</span>
+					<input type="text" class="form-control" id="start_date"/>
+					<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+				</div>
 			</div>
-			<div class="input-group date col-md-2">
-				<input type="text" class="form-control" id="start_date"/>
-				<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+			<div class="col-md-3">
+				<div class="input-group date date-end">
+					<span class="input-group-addon">End</span>
+					<input type="text" class="form-control" id="end_date"/>
+					<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<button class="btn btn-primary" id="generate_batch_report">Generate Batch Report</button>
 			</div>
 
-		</p>
+		</div>
 	</div>
 	<script type="application/javascript">
-		$('.input-group.date').datepicker({});
+		var date = new Date()
+		var endDate = date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear();
+		$('.input-group.date.date-start').datepicker({endDate:endDate});
+		$('.input-group.date.date-end').datepicker({endDate:endDate});
+		$('#generate_batch_report').bind('click', function(){
+			var start_date = $('#start_date').val();
+			var end_date = $('#end_date').val();
+			alert("Generate a batch report. "+start_date+'-'+end_date);
+		});
 	</script>
 	<div class="tab-pane" id="newbatch">
 		{% if unbatched_tx %}
