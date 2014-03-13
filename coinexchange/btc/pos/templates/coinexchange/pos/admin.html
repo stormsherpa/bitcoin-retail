@@ -7,18 +7,86 @@ POS Admin - {{user.username}}
 {% block innercontent %}
 <ul class="nav nav-tabs" id="posTab">
 	<li class="active"><a data-toggle="tab" href="#account">Account Home</a></li>
+	<li><a data-toggle="tab" href="#reports">Reports</a></li>
 	<li><a data-toggle="tab" href="#batch">Completed Batches</a></li>
-	<li><a data-toggle="tab" href="#newbatch">Current Batch</a></li>
+	<li><a data-toggle="tab" href="#newbatch">Open Batch</a></li>
 </ul>
 <div class="tab-content">
 	<div class="tab-pane active" id="account">
-		<h4>Welcome</h4>
-		<!-- <p>
-			Add aggregates and reports about transaction batches for monthly
-			reconciliation here.<br/>
-			<a class="coinexchange-help glyphicon glyphicon-question-sign" help-document="testing" help-title="Test Help Document"></a>
-			
-		</p> -->
+		<div class="row" style="margin-top: 10px;">
+			<div class="col-md-6">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<h4>Welcome to Bitcoin Retail</h4>
+					</div>
+					<div class="panel-body">
+						<p>
+							Here you can manage your Bitcoin Retail account.
+							Bitcoin Retail lets you accept payments in Bitcoin and adds all of your
+							transactions to the current Open Batch.
+						</p>
+						<p>
+							At the end of the day (or any time you like) you can make a payment batch using
+							the currently completed transactions.  Do this by clicking the 'Make Batch'
+							button on the 'Open Batch' tab.
+						</p>
+						<p>
+							When you make a payment batch the bitcoin you received is converted to USD and
+							deposited into your bank account.  Bitcoin Retail then collects all of the details
+							about the batch and records them so you can generate batch reports when doing your
+							accounting later.
+						</p>
+						<p>
+							Bitcoin Retail requires a 1% fee for helping with your accounting.
+							When you make a payment batch 1% (or a minumum $.40 at current exchange rate)
+							of your collected bitcoin will be sent to Bitcoin Retail before
+							the payout batch is processed. This shows up in the batch details as the
+							'Batch Processing Fee' and is itemized separately from the coinbase payout fee.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="panel panel-success">
+					<div class="panel-heading">
+						Where do I go now?
+					</div>
+					<div class="panel-body">
+						<p>
+							<strong>Point of Sale</strong>
+							Use the point of sale page to generate transactions.  Enter a reference value
+							that correlates with anything you care to know and an amount.  Bitcoin Retail
+							will look up the exchange rate and generate a payment QR code that your customer
+							can then scan and pay.  Once the customer has paid the transaction on the point
+							of sale screen will turn green.
+						</p>
+						<p>
+							<strong>Settings</strong>
+							Use the settings page to configure bitcoin retail to use your coinbase account.
+						</p>
+						<p>
+							<strong>Reports</strong>
+							Use the Reports tab to get more detailed information about
+							your payment batches across any interval you select.
+						</p>
+						<p>
+							<strong>Completed Batches</strong>
+							See a list of batches that have been closed and have either been paid
+							or are in process of being paid out.
+						</p>
+						<p>
+							<strong>Open Batch</strong>
+							View the transactions you have received that have not been paid out.
+							Go here to make a payment batch to start the payout process.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+			<!-- <a class="coinexchange-help glyphicon glyphicon-question-sign" help-document="testing" help-title="Test Help Document"></a> -->
+	</div>
+	<div class="tab-pane" id="reports">
+		<h3>Select a date range.</h3>
 		<div class="row">
 			<div class="col-md-3">
 				<div class="input-group date date-start">
