@@ -57,17 +57,17 @@
 		<div class="row" id="status_messages">
 		{% if status_messages.list_errors %}
 				{% for e in status_messages.consume_errors %}
-			<div class="col-md-12">Error: {{e}}</div>
+			<div class="col-md-12 alert alert-danger">{{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_warnings %}
 				{% for e in status_messages.consume_warnings %}
-			<div class="col-md-12">Warning: {{e}}</div>
+			<div class="col-md-12 alert alert-warning">{{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_success %}
 				{% for e in status_messages.consume_success %}
-			<div class="col-md-12">Success: {{e}}</div>
+			<div class="col-md-12 alert alert-success">{{e}}</div>
 				{% endfor %}
 		{% endif %}
 		</div>

@@ -15,7 +15,7 @@
 		<script src="/static/handlebar_http_template.js"></script>
 		<script src="/account/api/js"></script>
 	</head>
-	<body role="document">>
+	<body role="document">
 	<div class="navbar navbar-inverse navbar-fixed-top" role="navbar">
 		<div class="container">
 		    <div class="navbar-header">
@@ -27,17 +27,17 @@
 		<div class="row" id="status_messages">
 		{% if status_messages.list_errors %}
 				{% for e in status_messages.consume_errors %}
-			<div class="col-md-12">Error: {{e}}</div>
+			<div class="col-md-12 alert alert-danger">Error: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_warnings %}
 				{% for e in status_messages.consume_warnings %}
-			<div class="col-md-12">Warning: {{e}}</div>
+			<div class="col-md-12 alert alert-warning">Warning: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		{% if status_messages.list_success %}
 				{% for e in status_messages.consume_success %}
-			<div class="col-md-12">Success: {{e}}</div>
+			<div class="col-md-12 alert alert-success">Success: {{e}}</div>
 				{% endfor %}
 		{% endif %}
 		</div>

@@ -10,6 +10,13 @@ CoinExchange Sale
 
 <!-- <h2>Point of Sale Home</h2> -->
 
+{% if coinexchange_account.coinbase_unavailable %}
+<div class="col-md-12" id="posUILoading" style="min-height: 300px;max-height:300px; height:300px;text-align:center;">
+	<h1>Point of Sale unavailable without Coinbase access.</h1>
+	<div id="loadPosStatus"></div>
+</div>
+{% else %}
+
 <div class="col-md-12" id="posUILoading" style="min-height: 300px;max-height:300px; height:300px;text-align:center;">
 	<h1>Point of Sale Loading...</h1>
 	<div id="loadPosStatus"></div>
@@ -79,11 +86,7 @@ CoinExchange Sale
 	</div>
 </div>
 
-
-
-
-<div id="handlebar-test" class="col-md-12"></div>
-
 <script type="application/javascript" src="/static/pos/pos.js"></script>
+{% endif %}
 
 {% endblock %}

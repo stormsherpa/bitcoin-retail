@@ -4,20 +4,33 @@ from django.template import RequestContext
 from coinexchange.btc import clientlib
 from coinexchange import coinbase
 
+def warn_missing_coinbase_api(request):
+    if request.user.is_authenticated():
+        profile = request.user.get_profile()
+        try:
+            api = coinbase.get_api_instance(profile)
+            coinbase.get_account_info(api)
+        except Exception as e:
+            print "%s: %s" % (e.__class__, e)
+            api = None
+        if not api:
+            msg = "Account not linked to coinbase.  Link to coinbase to access Point of Sale."
+            if not msg in StatusMessages(request).list_warnings():
+                StatusMessages.add_warning(request, msg)
+#             setattr(request, 'missing_coinbase_api', True)
+            return True
+    return False
+
 class CoinExchangeContext(RequestContext):
     def __init__(self, request, context, *args, **kwargs):
         if request.user.is_authenticated():
             profile = request.user.get_profile()
-            try:
-                api = coinbase.get_api_instance(profile)
-            except coinbase.TokenRefreshException:
-                api = None
-            if not api:
-                StatusMessages.add_warning(request, "Your account is not linked to coinbase.  Go to settings and authorize Bitcoin Retail.")
-                print "Not authorized"
+            api_warned = warn_missing_coinbase_api(request)
+            print "API Missing: %s" % api_warned
 #             balance = clientlib.get_user_balance(profile)
 #             address = clientlib.get_user_address(profile)
             coinexchange_account = {'profile': profile,
+                                    'coinbase_unavailable': api_warned,
 #                                     'balance': balance,
 #                                     'address': address,
                                     }

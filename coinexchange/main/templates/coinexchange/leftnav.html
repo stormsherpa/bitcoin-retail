@@ -5,11 +5,13 @@
 	<div class="col-md-2">
 		{% if user and user.is_authenticated %}
 		<ul class="panel-body nav nav-tabs nav-stacked">
+			{% if not coinexchange_account.coinbase_unavailable %}
 			<li>
-				<a href="{% url "pos_home" %}">
+				<a href="{% url 'pos_home' %}">
 					Point of Sale
 				</a>
 			</li>
+			{% endif %}
 			<li><a href="{% url "account_home" %}">Account Home</a></li>
 			<li><a href="{% url "account_settings" %}">Settings</a></li>
 		</ul>
