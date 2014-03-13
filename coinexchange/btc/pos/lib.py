@@ -217,20 +217,16 @@ def get_unbatched_transactions(merchant):
     open_tx = SalesTransaction.objects.filter(batch__isnull=True,
                                               btc_txid__isnull=False,
                                               merchant=merchant).order_by('tx_timestamp')
-    try:
-        coinbase_api = coinbase.get_api_instance(merchant)
-    except coinbase.TokenRefreshException:
-        coinbase_api = None
     for tx in open_tx:
-        if tx.coinbase_txid and coinbase_api:
-            print "Try loading coinbase info: %s" % tx.coinbase_txid
-            if coinbase_api:
-                tx.coinbase_tx_detail = coinbase_api.get_transaction(tx.coinbase_txid)
-            else:
-                tx.coinbase_tx_detail = None
-#         tx.tx_detail = clientlib.get_tx_confirmations(tx.btc_txid)
-#         print tx.tx_detail
         yield tx
+
+def serialize_coinbase_transaction(tx):
+    out = dict()
+    keys = ['amount', 'created_at', 'notes', 'recipient_address',
+            'recipient_type', 'request', 'status', 'transaction_id']
+    for k in keys:
+        out[k] = getattr(tx, k, None)
+    return out
 
 def make_merchant_batch(merchant):
     merchant_settings = MerchantSettings.load_by_merchant(merchant)

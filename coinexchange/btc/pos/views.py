@@ -147,6 +147,19 @@ def make_batch(request):
     http_response['Content-Type'] = 'application/json'
     return http_response
 
+@login_required
+def coinbase_tx_detail(request, txid):
+    profile = request.user.get_profile()
+    try:
+        coinbase_api = coinbase.get_api_instance(profile)
+    except coinbase.TokenRefreshException:
+        raise Http404()
+    tx_detail = coinbase_api.get_transaction(txid)
+    response = lib.serialize_coinbase_transaction(tx_detail)
+    http_response = HttpResponse(json.dumps(response)+"\n")
+    http_response['Content-Type'] = 'application/json'
+    return http_response
+
 def coinbase_recv_callback(request, recv_addr_id):
     try:
         address = ReceiveAddress.objects.get(id=recv_addr_id)

@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     url(r'^merchant_settings$', 'coinexchange.btc.pos.views.merchant_settings', name='pos_merchant_settings'),
     url(r'^batch/(\d+)$', 'coinexchange.btc.pos.views.batch', name='pos_batch'),
     url(r'^make_batch$', 'coinexchange.btc.pos.views.make_batch', name='pos_make_batch'),
+    url(r'^coinbase_txid/(.+)$', 'coinexchange.btc.pos.views.coinbase_tx_detail', name='pos_tx_detail'),
 )

@@ -53,11 +53,9 @@ POS Admin - {{user.username}}
 				<td>{{tx.currency_btc_exchange_rate|floatformat:2}}</td>
 				<td>{{tx.tx_timestamp}}</td>
 				<td>
-					{% if tx.tx_detail %}
-					{{tx.tx_detail.confirmations}}
-					{% elif tx.coinbase_tx_detail %}
-					{{tx.coinbase_tx_detail.status}}
-					{% endif %}
+					<span class="unbatched_tx_status" txid="{{tx.coinbase_txid}}">
+						<img src="/static/loading.gif" alt="loading...">
+					</span>
 				</td>
 				<td>
 					<a class="btn btn-default" href="http://blockchain.info/tx/{{tx.btc_txid}}" target="_blank">
@@ -146,6 +144,32 @@ $('#makebatch').bind("click", function(){
 			alert("Unable to make batch. "+textStatus);
 		}
 	});
+});
+
+$(document).ready(function(){
+	// <span class="unbatched_tx_status" txid="{{tx.coinbase_txid}}">
+	var utx = $('span.unbatched_tx_status');
+	for(var i=0;i<utx.length;i++){
+		var tx_span = $(utx[i]);
+		var txid = tx_span.attr('txid');
+		var url = "/account/pos/coinbase_txid/"+txid;
+		$.ajax({
+			type: "get",
+			url: url,
+			dataType: 'json',
+			success: function(data, textStatus, xhr){
+				if(data.status){
+					tx_span.html(data.status);
+				}else{
+					tx_span.html('Error 1');
+				}
+			},
+			error: function(xhr, textStatus, errorThrown){
+				tx_span.html('Error 2');
+			}
+		});
+		// alert(url);
+	}
 });
 
 </script>
