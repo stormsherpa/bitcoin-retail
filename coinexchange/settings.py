@@ -197,6 +197,10 @@ SERVICE_FEE_MINIMUM = 0.40
 SERVICE_FEE_ADDRESS = '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD' # Cell Phone wallet
 # SERVICE_FEE_ADDRESS = '16Ahupk8RHinN4B21vbtiqfgE8FQe6cgPN' # shaun.kruger@gmail.com coinbase
 
+GOOGLE_ANALYTICS_TAG="""
+<!-- analytics tag unconfigured.  Set GOOGLE_ANALYTICS_TAG in settings -->
+"""
+
 try:
     from coinexchange_config.settings import *
     print "External config imported into %s" % __name__

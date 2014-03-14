@@ -1,9 +1,11 @@
 
 
 from django.template import RequestContext, Context, loader
+from django.conf import settings
 
 from coinexchange.btc import clientlib
 from coinexchange import coinbase
+
 
 def warn_missing_coinbase_api(request):
     if request.user.is_authenticated():
@@ -41,6 +43,7 @@ class CoinExchangeContext(RequestContext):
             context['coinexchange_account'] = coinexchange_account
         else:
             context['coinexchange_account'] = dict()
+        context['analytics_tag'] = settings.GOOGLE_ANALYTICS_TAG
         context['status_messages'] = StatusMessages(request)
         RequestContext.__init__(self, request, context, *args, **kwargs)
 
