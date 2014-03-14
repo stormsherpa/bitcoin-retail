@@ -243,14 +243,16 @@ $(document).ready(function(){
 			url: url,
 			dataType: 'json',
 			success: function(data, textStatus, xhr){
+				var tx = $('span.unbatched_tx_status[txid='+data.transaction_id+']');
 				if(data.status){
-					tx_span.html(data.status);
+					tx.html(data.status);
 				}else{
-					tx_span.html('Error 1');
+					tx.html('Error 1');
 				}
 			},
 			error: function(xhr, textStatus, errorThrown){
-				tx_span.html('Error 2');
+				// var tx = $('span.unbatched_tx_status[txid='+data.transaction_id+']');
+				// tx.html('Error 2');
 			}
 		});
 		// alert(url);
