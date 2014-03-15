@@ -1,7 +1,9 @@
 
+import hashlib
 
 from django.template import RequestContext, Context, loader
 from django.conf import settings
+from django.core.cache import cache
 
 from coinexchange.btc import clientlib
 from coinexchange import coinbase
@@ -12,7 +14,12 @@ def warn_missing_coinbase_api(request):
         profile = request.user.get_profile()
         try:
             api = coinbase.get_api_instance(profile)
-            coinbase.get_account_info(api)
+            cache_key = "account_info_healthcheck_%s" % profile.id
+            if not cache.get(cache_key):
+                cache.set(cache_key, coinbase.get_account_info(api), 120)
+#                 print "Caching account info status for profile_id: %s" % profile.id
+#             else:
+#                 print "Using cache for coinbase account info. %s" % profile.id
         except Exception as e:
             print "%s: %s" % (e.__class__, e)
             api = None

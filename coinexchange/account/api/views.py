@@ -6,7 +6,7 @@ import traceback
 import hashlib
 
 from django.http import HttpResponse, Http404
-from django.template import loader
+from django.template import loader, Context
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -36,7 +36,7 @@ def root(request):
 
 def js(request):
     t = loader.get_template("coinexchange/account/api.js");
-    c = CoinExchangeContext(request, {})
+    c = Context(request, {})
     http_response = HttpResponse(t.render(c))
     http_response['Content-Type'] = 'application/javascript'
     return http_response
