@@ -3,7 +3,7 @@ import json
 import decimal
 
 from django.http import HttpResponse, Http404
-from django.template import loader
+from django.template import loader, Context
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -49,23 +49,26 @@ def admin(request):
 @login_required
 def merchant_settings(request):
     print request.POST
-    btc_addr = request.POST.get('btc_payout_address')
-    if btc_addr != '' and not clientlib.valid_bitcoin_address(btc_addr):
-        data = {'error': True,
-                'response': "Invalid bitcoin address given."}
+#     btc_addr = request.POST.get('btc_payout_address')
+#     if btc_addr != '' and not clientlib.valid_bitcoin_address(btc_addr):
+#         data = {'error': True,
+#                 'response': "Invalid bitcoin address given."}
+#     else:
+    profile = request.user.get_profile()
+    merchant_settings = MerchantSettings.load_by_merchant(profile)
+    settings = MerchantSettingsForm(request.POST, instance=merchant_settings)
+    print settings.fields['exchange_rate']
+    if settings.is_valid():
+        cfg = settings.save(commit=False)
+        cfg.payout_with_coinbase = True
+        cfg.coinbase_wallet = True
+        cfg.save()
+        data = {'error': False,
+                'response': 'ok'}
     else:
-        profile = request.user.get_profile()
-        merchant_settings = MerchantSettings.load_by_merchant(profile)
-        settings = MerchantSettingsForm(request.POST, instance=merchant_settings)
-        print settings.fields['exchange_rate']
-        if settings.is_valid():
-            settings.save()
-            data = {'error': False,
-                    'response': 'ok'}
-        else:
 #             print settings.errors
-            data = {'error': True,
-                    'response': "Form validation error: %s" % settings.errors}
+        data = {'error': True,
+                'response': "Form validation error: %s" % settings.errors}
     http_response = HttpResponse(json.dumps(data)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response
@@ -146,6 +149,37 @@ def make_batch(request):
     http_response = HttpResponse(json.dumps(response)+"\n")
     http_response['Content-Type'] = 'application/json'
     return http_response
+
+@login_required
+def generate_batch_report(request):
+    profile = request.user.get_profile()
+    start_date = request.POST['start_date']
+    end_date = request.POST['end_date']
+    request.session['last_report'] = {'start_date': start_date,
+                                   'end_date': end_date} 
+    report_data = lib.TransactionBatchReport(profile, start_date, end_date)
+    t = loader.get_template("coinexchange/pos/report.html")
+    c = Context({'report': report_data})
+    response = {"error": False,
+                "report_text": t.render(c)}
+    http_response = HttpResponse(json.dumps(response))
+    http_response['Content-Type'] = 'application/json'
+    return http_response
+
+@login_required
+def print_last_batch_report(request):
+    profile = request.user.get_profile()
+    start_date = request.session['last_report']['start_date']
+    end_date = request.session['last_report']['end_date']
+    report_data = lib.TransactionBatchReport(profile, start_date, end_date)
+    t = loader.get_template("coinexchange/pos/report.html")
+    c = Context({'report': report_data})
+    report_body = t.render(c)
+    t = loader.get_template("coinexchange/pos/printreport.html")
+    c = CoinExchangeContext(request, {'report_body': report_body,
+                                      'start_date': start_date,
+                                      'end_date': end_date})
+    return HttpResponse(t.render(c))
 
 @login_required
 def coinbase_tx_detail(request, txid):

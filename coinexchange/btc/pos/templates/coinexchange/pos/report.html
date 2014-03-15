@@ -1,0 +1,104 @@
+<div class="panel panel-success">
+	<div class="panel-heading">
+		{{report.start_date}} - {{report.end_date}}
+	</div>
+	<div class="panel-body">
+		<table class="table table-condensed">
+			<tr>
+				<th>Total Captured</th>
+				<td>{{report.total_captured|floatformat:2}}</td>
+				<th>Total Realized</th>
+				<td>{{report.total_realized|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Total Gain/Loss</th>
+				<td>{{report.total_gain|floatformat:2}}
+					({{report.total_gain_percent|floatformat:2}}%)
+				</td>
+				<th>Bitcoin Retail Tx Fees</th>
+				<td>{{report.btc_tx_fees|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Bitcoin Captured</th>
+				<td>{{report.total_btc|floatformat:8}}</td>
+				<th>Coinbase Exchange Fees</th>
+				<td>{{report.exchange_fees|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Avg. Captured Exchange Rate</th>
+				<td>{{report.captured_exchange_rate|floatformat:2}}</td>
+				<th>Total Received</th>
+				<td>{{report.total_received|floatformat:2}}</td>
+			</tr>
+			<tr>
+				<th>Avg. Realized Exchange Rate</th>
+				<td>{{report.realized_exchange_rate|floatformat:2}}</td>
+
+			</tr>
+		</table>
+		<table class="table table-condensed table-striped">
+			<tr>
+				<th>BTC</th>
+				<th>Average<br/>Exchange Rate</th>
+				<th>Captured<span class="glyphicon glyphicon-usd"></span></th>
+				<th>Realized<span class="glyphicon glyphicon-usd"></span></th>
+				<th>Gain/Loss</th>
+				<th>Timestamp</th>
+				<th class="hide-batch-print">Details</th>
+				<!-- <th>Blockchain<br/>Details</th> -->
+			</tr>
+			
+			{% for batch in report.batch_list %}
+			<tr class="batch_row" batchid="{{batch.id}}">
+				<td>{{batch.btc_amount}}</td>
+				<td>{{batch.captured_avg_exchange_rate|floatformat:2}}</td>
+				<td>{{batch.captured_amount|floatformat:2}}</td>
+				<td>{{batch.total_realized_value|floatformat:2}}</td>
+				<td>
+					{% if batch.coinbase_payout %}
+						{% if batch.batch_amount %}
+						<span class="btn {% if batch.realized_gain > 0 %}btn-success{% else %}btn-warning{% endif %}">
+							{{batch.realized_gain|floatformat:2}}
+						</span>
+						{% else %}
+						<span class="btn btn-danger">Pending</span>
+						{% endif %}
+					{% else %}
+						<span class="btn btn-info">BTC Transfer</span>
+					{% endif %}
+				</td>
+				<td>{{batch.batch_timestamp}}</td>
+				<td class="hide-batch-print">
+					<a href="{% url 'pos_batch' batch.id %}" target="_blank" class="btn">
+						<span class="glyphicon glyphicon-search"></span>
+					</a>
+				</td>
+
+				<!-- <td>
+					{% if batch.txid %}
+					<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}?show_adv=true" target="_blank">
+						<span class="glyphicon glyphicon-link"></span>
+					</a>
+					{% else %}
+					-
+					{% endif %}
+				</td> -->
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+<a href="{% url 'pos_print_batch_report' %}" target="_blank" class="btn btn-info" style="float:right;" id="printbutton">
+	<span class="glyphicon glyphicon-print"></span>
+</a>
+<script type="application/javascript">
+	var href = $('#printbutton').attr('href');
+	if(href == "{% url 'pos_print_batch_report' %}"){
+		$('#printbutton').attr('href', 'javascript:window.print();');
+	}
+	var hideprint = $('.hide-batch-print');
+	for(var i=0;i<hideprint.length;i++){
+		$(hideprint[i]).hide();
+	}
+	// alert(href);
+</script>

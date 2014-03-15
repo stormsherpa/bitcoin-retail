@@ -402,5 +402,33 @@ def update_batch_aggregates():
         b.save()
 
 class TransactionBatchReport():
-    def __init__(self, start_date, end_date):
-        pass
+    def __init__(self, merchant, start_date, end_date):
+        print "Batch report: %s -> %s" % (start_date, end_date)
+        self.start_datetime = datetime.datetime.strptime(start_date, "%m/%d/%Y")
+        self.start_date = self.start_datetime.date()
+        self.end_datetime = datetime.datetime.strptime(end_date, "%m/%d/%Y")
+        self.end_date = self.end_datetime.date()
+        batch_list = TransactionBatch.objects.filter(merchant=merchant,
+                                                     batch_timestamp__lte=self.end_date,
+                                                     batch_timestamp__gte=self.start_date)
+        self.batch_list = [x for x in batch_list.order_by('batch_timestamp')]
+        self.total_captured = 0
+        self.total_realized = 0
+        self.total_btc = 0
+        self.aggregate_gain = 0
+        self.btc_tx_fees = 0
+        self.exchange_fees = 0
+        self.total_received = 0
+        for b in self.batch_list:
+            self.total_captured += b.captured_amount
+            self.total_realized += b.total_realized_value or 0
+            self.total_btc += b.btc_amount
+            print b.realized_gain
+            self.aggregate_gain += b.realized_gain or 0
+            self.btc_tx_fees += b.realized_btc_tx_fee or 0
+            self.exchange_fees += b.exchange_fees
+            self.total_received += b.received_amount or 0
+        self.captured_exchange_rate = self.total_captured/self.total_btc
+        self.realized_exchange_rate = self.total_realized/self.total_btc
+        self.total_gain = self.total_realized-self.total_captured
+        self.total_gain_percent = self.total_gain/self.total_captured*100

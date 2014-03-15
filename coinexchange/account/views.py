@@ -69,13 +69,13 @@ def settings(request):
         print "%s: %s" % (e.__class__, e)
         cb_api = None
     transactions = list()
-    if cb_api:
-        try:
-            transactions = [x for x in cb_api.transactions()]
-            if len(transactions) > 7:
-                transactions = transactions[:7]
-        except Exception as e:
-            print "Exception getting transactions: %s %s" % (e.__class__, e)
+#     if cb_api:
+#         try:
+#             transactions = [x for x in cb_api.transactions()]
+#             if len(transactions) > 7:
+#                 transactions = transactions[:7]
+#         except Exception as e:
+#             print "Exception getting transactions: %s %s" % (e.__class__, e)
 #     for tx in cb_api.transactions():
 #         print tx
 #     print dir(tx)

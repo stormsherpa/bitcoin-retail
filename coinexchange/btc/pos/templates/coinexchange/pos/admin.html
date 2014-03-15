@@ -13,11 +13,12 @@ POS Admin - {{user.username}}
 </ul>
 <div class="tab-content">
 	<div class="tab-pane active" id="account">
+		<h3>Welcome to Bitcoin Retail</h3>
 		<div class="row" style="margin-top: 10px;">
 			<div class="col-md-6">
 				<div class="panel panel-info">
 					<div class="panel-heading">
-						<h4>Welcome to Bitcoin Retail</h4>
+						How does this work?
 					</div>
 					<div class="panel-body">
 						<p>
@@ -86,44 +87,67 @@ POS Admin - {{user.username}}
 			<!-- <a class="coinexchange-help glyphicon glyphicon-question-sign" help-document="testing" help-title="Test Help Document"></a> -->
 	</div>
 	<div class="tab-pane" id="reports">
-		<h3>Select a date range.</h3>
+		<h3>Select a date range</h3>
 		<div class="row">
-			<div class="col-md-3">
+			<div class="col-md-4 col-sm-6">
 				<div class="input-group date date-start">
 					<span class="input-group-addon">Start</span>
 					<input type="text" class="form-control" id="start_date"/>
 					<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4 col-sm-6">
 				<div class="input-group date date-end">
 					<span class="input-group-addon">End</span>
 					<input type="text" class="form-control" id="end_date"/>
 					<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
 				</div>
 			</div>
-			<div class="col-md-2">
+			<div class="col-md-2 col-sm-6">
 				<button class="btn btn-primary" id="generate_batch_report">Generate Batch Report</button>
 			</div>
 
 		</div>
+		<div class="row">
+			<div class="col-md-12" id="report_view_pane" style="margin-top: 10px;">
+			</div>
+		</div>
 	</div>
 	<script type="application/javascript">
-		var date = new Date()
-		var endDate = date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear();
+		var date = new Date();
+		var endDate = (date.getMonth()+1)+'/'+date.getDate()+'/'+date.getFullYear();
 		$('.input-group.date.date-start').datepicker({endDate:endDate});
 		$('.input-group.date.date-end').datepicker({endDate:endDate});
 		$('#generate_batch_report').bind('click', function(){
 			var start_date = $('#start_date').val();
 			var end_date = $('#end_date').val();
-			alert("Generate a batch report. "+start_date+'-'+end_date);
+			var data = {'start_date': start_date,
+						'end_date': end_date};
+			$.ajax({
+				type: 'post',
+				url: '{% url "pos_batch_report" %}',
+				dataType: 'json',
+				traditional: true,
+				data: data,
+				success: function(data, textStatus, xhr){
+					if(!data.error){
+						$('#report_view_pane').html(data.report_text);
+					}
+					// alert("response");
+				},
+				error: function(xhr, textStatus, errorThrown){
+					alert("error generating report: "+textStatus);
+				}
+			});
+			$('#report_view_pane').html("<div style='text-align:center;'><img src='/static/loading.gif' alt='Loading...'/></div>");
+			// alert("Generate a batch report. "+start_date+'-'+end_date);
 		});
 	</script>
 	<div class="tab-pane" id="newbatch">
 		{% if unbatched_tx %}
 		<button id="makebatch" style="float:right;" class="btn btn-primary">Make Batch</button>
 		{% endif %}
-		<h3>Unbatched POS Transactions</h3>
+		<h3>Unbatched Transactions</h3>
 		<table class="table table-condensed table-striped">
 			<tr>
 				<th>Amount</th>
@@ -163,7 +187,7 @@ POS Admin - {{user.username}}
 				<th>Realized<span class="glyphicon glyphicon-usd"></span></th>
 				<th>Gain/Loss</th>
 				<th>Timestamp</th>
-				<th>Blockchain<br/>Details</th>
+				<!-- <th>Blockchain<br/>Details</th> -->
 			</tr>
 			{% for batch in batches %}
 			<tr class="batch_row" batchid="{{batch.id}}">
@@ -192,7 +216,7 @@ POS Admin - {{user.username}}
 					{% endif %}
 				</td>
 				<td>{{batch.batch_timestamp}}</td>
-				<td>
+				<!-- <td>
 					{% if batch.txid %}
 					<a class="btn btn-default" href="http://blockchain.info/tx/{{batch.txid}}?show_adv=true" target="_blank">
 						<span class="glyphicon glyphicon-link"></span>
@@ -200,7 +224,7 @@ POS Admin - {{user.username}}
 					{% else %}
 					-
 					{% endif %}
-				</td>
+				</td> -->
 			</tr>
 			{% endfor %}
 		</table>

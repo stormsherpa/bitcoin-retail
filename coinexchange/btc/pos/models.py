@@ -37,7 +37,7 @@ post_syncdb.connect(insure_exchange_rates_exist)
 
 class MerchantSettings(models.Model):
     merchant = models.OneToOneField('btc.CoinExchangeUser', related_name='merchant_settings')
-    payout_with_coinbase = models.BooleanField(default=False, blank=True)
+    payout_with_coinbase = models.BooleanField(default=True, blank=True)
     exchange_rate = models.ForeignKey(ExchangeRate, null=True, blank=True)
     btc_payout_address = models.CharField(max_length=200, default='', blank=True)
     coinbase_wallet = models.BooleanField(default=True, blank=True)

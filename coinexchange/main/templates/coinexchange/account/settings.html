@@ -32,12 +32,12 @@ input#id_btc_payout_address {
 		<div class="panel-heading">Coinbase Integration</div>
 		{% if coinbase_api %}
 		<table class="panel-body table table-condensed">
-			<tr>
+			<!-- <tr>
 				<th colspan="2">Receive Address</th>
 			</tr>
 			<tr>
 				<td colspan="2">{{account_info.receive_address}}</td>
-			</tr>
+			</tr> -->
 			<tr>
 				<th>BTC Balance</th>
 				<td>{{coinbase_api.balance}}</td>
@@ -57,7 +57,7 @@ input#id_btc_payout_address {
 	</div>
 </div>
 
-{% if coinbase_api %}
+{% if False and coinbase_api %}
 <div class="col-md-12">
 	<div class="panel panel-success">
 		<div class="panel-heading">Coinbase Transactions</div>
@@ -89,12 +89,9 @@ input#id_btc_payout_address {
 
 <script type="application/javascript">
 $('button#save_merchant_settings').bind("click", function(){
-	// var btc_addr = $('input#id_btc_payout_address').val();
-	// var exch_rate = $('input#id_exchange_rate').val();
-	// $('input#id_btc_payout_address').val();
-	var data = {btc_payout_address: $('input#id_btc_payout_address').val(),
-				exchange_rate: $('select#id_exchange_rate').val(),
-				payout_with_coinbase: $('input#id_payout_with_coinbase')[0].checked};
+	// btc_payout_address: $('input#id_btc_payout_address').val(),
+	// payout_with_coinbase: $('input#id_payout_with_coinbase')[0].checked
+	var data = {exchange_rate: $('select#id_exchange_rate').val()};
 	$.ajax({
 		type: 'post',
 		url: '{% url "pos_merchant_settings" %}',

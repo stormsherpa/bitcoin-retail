@@ -1,0 +1,9 @@
+{% extends "coinexchange/base.html" %}
+
+{% block title %}
+Bitconi Retail Batch Report - {{start_date}} -> {{end_date}}
+{% endblock %}
+
+{% block content %}
+{{report_body|safe}}
+{% endblock %}
