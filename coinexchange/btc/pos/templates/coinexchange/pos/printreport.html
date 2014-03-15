@@ -6,4 +6,16 @@ Bitconi Retail Batch Report - {{start_date}} -> {{end_date}}
 
 {% block content %}
 {{report_body|safe}}
+
+<script type="application/javascript">
+$(document).ready(function(){
+	var hideprint = $('.hide-batch-print');
+	for(var i=0;i<hideprint.length;i++){
+		$(hideprint[i]).hide();
+	}
+});
+	// alert(href);
+</script>
+
+
 {% endblock %}

@@ -88,17 +88,6 @@
 		</table>
 	</div>
 </div>
-<a href="{% url 'pos_print_batch_report' %}" target="_blank" class="btn btn-info" style="float:right;" id="printbutton">
+<a href="{% url 'pos_print_batch_report' %}" target="_blank" class="btn btn-info hide-batch-print" style="float:right;">
 	<span class="glyphicon glyphicon-print"></span>
 </a>
-<script type="application/javascript">
-	var href = $('#printbutton').attr('href');
-	if(href == "{% url 'pos_print_batch_report' %}"){
-		$('#printbutton').attr('href', 'javascript:window.print();');
-	}
-	var hideprint = $('.hide-batch-print');
-	for(var i=0;i<hideprint.length;i++){
-		$(hideprint[i]).hide();
-	}
-	// alert(href);
-</script>
