@@ -230,8 +230,12 @@ def serialize_coinbase_transaction(tx):
 
 def make_merchant_batch(merchant):
     merchant_settings = MerchantSettings.load_by_merchant(merchant)
-    batch_tx = [x for x in get_unbatched_transactions(merchant)]
-    batch_tx_list = [x for x in batch_tx if (x.coinbase_tx_detail.status == "complete")]
+    coinbase_api = coinbase.get_api_instance(merchant)
+    batch_tx_list = list()
+    for tx in get_unbatched_transactions(merchant):
+        tx.coinbase_tx_detail = coinbase_api.get_transaction(tx.coinbase_txid)
+        if tx.coinbase_tx_detail.status == "complete":
+            batch_tx_list.append(tx)
     if not batch_tx_list:
         raise CreateBatchException("No transactions available for batching.")
     total_btc = sum([x.btc_amount for x in batch_tx_list])
