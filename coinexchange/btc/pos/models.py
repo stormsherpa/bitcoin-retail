@@ -41,6 +41,7 @@ class MerchantSettings(models.Model):
     exchange_rate = models.ForeignKey(ExchangeRate, null=True, blank=True)
     btc_payout_address = models.CharField(max_length=200, default='', blank=True)
     coinbase_wallet = models.BooleanField(default=True, blank=True)
+    sales_volume = models.DecimalField(max_digits=20, decimal_places=2, default=1000, blank=True)
 
     @classmethod
     def load_by_merchant(cls, merchant):

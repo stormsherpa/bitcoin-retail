@@ -12,5 +12,5 @@ class MerchantSettingsForm(forms.ModelForm):
 #     btc_payout_address = forms.CharField(max_length=50, required=False)
     class Meta:
         model = MerchantSettings
-        fields = ['exchange_rate']
+        fields = ['exchange_rate', 'sales_volume']
 #         fields = ['payout_with_coinbase', 'exchange_rate', 'btc_payout_address']

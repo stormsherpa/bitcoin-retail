@@ -91,7 +91,8 @@ input#id_btc_payout_address {
 $('button#save_merchant_settings').bind("click", function(){
 	// btc_payout_address: $('input#id_btc_payout_address').val(),
 	// payout_with_coinbase: $('input#id_payout_with_coinbase')[0].checked
-	var data = {exchange_rate: $('select#id_exchange_rate').val()};
+	var data = {exchange_rate: $('select#id_exchange_rate').val(),
+				sales_volume: $('input#id_sales_volume').val()};
 	$.ajax({
 		type: 'post',
 		url: '{% url "pos_merchant_settings" %}',

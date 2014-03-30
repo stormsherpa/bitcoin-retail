@@ -4,6 +4,7 @@ import requests
 import time
 import datetime
 import traceback
+import decimal
 
 from django.utils.timezone import utc
 
@@ -11,6 +12,7 @@ from coinbase import CoinbaseAccount
 
 from coinexchange.settings import COINBASE_API
 from coinexchange.coinbase.models import ApiCreds
+from coinexchange.btc.pos.models import MerchantSettings
 
 COINBASE_PERMS = 'balance+addresses+sell+transfers+transactions+send'
 TOKEN_URL = "https://coinbase.com/oauth/token"
@@ -21,6 +23,14 @@ class TokenRefreshException(Exception):
 class InvalidAccountException(Exception):
     pass
 
+def get_merchant_meta_params(merchant):
+    settings = MerchantSettings.load_by_merchant(merchant)
+    max_send_raw = settings.sales_volume * decimal.Decimal(0.014)
+    max_send = float("%0.2f" % max_send_raw)
+    meta_params = {'meta[send_limit_amount]': max_send,
+                   'meta[send_limit_currency]': 'USD'}
+    return meta_params
+
 def get_access_token(creds, code=None):
     if code:
         args = {'grant_type': 'authorization_code',
@@ -29,6 +39,7 @@ def get_access_token(creds, code=None):
                 'client_id': COINBASE_API.get('client_id'),
                 'client_secret': COINBASE_API.get('client_secret'),
                 }
+        args.update(get_merchant_meta_params(creds.merchant))
         r = requests.post(TOKEN_URL, data=args)
         if r.status_code == requests.codes.ok:
             rjson = r.json()
