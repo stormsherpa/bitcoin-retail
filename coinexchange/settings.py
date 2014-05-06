@@ -173,29 +173,28 @@ LOGGING = {
     }
 }
 
-BITCOIN_QUEUE_URL = "amqp://coinexchange:coinexchange@jenkins.stormsherpa.com:5672/coinexchange"
-BITCOINRPC_ARGS = {'args':['bitcoin', 'R7q2heIYxi'],
+BITCOIN_QUEUE_URL = "amqp://coinexchange:coinexchange@localhost:5672/coinexchange"
+BITCOINRPC_ARGS = {'args':['bitcoin', 'mypassword'],
                    'kwargs': {'port': 8321}}
 
 XMPP = {'userjid': 'admin@localhost',
         'password': 'testing',
-        'url': "http://stormsherpa.com:5280/api",
+        'url': "http://localhost:5280/api",
         }
 
 XMPP_DOMAIN = "stormsherpa.com"
 
 COINBASE_API = { # Dev settings registered on shaun.kruger@gmail.com coinbase account
-                'client_id': '160bcddf97a9d1297e5e4a32552b42a93baf8681b3496f877494f32aa6ad4229',
-                'client_secret': 'ad8c5ac6baaffa17c1c3dc5e11c1c63166501c62e1111078a9379c02b7be8541',
-                'redirect_uri': 'http://local.bitcoinretail.info:8000/coinbase/redirect_uri',
+                'client_id': '',
+                'client_secret': '',
+                'redirect_uri': '',
                 }
 
-SITE_HOSTNAME = "http://jenkins.stormsherpa.com:8000"
+SITE_HOSTNAME = "http://localhost:8000"
 
 SERVICE_FEE_MULTIPLIER = 0.01
 SERVICE_FEE_MINIMUM = 0.40
-SERVICE_FEE_ADDRESS = '1G2ewpmBh3c6m4jZZsmEJ1MFHnrj4e7NvD' # Cell Phone wallet
-# SERVICE_FEE_ADDRESS = '16Ahupk8RHinN4B21vbtiqfgE8FQe6cgPN' # shaun.kruger@gmail.com coinbase
+SERVICE_FEE_ADDRESS = '' # Cell Phone wallet
 
 GOOGLE_ANALYTICS_TAG="""
 <!-- analytics tag unconfigured.  Set GOOGLE_ANALYTICS_TAG in settings -->
